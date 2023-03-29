@@ -1,0 +1,28 @@
+syntax = "proto3";
+package cascadia.inflation.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/inflation/types";
+
+// InflationDistribution defines the distribution in which inflation is
+// allocated through minting on each commit of block. 
+
+message InflationDistribution {
+  // staking_rewards defines the proportion of the minted minted_denom that is
+  // to be allocated as staking rewards
+  string staking_rewards = 1
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  // vecontract_rewards defines the proportion of the minted minted_denom that is
+  // to be allocated to the ve-contract
+  string vecontract_rewards = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // nprotocol_rewards defines the proportion of the minted minted_denom that is
+  // to be allocated to the nprotocol
+  string nprotocol_rewards = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
