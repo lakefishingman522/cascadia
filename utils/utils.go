@@ -35,7 +35,7 @@ const (
 	// TestnetChainID defines the Cascadia EIP155 chain ID for testnet
 	TestnetChainID = "cascadia_9000"
 	// BaseDenom defines the Cascadia mainnet denomination
-	BaseDenom = "uCC"
+	BaseDenom = "aCC"
 )
 
 // IsMainnet returns true if the chain-id has the Cascadia mainnet EIP155 chain prefix.

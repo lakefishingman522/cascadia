@@ -31,10 +31,10 @@ const (
 	// - Governance parameters: denomination used for spam prevention in proposal deposits
 	// - Crisis parameters: constant fee denomination used for spam prevention to check broken invariant
 	// - EVM parameters: denomination used for running EVM state transitions in Cascadia.
-	AttoCascadia string = "uCC"
+	AttoCascadia string = "aCC"
 
 	// BaseDenomUnit defines the base denomination unit for Cascadia.
-	// 1 CC = 1x10^{BaseDenomUnit} uCC
+	// 1 CC = 1x10^{BaseDenomUnit} aCC
 	BaseDenomUnit = 18
 
 	// DefaultGasPrice is default gas price for evm transactions
@@ -44,19 +44,19 @@ const (
 // PowerReduction defines the default power reduction value for staking
 var PowerReduction = sdkmath.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(BaseDenomUnit), nil))
 
-// NewCascadiaCoin is a utility function that returns an "uCC" coin with the given sdkmath.Int amount.
+// NewCascadiaCoin is a utility function that returns an "aCC" coin with the given sdkmath.Int amount.
 // The function will panic if the provided amount is negative.
 func NewCascadiaCoin(amount sdkmath.Int) sdk.Coin {
 	return sdk.NewCoin(AttoCascadia, amount)
 }
 
-// NewCascadiaDecCoin is a utility function that returns an "uCC" decimal coin with the given sdkmath.Int amount.
+// NewCascadiaDecCoin is a utility function that returns an "aCC" decimal coin with the given sdkmath.Int amount.
 // The function will panic if the provided amount is negative.
 func NewCascadiaDecCoin(amount sdkmath.Int) sdk.DecCoin {
 	return sdk.NewDecCoin(AttoCascadia, amount)
 }
 
-// NewCascadiaCoinInt64 is a utility function that returns an "uCC" coin with the given int64 amount.
+// NewCascadiaCoinInt64 is a utility function that returns an "aCC" coin with the given int64 amount.
 // The function will panic if the provided amount is negative.
 func NewCascadiaCoinInt64(amount int64) sdk.Coin {
 	return sdk.NewInt64Coin(AttoCascadia, amount)
