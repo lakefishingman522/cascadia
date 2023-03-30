@@ -33,7 +33,7 @@ const (
 	// MainnetChainID defines the Cascadia EIP155 chain ID for mainnet
 	MainnetChainID = "cascadia_9001"
 	// TestnetChainID defines the Cascadia EIP155 chain ID for testnet
-	TestnetChainID = "cascadia_9000"
+	TestnetChainID = "cascadia_6102"
 	// BaseDenom defines the Cascadia mainnet denomination
 	BaseDenom = "aCC"
 )

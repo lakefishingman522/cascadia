@@ -25,7 +25,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(5)
 	require.NoError(t, err)
 
-	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
+	distantFuture := time.Date(6102, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	validator := sdk.ValAddress(testAddresses[4])
 	stakingAuthDelegate, err := stakingtypes.NewStakeAuthorization([]sdk.ValAddress{validator}, nil, stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE, nil)
@@ -278,7 +278,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	_, testAddresses, err := generatePrivKeyAddressPairs(10)
 	suite.Require().NoError(err)
 
-	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
+	distantFuture := time.Date(6102, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	newMsgGrant := func(msgTypeUrl string) *authz.MsgGrant {
 		msg, err := authz.NewMsgGrant(

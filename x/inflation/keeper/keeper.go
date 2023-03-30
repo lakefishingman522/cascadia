@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -119,7 +117,6 @@ func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
 // AddCollectedFees implements an alias call to the underlying supply keeper's
 // AddCollectedFees to be used in BeginBlocker.
 func (k Keeper) AddCollectedFees(ctx sdk.Context) error {
-	fmt.Println("======================")
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	staking := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
 
@@ -139,6 +136,7 @@ func (k Keeper) AddContractIncentives(ctx sdk.Context, amount sdk.Coin, contract
 
 	if contractFound {
 		var contractReward sdk.Coins
+
 		if contractnumber == Vecontract {
 			contractReward = sdk.NewCoins(k.GetProportions(ctx, amount, proportions.VecontractRewards))
 		} else if contractnumber == Nprotocol {

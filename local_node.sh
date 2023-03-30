@@ -66,6 +66,9 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.app_state["crisis"]["constant_fee"]["denom"]="aCC"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aCC"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+	# Set gas limit in genesis
+	jq '.consensus_params["block"]["max_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+
 	# set custom pruning settings
 	sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
 	sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"

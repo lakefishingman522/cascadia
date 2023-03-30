@@ -88,7 +88,7 @@ func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Cascadia, simapp.GenesisS
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "cascadia_9000-1",
+				ChainId:         "cascadia_6102-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
