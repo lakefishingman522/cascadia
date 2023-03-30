@@ -1,0 +1,27 @@
+syntax = "proto3";
+package cascadia.reward.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/reward/types";
+
+message GasFeeDistribution {
+  // staking_rewards defines the proportion of gas fees that is
+  // to be allocated as staking rewards
+  string stakingRewards = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // vecontract_rewards defines the proportion of gas fees that is
+  // to be allocated to the ve-contract
+  string vecontractRewards = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // nprotocol_rewards defines the proportion of gas fees that is
+  // to be allocated to the nprotocol
+  string potocolRewards = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}

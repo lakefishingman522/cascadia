@@ -1,0 +1,41 @@
+syntax = "proto3";
+package cascadia.reward.v1;
+
+import "cascadia/reward/v1/reward_contract.proto";
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/reward/types";
+
+// Msg defines the Msg service.
+service Msg {
+  rpc CreateRewardContract(MsgCreateRewardContract) returns (MsgCreateRewardContractResponse);
+  rpc UpdateRewardContract(MsgUpdateRewardContract) returns (MsgUpdateRewardContractResponse);
+  rpc DeleteRewardContract(MsgDeleteRewardContract) returns (MsgDeleteRewardContractResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgCreateRewardContract {
+  string creator = 1;
+  string address = 2;
+}
+
+message MsgCreateRewardContractResponse {
+  uint64 id = 1;
+}
+
+message MsgUpdateRewardContract {
+  string creator = 1;
+  uint64 id = 2;
+  string address = 3;
+}
+
+message MsgUpdateRewardContractResponse {}
+
+message MsgDeleteRewardContract {
+  string creator = 1;
+  uint64 id = 2;
+}
+
+message MsgDeleteRewardContractResponse {}
+
+// this line is used by starport scaffolding # proto/tx/message

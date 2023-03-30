@@ -1,0 +1,62 @@
+syntax = "proto3";
+package cascadia.inflation.v1;
+
+import "gogoproto/gogo.proto";
+
+import "cascadia/inflation/v1/inflation.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/inflation/types";
+
+// GenesisState defines the inflation module's genesis state.
+message GenesisState {
+  // minter is a space for holding current inflation information.
+  Minter minter = 1 [(gogoproto.nullable) = false];
+  // params defines all the parameters of the module.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// Params holds parameters for the inflation module.
+message Params {
+  // mint_denom specifies the type of coin to mint
+  string mint_denom = 1;
+
+  // maximum annual change in inflation rate
+  string inflation_rate_change = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+  // maximum inflation rate
+  string inflation_max = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+  // minimum inflation rate
+  string inflation_min = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+  // goal of percent bonded atoms
+  string goal_bonded = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+  // expected blocks per year
+  uint64 blocks_per_year = 6;
+  // distribution of minted tokens
+  InflationDistribution inflation_distribution = 7 [(gogoproto.nullable) = false];
+}
+
+
+// Minter represents the minting state.
+message Minter {
+  // current annual inflation rate
+  string inflation = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+  // current annual expected provisions
+  string annual_provisions = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+}

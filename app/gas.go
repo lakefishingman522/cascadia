@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	// MainnetMinGasPrices defines 20B uCC (or utCC) as the minimum gas price value on the fee market module.
+	// MainnetMinGasPrices defines 20B aCC (or atCC) as the minimum gas price value on the fee market module.
 	MainnetMinGasPrices = sdk.NewDec(20_000_000_000)
 	// MainnetMinGasMultiplier defines the min gas multiplier value on the fee market module.
 	// 50% of the leftover gas will be refunded

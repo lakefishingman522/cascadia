@@ -1,0 +1,15 @@
+syntax = "proto3";
+package cascadia.reward.v1;
+
+import "gogoproto/gogo.proto";
+import "cascadia/reward/v1/gas_fee_distribution.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/reward/types";
+
+// Params defines the parameters for the module.
+message Params {
+  GasFeeDistribution gas_fee_distribution = 1 [
+    (gogoproto.nullable) = false
+  ];
+}
+

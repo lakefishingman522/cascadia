@@ -1573,7 +1573,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/inflation/v1/circulating_supply:
+  /cascadia/inflation/v1/circulating_supply:
     get:
       summary: |-
         CirculatingSupply retrieves the total number of tokens that are in
@@ -1629,7 +1629,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/inflation/v1/epoch_mint_provision:
+  /cascadia/inflation/v1/epoch_mint_provision:
     get:
       summary: EpochMintProvision retrieves current minting epoch provision value.
       operationId: EpochMintProvision
@@ -1676,7 +1676,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/inflation/v1/inflation_rate:
+  /cascadia/inflation/v1/inflation_rate:
     get:
       summary: InflationRate retrieves the inflation rate of the current period.
       operationId: InflationRate
@@ -1720,7 +1720,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/inflation/v1/params:
+  /cascadia/inflation/v1/params:
     get:
       summary: Params retrieves the total set of minting parameters.
       operationId: InflationParams
@@ -1815,7 +1815,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/inflation/v1/period:
+  /cascadia/inflation/v1/period:
     get:
       summary: Period retrieves current period.
       operationId: Period
@@ -1856,7 +1856,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/inflation/v1/skipped_epochs:
+  /cascadia/inflation/v1/skipped_epochs:
     get:
       summary: SkippedEpochs retrieves the total number of skipped epochs.
       operationId: SkippedEpochs
@@ -44700,7 +44700,7 @@ definitions:
     description: |-
       QueryParamsResponse is the response type for the Query/Params RPC
       method.
-  evmos.inflation.v1.ExponentialCalculation:
+  cascadia.inflation.v1.ExponentialCalculation:
     type: object
     properties:
       a:
@@ -44729,7 +44729,7 @@ definitions:
       bondedRatio *
 
       (max_variance / bonding_target))
-  evmos.inflation.v1.InflationDistribution:
+  cascadia.inflation.v1.InflationDistribution:
     type: object
     properties:
       staking_rewards:
@@ -44768,7 +44768,7 @@ definitions:
       mintDistribution1 = distribution1 / (1 - teamVestingDistribution)
 
       0.5333333         = 40%           / (1 - 25%)
-  evmos.inflation.v1.Params:
+  cascadia.inflation.v1.Params:
     type: object
     properties:
       mint_denom:
@@ -44826,7 +44826,7 @@ definitions:
           enable_inflation is the parameter that enables inflation and halts
           increasing the skipped_epochs
     description: Params holds parameters for the inflation module.
-  evmos.inflation.v1.QueryCirculatingSupplyResponse:
+  cascadia.inflation.v1.QueryCirculatingSupplyResponse:
     type: object
     properties:
       circulating_supply:
@@ -44845,7 +44845,7 @@ definitions:
     description: |-
       QueryCirculatingSupplyResponse is the response type for the
       Query/CirculatingSupply RPC method.
-  evmos.inflation.v1.QueryEpochMintProvisionResponse:
+  cascadia.inflation.v1.QueryEpochMintProvisionResponse:
     type: object
     properties:
       epoch_mint_provision:
@@ -44859,7 +44859,7 @@ definitions:
     description: |-
       QueryEpochMintProvisionResponse is the response type for the
       Query/EpochMintProvision RPC method.
-  evmos.inflation.v1.QueryInflationRateResponse:
+  cascadia.inflation.v1.QueryInflationRateResponse:
     type: object
     properties:
       inflation_rate:
@@ -44870,7 +44870,7 @@ definitions:
       Query/InflationRate
 
       RPC method.
-  evmos.inflation.v1.QueryParamsResponse:
+  cascadia.inflation.v1.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -44932,7 +44932,7 @@ definitions:
               enable_inflation is the parameter that enables inflation and halts
               increasing the skipped_epochs
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
-  evmos.inflation.v1.QueryPeriodResponse:
+  cascadia.inflation.v1.QueryPeriodResponse:
     type: object
     properties:
       period:
@@ -44940,7 +44940,7 @@ definitions:
         format: uint64
         description: period is the current minting per epoch provision value.
     description: QueryPeriodResponse is the response type for the Query/Period RPC method.
-  evmos.inflation.v1.QuerySkippedEpochsResponse:
+  cascadia.inflation.v1.QuerySkippedEpochsResponse:
     type: object
     properties:
       skipped_epochs:

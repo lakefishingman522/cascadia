@@ -137,7 +137,7 @@ func TestCascadiaCoinDenom(t *testing.T) {
 	}{
 		{
 			"valid denom - native coin",
-			"uCC",
+			"aCC",
 			false,
 		},
 		{

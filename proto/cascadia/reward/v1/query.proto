@@ -1,0 +1,58 @@
+syntax = "proto3";
+package cascadia.reward.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "cascadia/reward/v1/params.proto";
+import "cascadia/reward/v1/reward_contract.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/reward/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/cascadia/reward/params";
+  }
+  // Queries a RewardContract by id.
+	rpc RewardContract(QueryGetRewardContractRequest) returns (QueryGetRewardContractResponse) {
+		option (google.api.http).get = "/cascadia/reward/reward_contract/{id}";
+	}
+
+	// Queries a list of RewardContract items.
+	rpc RewardContractAll(QueryAllRewardContractRequest) returns (QueryAllRewardContractResponse) {
+		option (google.api.http).get = "/cascadia/reward/reward_contract";
+	}
+
+// this line is used by starport scaffolding # 2
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetRewardContractRequest {
+	uint64 id = 1;
+}
+
+message QueryGetRewardContractResponse {
+	RewardContract RewardContract = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllRewardContractRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllRewardContractResponse {
+	repeated RewardContract RewardContract = 1 [(gogoproto.nullable) = false];
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// this line is used by starport scaffolding # 3
