@@ -22,8 +22,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
@@ -67,6 +69,38 @@ import (
 const (
 	EnvPrefix = "CASCADIA"
 )
+
+func addressConverterCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "address-converter [address]",
+		Short: "Convert a cascadia address to evm address or vice versa",
+		Long:  `Convert a cascadia address to evm address or vice versa`,
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inputAddress := args[0]
+			if strings.HasPrefix(inputAddress, "0x") {
+				cascadiaAddr, err := sdk.AccAddressFromHexUnsafe(inputAddress[2:])
+				if err != nil {
+					return fmt.Errorf("Invalid evm address: %w", err)
+				}
+				fmt.Println(cascadiaAddr.String())
+				return nil
+			}
+
+			addr, err := sdk.AccAddressFromBech32(inputAddress)
+
+			if err != nil {
+				return fmt.Errorf("Invalid cascadia address: %w", err)
+			}
+
+			evmAddr := common.BytesToAddress(addr)
+			fmt.Println(evmAddr)
+			return nil
+		},
+	}
+
+	return cmd
+}
 
 // NewRootCmd creates a new root command for cascadiad. It is called once in the
 // main function.
@@ -158,6 +192,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 	// add rosetta
 	rootCmd.AddCommand(sdkserver.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
+	rootCmd.AddCommand(addressConverterCommand())
 
 	return rootCmd, encodingConfig
 }
