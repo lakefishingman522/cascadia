@@ -464,7 +464,9 @@ func NewCascadia(
 		govtypes.NewMultiGovHooks(),
 	)
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(),
+		evmkeeper.NewMultiEvmHooks(
+			app.rewardKeeper.Hooks(),
+		),
 	)
 
 	// Create Transfer Keepers
@@ -985,6 +987,7 @@ func initParamsKeeper(
 
 	// cascadia subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
+	paramsKeeper.Subspace(rewardtypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

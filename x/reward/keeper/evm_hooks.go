@@ -27,10 +27,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 	return h.k.PostTxProcessing(ctx, msg, receipt)
 }
 
-// PostTxProcessing implements EvmHooks.PostTxProcessing. After each successful
-// interaction with a registered contract, the contract deployer (or, if set,
-// the withdraw address) receives a share from the transaction fees paid by the
-// transaction sender.
+// PostTxProcessing implements EvmHooks.PostTxProcessing.
 func (k Keeper) PostTxProcessing(
 	ctx sdk.Context,
 	msg core.Message,
@@ -43,12 +40,12 @@ func (k Keeper) PostTxProcessing(
 	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 
 	// distribute the fees to the VE contract
-	feeDistrContract, found := k.GetRewardContract(ctx, 0)
+	veContract, found := k.GetRewardContract(ctx, 0)
 	if found {
 		veContractDist := sdk.NewDecFromInt(txFee).Mul(params.GasFeeDistribution.VecontractRewards).TruncateInt()
 		veContractFees := sdk.Coins{{Denom: evmDenom, Amount: veContractDist}}
 
-		veContractAddress, err := sdk.AccAddressFromHexUnsafe(feeDistrContract.Address[2:])
+		veContractAddress, err := sdk.AccAddressFromHexUnsafe(veContract.Address[2:])
 		if err != nil {
 			return err
 		}
@@ -69,7 +66,7 @@ func (k Keeper) PostTxProcessing(
 	nProtocol, found := k.GetRewardContract(ctx, 1)
 
 	if found {
-		nProtocolDist := sdk.NewDecFromInt(txFee).Mul(params.GasFeeDistribution.PotocolRewards).TruncateInt()
+		nProtocolDist := sdk.NewDecFromInt(txFee).Mul(params.GasFeeDistribution.NprotocolRewards).TruncateInt()
 		nProtocolFees := sdk.Coins{{Denom: evmDenom, Amount: nProtocolDist}}
 
 		nProtocolAddress, err := sdk.AccAddressFromHexUnsafe(nProtocol.Address[2:])
