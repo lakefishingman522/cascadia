@@ -35,7 +35,7 @@ var (
 
 	Ucascadiadenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
-		BaseDenom: "uCC",
+		BaseDenom: "aCC",
 	}
 	UcascadiaIbcdenom = Ucascadiadenomtrace.IBCDenom()
 
@@ -45,9 +45,9 @@ var (
 	}
 	UatomOsmoIbcdenom = UatomOsmoDenomtrace.IBCDenom()
 
-	uCCDenomtrace = transfertypes.DenomTrace{
+	aCCDenomtrace = transfertypes.DenomTrace{
 		Path:      "transfer/channel-0",
-		BaseDenom: "uCC",
+		BaseDenom: "aCC",
 	}
-	uCCIbcdenom = uCCDenomtrace.IBCDenom()
+	aCCIbcdenom = aCCDenomtrace.IBCDenom()
 )

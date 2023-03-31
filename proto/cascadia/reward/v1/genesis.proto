@@ -1,0 +1,17 @@
+syntax = "proto3";
+package cascadia.reward.v1;
+
+import "gogoproto/gogo.proto";
+import "cascadia/reward/v1/params.proto";
+import "cascadia/reward/v1/reward_contract.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/reward/types";
+
+// GenesisState defines the reward module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  repeated RewardContract rewardContractList = 2 [(gogoproto.nullable) = false];
+  uint64 rewardContractCount = 3;
+  // this line is used by starport scaffolding # genesis/proto/state
+}

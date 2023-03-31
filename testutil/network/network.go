@@ -126,7 +126,7 @@ func DefaultConfig() Config {
 		TimeoutCommit:     2 * time.Second,
 		ChainID:           fmt.Sprintf("cascadia_%d-1", tmrand.Int63n(9999999999999)+1),
 		NumValidators:     4,
-		BondDenom:         "uCC",
+		BondDenom:         "aCC",
 		MinGasPrices:      fmt.Sprintf("0.000006%s", cascadiatypes.AttoCascadia),
 		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, cascadiatypes.PowerReduction),
 		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, cascadiatypes.PowerReduction),

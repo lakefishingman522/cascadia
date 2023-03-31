@@ -43,8 +43,8 @@ func (suite *KeeperTestSuite) TestWithChainID() {
 		},
 		{
 			"success - Cascadia testnet chain ID",
-			"cascadia_9000-4",
-			9000,
+			"cascadia_6102-4",
+			6102,
 			false,
 		},
 	}

@@ -153,7 +153,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 		// Initialize the chain
 		suite.app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "cascadia_9000-1",
+				ChainId:         "cascadia_6102-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: app.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -162,7 +162,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 	}
 
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "cascadia_9000-1", suite.consAddress,
+		1, time.Now().UTC(), "cascadia_6102-1", suite.consAddress,
 		tmhash.Sum([]byte("app")), tmhash.Sum([]byte("validators")),
 	)
 	suite.ctx = suite.app.NewContext(checkTx, header)

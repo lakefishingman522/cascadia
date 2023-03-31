@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "cascadia_9000-1", suite.consAddress, nil, nil,
+		1, time.Now().UTC(), "cascadia_6102-1", suite.consAddress, nil, nil,
 	)
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, header)
@@ -169,7 +169,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the chain
 	newapp.InitChain(
 		abci.RequestInitChain{
-			ChainId:         "cascadia_9000-1",
+			ChainId:         "cascadia_6102-1",
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,
 			ConsensusParams: app.DefaultConsensusParams,

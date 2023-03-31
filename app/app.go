@@ -19,6 +19,10 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/cascadiafoundation/cascadia/x/gov"
+	govkeeper "github.com/cascadiafoundation/cascadia/x/gov/keeper"
+	"github.com/cascadiafoundation/cascadia/x/params"
+	paramskeeper "github.com/cascadiafoundation/cascadia/x/params/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -65,15 +69,11 @@ import (
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
@@ -98,7 +98,6 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v6/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v6/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v6/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	ibcporttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
@@ -127,6 +126,14 @@ import (
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+
+	"github.com/cascadiafoundation/cascadia/x/inflation"
+	inflationkeeper "github.com/cascadiafoundation/cascadia/x/inflation/keeper"
+	inflationtypes "github.com/cascadiafoundation/cascadia/x/inflation/types"
+
+	reward "github.com/cascadiafoundation/cascadia/x/reward"
+	rewardkeeper "github.com/cascadiafoundation/cascadia/x/reward/keeper"
+	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
 )
 
 func init() {
@@ -165,7 +172,6 @@ var (
 		gov.NewAppModuleBasic(
 			[]govclient.ProposalHandler{
 				paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
-				ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -181,6 +187,8 @@ var (
 		ica.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
+		inflation.AppModuleBasic{},
+		reward.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -193,6 +201,9 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		inflationtypes.ModuleName:      {authtypes.Minter},
+		rewardtypes.ModuleName:         nil,
+
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -251,6 +262,11 @@ type Cascadia struct {
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
+
+	// Cascadia keepers
+	InflationKeeper inflationkeeper.Keeper
+	rewardKeeper    rewardkeeper.Keeper
+
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -305,6 +321,10 @@ func NewCascadia(
 		icahosttypes.StoreKey,
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		// cascadia keys
+		inflationtypes.StoreKey,
+		rewardtypes.StoreKey,
+
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 
@@ -400,6 +420,18 @@ func NewCascadia(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 
+	app.rewardKeeper = *rewardkeeper.NewKeeper(
+		appCodec,
+		keys[rewardtypes.StoreKey],
+		keys[rewardtypes.MemStoreKey],
+		app.GetSubspace(rewardtypes.ModuleName),
+
+		app.BankKeeper,
+		app.EvmKeeper,
+		app.AccountKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	govConfig := govtypes.DefaultConfig()
 	/*
 		Example of setting gov params:
@@ -409,6 +441,14 @@ func NewCascadia(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig,
 	)
+
+	// Cascadia Keeper
+	app.InflationKeeper = inflationkeeper.NewKeeper(
+		appCodec, keys[inflationtypes.StoreKey], app.GetSubspace(inflationtypes.ModuleName),
+		&stakingKeeper, app.AccountKeeper, app.BankKeeper, app.rewardKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	// NOTE: Distr, Slashing and Claim must be created before calling the Hooks method to avoid returning a Keeper without its table generated
@@ -422,7 +462,9 @@ func NewCascadia(
 		govtypes.NewMultiGovHooks(),
 	)
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(),
+		evmkeeper.NewMultiEvmHooks(
+			app.rewardKeeper.Hooks(),
+		),
 	)
 
 	// Create Transfer Keepers
@@ -514,6 +556,10 @@ func NewCascadia(
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
+		// Cascadia app modules
+		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
+		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
+
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -544,6 +590,9 @@ func NewCascadia(
 		authz.ModuleName,
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
+		inflationtypes.ModuleName,
+		rewardtypes.ModuleName,
+
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -569,6 +618,9 @@ func NewCascadia(
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
+		// Cascadia modules
+		inflationtypes.ModuleName,
+		rewardtypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -604,6 +656,9 @@ func NewCascadia(
 		upgradetypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
+		// Cascadia modules
+		inflationtypes.ModuleName,
+		rewardtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -927,6 +982,10 @@ func initParamsKeeper(
 	// ethermint subspaces
 	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
+
+	// cascadia subspaces
+	paramsKeeper.Subspace(inflationtypes.ModuleName)
+	paramsKeeper.Subspace(rewardtypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper
