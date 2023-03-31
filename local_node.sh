@@ -104,4 +104,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-cascadiad start --metrics "$TRACE" --log_level panic --minimum-gas-prices=0.0001aCC --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
+cascadiad start --metrics "$TRACE" --log_level info --minimum-gas-prices=0.0001aCC --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
