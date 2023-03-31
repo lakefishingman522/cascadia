@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/tendermint/tendermint/libs/log"
@@ -14,7 +15,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
+	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 )
+
+type RewardKeeper interface {
+	BalanceOf(ctx sdk.Context, abi abi.ABI, contract, account common.Address, time *big.Int) *big.Int
+	GetRewardContract(ctx sdk.Context, id uint64) (val rewardtypes.RewardContract, found bool)
+	TotalSupply(ctx sdk.Context, abi abi.ABI, contract common.Address, time *big.Int) *big.Int
+}
 
 // Keeper defines the governance module Keeper
 type Keeper struct {
@@ -43,6 +54,8 @@ type Keeper struct {
 	router *baseapp.MsgServiceRouter
 
 	config types.Config
+
+	rk RewardKeeper
 }
 
 // NewKeeper returns a governance keeper. It handles:

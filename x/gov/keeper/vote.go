@@ -2,11 +2,14 @@ package keeper
 
 import (
 	"fmt"
+	"math/big"
 
+	"github.com/cascadiafoundation/cascadia/contracts"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // AddVote adds a vote on a specific proposal
@@ -23,10 +26,22 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 		return err
 	}
 
-	for _, option := range options {
-		if !v1.ValidWeightedVoteOption(*option) {
-			return sdkerrors.Wrap(types.ErrInvalidVote, option.String())
-		}
+	// for _, option := range options {
+	// 	if !v1.ValidWeightedVoteOption(*option) {
+	// 		return sdkerrors.Wrap(types.ErrInvalidVote, option.String())
+	// 	}
+	// }
+
+	contract, found := keeper.rk.GetRewardContract(ctx, 0)
+	if !found {
+		panic("no ve contract")
+	}
+	voterEvmAddr := common.BytesToAddress(voterAddr.Bytes())
+
+	voterBalance := keeper.rk.BalanceOf(ctx, contracts.VotingEscrowContract.ABI, common.HexToAddress(contract.Address), voterEvmAddr, big.NewInt(proposal.SubmitTime.Unix())).Int64()
+
+	if voterBalance == 0 {
+		return sdkerrors.Wrapf(types.ErrInvalidVote, "invalid vote")
 	}
 
 	vote := v1.NewVote(proposalID, voterAddr, options, metadata)
