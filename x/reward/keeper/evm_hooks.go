@@ -40,12 +40,12 @@ func (k Keeper) PostTxProcessing(
 	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 
 	// distribute the fees to the VE contract
-	veContract, found := k.GetRewardContract(ctx, 0)
+	feeDistrContract, found := k.GetRewardContract(ctx, 1)
 	if found {
-		veContractDist := sdk.NewDecFromInt(txFee).Mul(params.GasFeeDistribution.VecontractRewards).TruncateInt()
-		veContractFees := sdk.Coins{{Denom: evmDenom, Amount: veContractDist}}
+		feeDistrAmount := sdk.NewDecFromInt(txFee).Mul(params.GasFeeDistribution.VecontractRewards).TruncateInt()
+		feeDistFees := sdk.Coins{{Denom: evmDenom, Amount: feeDistrAmount}}
 
-		veContractAddress, err := sdk.AccAddressFromHexUnsafe(veContract.Address[2:])
+		feeDistAddress, err := sdk.AccAddressFromHexUnsafe(feeDistrContract.Address[2:])
 		if err != nil {
 			return err
 		}
@@ -53,8 +53,8 @@ func (k Keeper) PostTxProcessing(
 		err = k.bankKeeper.SendCoinsFromModuleToAccount(
 			ctx,
 			k.feeCollectorName,
-			veContractAddress,
-			veContractFees,
+			feeDistAddress,
+			feeDistFees,
 		)
 
 		if err != nil {
@@ -63,7 +63,7 @@ func (k Keeper) PostTxProcessing(
 	}
 
 	// distribute the fees to the nProtocol
-	nProtocol, found := k.GetRewardContract(ctx, 1)
+	nProtocol, found := k.GetRewardContract(ctx, 2)
 
 	if found {
 		nProtocolDist := sdk.NewDecFromInt(txFee).Mul(params.GasFeeDistribution.NprotocolRewards).TruncateInt()

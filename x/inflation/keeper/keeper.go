@@ -24,8 +24,8 @@ type Keeper struct {
 }
 
 const (
-	Vecontract uint64 = 0
-	Nprotocol         = 1
+	FeeDistrContract uint64 = 1
+	Nprotocol               = 2
 )
 
 // NewKeeper creates a new mint Keeper instance
@@ -127,7 +127,7 @@ func (k Keeper) AddCollectedFees(ctx sdk.Context) error {
 func (k Keeper) AddContractIncentives(ctx sdk.Context, amount sdk.Coin, contractnumber uint64) (sdk.Coin, error) {
 	params := k.GetParams(ctx)
 
-	if contractnumber != Vecontract && contractnumber != Nprotocol {
+	if contractnumber != FeeDistrContract && contractnumber != Nprotocol {
 		return sdk.Coin{Denom: params.MintDenom, Amount: math.ZeroInt()}, nil
 	}
 
@@ -137,7 +137,7 @@ func (k Keeper) AddContractIncentives(ctx sdk.Context, amount sdk.Coin, contract
 	if contractFound {
 		var contractReward sdk.Coins
 
-		if contractnumber == Vecontract {
+		if contractnumber == FeeDistrContract {
 			contractReward = sdk.NewCoins(k.GetProportions(ctx, amount, proportions.VecontractRewards))
 		} else if contractnumber == Nprotocol {
 			contractReward = sdk.NewCoins(k.GetProportions(ctx, amount, proportions.NprotocolRewards))
