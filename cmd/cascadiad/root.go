@@ -77,7 +77,6 @@ func addressConverterCommand() *cobra.Command {
 		Long:  `Convert a cascadia address to evm address or vice versa`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("====")
 			inputAddress := args[0]
 			if strings.HasPrefix(inputAddress, "0x") {
 				cascadiaAddr, err := sdk.AccAddressFromHexUnsafe(inputAddress[2:])
