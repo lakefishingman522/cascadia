@@ -22,7 +22,7 @@ import (
 
 	"github.com/cascadiafoundation/cascadia/crypto/ethsecp256k1"
 	"github.com/cascadiafoundation/cascadia/crypto/hd"
-	"github.com/evmos/evmos-ledger-go/ledger"
+	"github.com/cascadiafoundation/cascadia/ledger-go/ledger"
 )
 
 // AppName defines the Ledger app used for signing. Cascadia uses the Ethereum app
@@ -37,7 +37,7 @@ var (
 	// The Ledger derivation function is responsible for all signing and address generation.
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{hd.EthSecp256k1}
 	// LedgerDerivation defines the Cascadia Ledger Go derivation (Ethereum app with EIP-712 signing)
-	LedgerDerivation = ledger.EvmosLedgerDerivation()
+	LedgerDerivation = ledger.CascadiaLedgerDerivation()
 	// CreatePubkey uses the ethsecp256k1 pubkey with Ethereum address generation and keccak hashing
 	CreatePubkey = func(key []byte) types.PubKey { return &ethsecp256k1.PubKey{Key: key} }
 	// SkipDERConversion represents whether the signed Ledger output should skip conversion from DER to BER.
