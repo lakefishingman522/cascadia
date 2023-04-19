@@ -22,7 +22,7 @@ import (
 
 	"github.com/cascadiafoundation/cascadia/crypto/ethsecp256k1"
 	"github.com/cascadiafoundation/cascadia/crypto/hd"
-	"github.com/cascadiafoundation/cascadia/ledger-go/ledger"
+	"github.com/cascadiafoundation/cascadia/ledger/ledger"
 )
 
 // AppName defines the Ledger app used for signing. Cascadia uses the Ethereum app
