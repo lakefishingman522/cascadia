@@ -116,8 +116,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(app.DefaultNodeHome).
 		WithKeyringOptions(cascadiakr.Option()).
-		WithViper(EnvPrefix).
-		WithLedgerHasProtobuf(true)
+		WithViper(EnvPrefix)
 
 	eip712.SetEncodingConfig(encodingConfig)
 
