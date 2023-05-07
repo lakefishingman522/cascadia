@@ -69,7 +69,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace types.ParamSubspace,
 	authKeeper types.AccountKeeper, bankKeeper types.BankKeeper, sk types.StakingKeeper,
 	legacyRouter v1beta1.Router, router *baseapp.MsgServiceRouter,
-	config types.Config,
+	config types.Config, rewardKeeper RewardKeeper,
 ) Keeper {
 	// ensure governance module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -96,6 +96,7 @@ func NewKeeper(
 		legacyRouter: legacyRouter,
 		router:       router,
 		config:       config,
+		rk:           rewardKeeper,
 	}
 }
 

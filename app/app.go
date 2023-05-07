@@ -439,7 +439,7 @@ func NewCascadia(
 	*/
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig,
+		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig, app.rewardKeeper,
 	)
 
 	// Cascadia Keeper

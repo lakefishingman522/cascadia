@@ -106,6 +106,12 @@ func (k Keeper) BalanceOf(
 	contract, account common.Address,
 	time *big.Int,
 ) *big.Int {
+	acct := k.evmKeeper.GetAccount(ctx, ModuleAddress)
+	if acct == nil {
+		acc := k.accountKeeper.NewAccountWithAddress(ctx, ModuleAddress.Bytes())
+		k.accountKeeper.SetAccount(ctx, acc)
+	}
+
 	res, err := k.CallEVM(ctx, abi, ModuleAddress, contract, false, "balanceOf", account, time)
 	if err != nil {
 		return nil
@@ -131,6 +137,12 @@ func (k Keeper) TotalSupply(
 	contract common.Address,
 	time *big.Int,
 ) *big.Int {
+	acct := k.evmKeeper.GetAccount(ctx, ModuleAddress)
+	if acct == nil {
+		acc := k.accountKeeper.NewAccountWithAddress(ctx, ModuleAddress.Bytes())
+		k.accountKeeper.SetAccount(ctx, acc)
+	}
+
 	res, err := k.CallEVM(ctx, abi, ModuleAddress, contract, false, "totalSupply", time)
 
 	if err != nil {
