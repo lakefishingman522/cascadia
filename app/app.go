@@ -76,11 +76,14 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+
 	"github.com/cosmos/cosmos-sdk/x/slashing"
+
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+
+	"github.com/cascadiafoundation/cascadia/x/staking"
+	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
@@ -134,6 +137,7 @@ import (
 	reward "github.com/cascadiafoundation/cascadia/x/reward"
 	rewardkeeper "github.com/cascadiafoundation/cascadia/x/reward/keeper"
 	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
+	// create multisig module account for saving panelty
 )
 
 func init() {
@@ -768,14 +772,23 @@ func (app *Cascadia) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeli
 	return app.BaseApp.DeliverTx(req)
 }
 
-// InitChainer application update at chain initialization
 func (app *Cascadia) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+
+	// Get the MultiSig address from the genesis state
+	var multiSigAddress string
+	if err := json.Unmarshal(genesisState["multisig_address"], &multiSigAddress); err != nil {
+		panic(err)
+	}
+	
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
-	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	// Call the default InitChainer
+	response := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	app.StakingKeeper.SetMultisigAddress(ctx, sdk.MustAccAddressFromBech32(multiSigAddress))
+	return response
 }
 
 // LoadHeight loads a particular height

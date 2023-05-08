@@ -195,6 +195,12 @@ func GenesisStateWithValSet(app *Cascadia, genesisState simapp.GenesisState,
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
+	multisigAddress := "cascadia1yjhzxs8prhpr84swy6jr3egq37p4e5jrh6l84z" // Replace with your multisig address
+	multisigAddressJson, err := json.Marshal(multisigAddress)
+	if err != nil {
+		// Handle error
+	}
+	genesisState["multisig_address"] = multisigAddressJson
 	return genesisState
 }
 
