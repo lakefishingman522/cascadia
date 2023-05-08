@@ -33,8 +33,8 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculatio
 		panic(err)
 	}
 
-	k.AddContractIncentives(ctx, mintedCoin, 0)
 	k.AddContractIncentives(ctx, mintedCoin, 1)
+	k.AddContractIncentives(ctx, mintedCoin, 2)
 
 	// send the minted coins to the fee collector account
 	err = k.AddCollectedFees(ctx)

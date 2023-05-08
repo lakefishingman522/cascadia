@@ -13,7 +13,7 @@ import (
 func CmdCreateRewardContract() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-reward-contract [address]",
-		Short: "Create a new reward_contract",
+		Short: "Create a new reward contract",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			argAddress := args[0]
@@ -39,7 +39,7 @@ func CmdCreateRewardContract() *cobra.Command {
 func CmdUpdateRewardContract() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-reward-contract [id] [address]",
-		Short: "Update a reward_contract",
+		Short: "Update a reward contract",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			id, err := strconv.ParseUint(args[0], 10, 64)
