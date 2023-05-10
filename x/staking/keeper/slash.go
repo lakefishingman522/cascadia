@@ -227,7 +227,7 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 // NOTE this is only slashing for prior infractions from the source validator
 func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator, redelegation types.Redelegation,
 	infractionHeight int64, slashFactor sdk.Dec,
-) (totalSlashAmount math.Int) {
+) (totalSlashAmount sdk.Int) {
 	now := ctx.BlockHeader().Time
 	totalSlashAmount = sdk.ZeroInt()
 	bondedBurnedAmount, notBondedBurnedAmount := sdk.ZeroInt(), sdk.ZeroInt()
@@ -294,11 +294,12 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 		}
 	}
 
-	if err := k.burnBondedTokens(ctx, bondedBurnedAmount); err != nil {
-		panic(err)
-	}
+	multisigAddress := k.GetMultisigAddress(ctx)
+	totalBurnedAmount := bondedBurnedAmount.Add(notBondedBurnedAmount)
 
-	if err := k.burnNotBondedTokens(ctx, notBondedBurnedAmount); err != nil {
+	// Send the slashed tokens to the multisig address
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), totalBurnedAmount)))
+	if err != nil {
 		panic(err)
 	}
 
