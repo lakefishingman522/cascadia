@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cascadiafoundation/cascadia/simapp"
+	"github.com/cascadiafoundation/cascadia/x/staking/keeper"
+	"github.com/cascadiafoundation/cascadia/x/staking/teststaking"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
-	"github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -44,7 +44,7 @@ func bootstrapSlashTest(t *testing.T, power int64) (*simapp.SimApp, sdk.Context,
 		validator = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validator, true)
 		app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
 	}
-
+	app.StakingKeeper.SetMultisigAddress(ctx, sdk.AccAddress(addrVals[0]))
 	return app, ctx, addrDels, addrVals
 }
 
@@ -607,11 +607,23 @@ func TestSlashAmount(t *testing.T) {
 	app, ctx, _, _ := bootstrapSlashTest(t, 10)
 	consAddr := sdk.ConsAddress(PKs[0].Address())
 	fraction := sdk.NewDecWithPrec(5, 1)
-	burnedCoins := app.StakingKeeper.Slash(ctx, consAddr, ctx.BlockHeight(), 10, fraction)
-	require.True(t, burnedCoins.GT(sdk.ZeroInt()))
 
-	// test the case where the validator was not found, which should return no coins
+	// Get the balance of the multisig address before slashing
+	multisigAddress := app.StakingKeeper.GetMultisigAddress(ctx)
+	initialMultisigBalance := app.BankKeeper.GetBalance(ctx, multisigAddress, app.StakingKeeper.BondDenom(ctx))
+
+	// Slash and get the amount transferred
+	transferredCoins := app.StakingKeeper.Slash(ctx, consAddr, ctx.BlockHeight(), 10, fraction)
+	require.True(t, transferredCoins.GT(sdk.ZeroInt()))
+
+	// Get the balance of the multisig address after slashing
+	finalMultisigBalance := app.BankKeeper.GetBalance(ctx, multisigAddress, app.StakingKeeper.BondDenom(ctx))
+
+	// Check if the balance has increased by the correct amount
+	require.True(t, finalMultisigBalance.Sub(initialMultisigBalance).Amount.Equal(transferredCoins))
+
+	// Test the case where the validator was not found, which should return no coins
 	_, addrVals := generateAddresses(app, ctx, 100)
-	noBurned := app.StakingKeeper.Slash(ctx, sdk.ConsAddress(addrVals[0]), ctx.BlockHeight(), 10, fraction)
-	require.True(t, sdk.NewInt(0).Equal(noBurned))
+	noTransferred := app.StakingKeeper.Slash(ctx, sdk.ConsAddress(addrVals[0]), ctx.BlockHeight(), 10, fraction)
+	require.True(t, sdk.NewInt(0).Equal(noTransferred))
 }

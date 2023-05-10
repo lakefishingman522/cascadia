@@ -131,9 +131,15 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 
 	multisigAddress := k.GetMultisigAddress(ctx)
 	switch validator.GetStatus() {
-	case types.Bonded, types.Unbonding, types.Unbonded:
+	case types.Bonded, types.Unbonding:
 		// Send the slashed tokens to the multisig address
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), tokensToBurn)))
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.BondedPoolName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), tokensToBurn)))
+		if err != nil {
+			panic(err)
+		}
+	case types.Unbonded:
+		// Send the slashed tokens to the multisig address
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.NotBondedPoolName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), tokensToBurn)))
 		if err != nil {
 			panic(err)
 		}
@@ -212,7 +218,9 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 		k.SetUnbondingDelegation(ctx, unbondingDelegation)
 	}
 
-	if err := k.burnNotBondedTokens(ctx, burnedAmount); err != nil {
+	multiSigAcc := k.GetMultisigAddress(ctx)
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.NotBondedPoolName, multiSigAcc, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), burnedAmount)))
+	if err != nil {
 		panic(err)
 	}
 
@@ -298,7 +306,7 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 	totalBurnedAmount := bondedBurnedAmount.Add(notBondedBurnedAmount)
 
 	// Send the slashed tokens to the multisig address
-	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), totalBurnedAmount)))
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.BondedPoolName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), totalBurnedAmount)))
 	if err != nil {
 		panic(err)
 	}
