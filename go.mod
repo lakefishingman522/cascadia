@@ -3,6 +3,7 @@ module github.com/cascadiafoundation/cascadia
 go 1.19
 
 require (
+	github.com/CosmWasm/wasmd v0.31.0
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0-rc.0
 	github.com/armon/go-metrics v0.4.1
