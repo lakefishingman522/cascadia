@@ -96,12 +96,12 @@ func (k Keeper) SetLastTotalPower(ctx sdk.Context, power math.Int) {
 	store.Set(types.LastTotalPowerKey, bz)
 }
 
-func (k Keeper) SetMultisigAddress(ctx sdk.Context, address sdk.AccAddress) {
+func (k Keeper) SetPenaltyAccount(ctx sdk.Context, address sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte("multisigAddress"), address.Bytes())
 }
 
-func (k Keeper) GetMultisigAddress(ctx sdk.Context) sdk.AccAddress {
+func (k Keeper) GetPenaltyAccount(ctx sdk.Context) sdk.AccAddress {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get([]byte("multisigAddress"))
 	return sdk.AccAddress(bz)

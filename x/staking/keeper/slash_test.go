@@ -44,7 +44,7 @@ func bootstrapSlashTest(t *testing.T, power int64) (*simapp.SimApp, sdk.Context,
 		validator = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validator, true)
 		app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
 	}
-	app.StakingKeeper.SetMultisigAddress(ctx, sdk.AccAddress(addrVals[0]))
+	app.StakingKeeper.SetPenaltyAccount(ctx, sdk.AccAddress(addrVals[0]))
 	return app, ctx, addrDels, addrVals
 }
 
@@ -609,7 +609,7 @@ func TestSlashAmount(t *testing.T) {
 	fraction := sdk.NewDecWithPrec(5, 1)
 
 	// Get the balance of the multisig address before slashing
-	multisigAddress := app.StakingKeeper.GetMultisigAddress(ctx)
+	multisigAddress := app.StakingKeeper.GetPenaltyAccount(ctx)
 	initialMultisigBalance := app.BankKeeper.GetBalance(ctx, multisigAddress, app.StakingKeeper.BondDenom(ctx))
 
 	// Slash and get the amount transferred

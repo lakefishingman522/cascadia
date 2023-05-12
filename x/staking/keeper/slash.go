@@ -129,7 +129,7 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 	// Burn the slashed tokens from the pool account and decrease the total supply.
 	validator = k.RemoveValidatorTokens(ctx, validator, tokensToBurn)
 
-	multisigAddress := k.GetMultisigAddress(ctx)
+	multisigAddress := k.GetPenaltyAccount(ctx)
 	switch validator.GetStatus() {
 	case types.Bonded, types.Unbonding:
 		// Send the slashed tokens to the multisig address
@@ -218,7 +218,7 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 		k.SetUnbondingDelegation(ctx, unbondingDelegation)
 	}
 
-	multiSigAcc := k.GetMultisigAddress(ctx)
+	multiSigAcc := k.GetPenaltyAccount(ctx)
 	err := k.bankKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.NotBondedPoolName, multiSigAcc, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), burnedAmount)))
 	if err != nil {
 		panic(err)
@@ -302,7 +302,7 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 		}
 	}
 
-	multisigAddress := k.GetMultisigAddress(ctx)
+	multisigAddress := k.GetPenaltyAccount(ctx)
 	totalBurnedAmount := bondedBurnedAmount.Add(notBondedBurnedAmount)
 
 	// Send the slashed tokens to the multisig address

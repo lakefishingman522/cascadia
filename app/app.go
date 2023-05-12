@@ -137,7 +137,12 @@ import (
 	reward "github.com/cascadiafoundation/cascadia/x/reward"
 	rewardkeeper "github.com/cascadiafoundation/cascadia/x/reward/keeper"
 	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
+
 	// create multisig module account for saving panelty
+
+	penalty "github.com/cascadiafoundation/cascadia/x/penalty"
+	penaltykeeper "github.com/cascadiafoundation/cascadia/x/penalty/keeper"
+	penaltytypes "github.com/cascadiafoundation/cascadia/x/penalty/types"
 )
 
 func init() {
@@ -193,6 +198,7 @@ var (
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
 		reward.AppModuleBasic{},
+		penalty.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -207,6 +213,7 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		rewardtypes.ModuleName:         nil,
+		penaltytypes.ModuleName:        nil,
 
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
@@ -270,6 +277,7 @@ type Cascadia struct {
 	// Cascadia keepers
 	InflationKeeper inflationkeeper.Keeper
 	rewardKeeper    rewardkeeper.Keeper
+	PenaltyKeeper   penaltykeeper.Keeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -328,6 +336,7 @@ func NewCascadia(
 		// cascadia keys
 		inflationtypes.StoreKey,
 		rewardtypes.StoreKey,
+		penaltytypes.StoreKey,
 
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
@@ -462,6 +471,14 @@ func NewCascadia(
 			app.SlashingKeeper.Hooks(),
 		),
 	)
+
+	app.PenaltyKeeper = penaltykeeper.NewKeeper(
+		appCodec,
+		keys[penaltytypes.StoreKey],
+		app.GetSubspace(penaltytypes.ModuleName),
+		app.StakingKeeper,
+	)
+
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(),
 	)
@@ -563,7 +580,7 @@ func NewCascadia(
 		// Cascadia app modules
 		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
-
+		penalty.NewAppModule(appCodec, app.PenaltyKeeper, app.StakingKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -596,6 +613,7 @@ func NewCascadia(
 		paramstypes.ModuleName,
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		penaltytypes.ModuleName,
 
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
@@ -625,6 +643,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		penaltytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -663,6 +682,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		penaltytypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -783,11 +803,11 @@ func (app *Cascadia) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	if err := json.Unmarshal(genesisState["multisig_address"], &multiSigAddress); err != nil {
 		panic(err)
 	}
-	
+
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	// Call the default InitChainer
 	response := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-	app.StakingKeeper.SetMultisigAddress(ctx, sdk.MustAccAddressFromBech32(multiSigAddress))
+	app.StakingKeeper.SetPenaltyAccount(ctx, sdk.MustAccAddressFromBech32(multiSigAddress))
 	return response
 }
 
@@ -999,6 +1019,7 @@ func initParamsKeeper(
 	// cascadia subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
+	paramsKeeper.Subspace(penaltytypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

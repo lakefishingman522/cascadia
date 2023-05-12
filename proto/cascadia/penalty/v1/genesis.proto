@@ -1,0 +1,13 @@
+syntax = "proto3";
+package cascadia.penalty.v1;
+option go_package = "github.com/cascadiafoundation/cascadia/x/penalty/types";
+
+// GenesisState defines the inflation module's genesis state.
+message GenesisState {
+  Params params = 1;
+}
+// Params holds parameters for the inflation module.
+message Params {
+}
+
+
