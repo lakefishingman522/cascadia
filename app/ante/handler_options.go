@@ -37,6 +37,7 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Cascadia
@@ -58,7 +59,7 @@ type HandlerOptions struct {
 	TxFeeChecker           anteutils.TxFeeChecker
 
 	WasmConfig        wasmTypes.WasmConfig
-	TxCounterStoreKey sdk.StoreKey
+	TxCounterStoreKey storetypes.StoreKey
 }
 
 // Validate checks if the keepers are defined

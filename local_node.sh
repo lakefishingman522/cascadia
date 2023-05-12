@@ -74,6 +74,9 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
 	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 
+	sed -i.bak 's/127.0.0.1:26657/0.0.0.0:26657/g' "$CONFIG"
+	sed -i.bak 's/cors_allowed_origins\s*=\s*\[\]/cors_allowed_origins = ["*",]/g' "$CONFIG"
+
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
 		cascadiad add-genesis-account "$KEY" 100000000000000000000000000aCC --keyring-backend $KEYRING --home "$HOMEDIR"

@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	// DefaultMunInstanceCost is initially set the same as in wasmd
+	// DefaultInstanceCost is initially set the same as in wasmd
 	DefaultInstanceCost uint64 = 60_000
-	// DefaultMunCompileCost set to a large number for testing
+	// DefaultCompileCost set to a large number for testing
 	DefaultCompileCost uint64 = 100
 )
 
