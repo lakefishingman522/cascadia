@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgUpdatePenaltyAccountRequest{}, "penalty/CreateRewardContract", nil)
+	cdc.RegisterConcrete(&MsgUpdatePenaltyAccountRequest{}, "penalty/UpdatePenaltyAccount", nil)
 	// this line is used by starport scaffolding # 2
 }
 

@@ -5,7 +5,7 @@ KEYS[1]="dev1"
 KEYS[2]="dev2"
 CHAINID="cascadia_6102-1"
 MONIKER="localtestnet"
-MULTISIG_ADDRESS="cascadia1yjhzxs8prhpr84swy6jr3egq37p4e5jrh6l84z"
+MULTISIG_ADDRESS="cascadia1duc20j5qccrawl9n7url89lk5t23hur3w0rhem"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
