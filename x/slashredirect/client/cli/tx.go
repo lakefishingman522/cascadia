@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/cascadiafoundation/cascadia/x/penalty/types"
+	"github.com/cascadiafoundation/cascadia/x/slashredirect/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 )

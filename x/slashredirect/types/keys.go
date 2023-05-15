@@ -5,7 +5,7 @@ var MinterKey = []byte{0x00}
 
 const (
 	// module name
-	ModuleName = "penalty"
+	ModuleName = "slashredirect"
 
 	// StoreKey is the default store key for mint
 	StoreKey = ModuleName
@@ -14,5 +14,5 @@ const (
 	QuerierRoute = StoreKey
 
 	// Query endpoints supported by the minting querier
-	QueryParameters       = "parameters"
+	QueryParameters = "parameters"
 )

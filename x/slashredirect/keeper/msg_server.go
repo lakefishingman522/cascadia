@@ -21,7 +21,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/cascadiafoundation/cascadia/x/penalty/types"
+	"github.com/cascadiafoundation/cascadia/x/slashredirect/types"
 )
 
 var _ types.MsgServer = &Keeper{}

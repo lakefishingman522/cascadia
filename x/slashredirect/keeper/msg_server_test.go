@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/cascadiafoundation/cascadia/x/penalty/types"
+	"github.com/cascadiafoundation/cascadia/x/slashredirect/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -1,10 +1,10 @@
 syntax = "proto3";
-package cascadia.penalty.v1;
+package cascadia.slashredirect.v1;
 
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/cascadiafoundation/cascadia/x/penalty/types";
+option go_package = "github.com/cascadiafoundation/cascadia/x/slashredirect/types";
 
 // Msg defines the evm Msg service.
 service Msg {

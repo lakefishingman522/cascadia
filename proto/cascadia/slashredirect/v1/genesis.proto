@@ -1,6 +1,6 @@
 syntax = "proto3";
 package cascadia.penalty.v1;
-option go_package = "github.com/cascadiafoundation/cascadia/x/penalty/types";
+option go_package = "github.com/cascadiafoundation/cascadia/x/slashredirect/types";
 
 // GenesisState defines the inflation module's genesis state.
 message GenesisState {

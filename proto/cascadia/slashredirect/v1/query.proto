@@ -1,12 +1,12 @@
 syntax = "proto3";
 package cascadia.penalty.v1;
 
-import "cascadia/penalty/v1/genesis.proto";
+import "cascadia/slashredirect/v1/genesis.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/cascadiafoundation/cascadia/x/penalty/types";
+option go_package = "github.com/cascadiafoundation/cascadia/x/slashredirect/types";
 
 // Query provides defines the gRPC querier service.
 service Query {

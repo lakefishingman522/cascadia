@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cascadiafoundation/cascadia/x/penalty/types"
+	"github.com/cascadiafoundation/cascadia/x/slashredirect/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 )
@@ -61,7 +61,7 @@ func GetCmdQueryParams() *cobra.Command {
 // inflation value.
 func GetCmdQueryPenaltyAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "penalty",
+		Use:   types.ModuleName,
 		Short: "Query the current penalty account address",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
