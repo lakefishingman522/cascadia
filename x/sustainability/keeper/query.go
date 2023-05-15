@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/cascadiafoundation/cascadia/x/slashredirect/types"
+	"github.com/cascadiafoundation/cascadia/x/sustainability/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

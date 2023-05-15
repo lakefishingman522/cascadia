@@ -3,7 +3,7 @@ package keeper
 import (
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/cascadiafoundation/cascadia/x/slashredirect/types"
+	"github.com/cascadiafoundation/cascadia/x/sustainability/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

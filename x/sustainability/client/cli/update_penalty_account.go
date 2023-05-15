@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/cascadiafoundation/cascadia/x/slashredirect/types"
+	"github.com/cascadiafoundation/cascadia/x/sustainability/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"

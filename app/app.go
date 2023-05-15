@@ -140,9 +140,9 @@ import (
 
 	// create multisig module account for saving panelty
 
-	slashredirect "github.com/cascadiafoundation/cascadia/x/slashredirect"
-	slashredirectkeeper "github.com/cascadiafoundation/cascadia/x/slashredirect/keeper"
-	slashredirecttypes "github.com/cascadiafoundation/cascadia/x/slashredirect/types"
+	slashredirect "github.com/cascadiafoundation/cascadia/x/sustainability"
+	slashredirectkeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
+	slashredirecttypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 func init() {
