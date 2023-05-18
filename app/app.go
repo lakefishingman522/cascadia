@@ -134,6 +134,10 @@ import (
 	reward "github.com/cascadiafoundation/cascadia/x/reward"
 	rewardkeeper "github.com/cascadiafoundation/cascadia/x/reward/keeper"
 	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
+
+	oraclemodule "github.com/cascadiafoundation/cascadia/x/oracle"
+	oraclekeeper "github.com/cascadiafoundation/cascadia/x/oracle/keeper"
+	oracletypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 )
 
 func init() {
@@ -189,6 +193,7 @@ var (
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
 		reward.AppModuleBasic{},
+		oraclemodule.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -266,7 +271,8 @@ type Cascadia struct {
 	// Cascadia keepers
 	InflationKeeper inflationkeeper.Keeper
 	rewardKeeper    rewardkeeper.Keeper
-
+	ScopedOracleKeeper      capabilitykeeper.ScopedKeeper
+	OracleKeeper            oraclekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -324,7 +330,7 @@ func NewCascadia(
 		// cascadia keys
 		inflationtypes.StoreKey,
 		rewardtypes.StoreKey,
-
+		oracletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 
@@ -418,7 +424,8 @@ func NewCascadia(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(oracletypes.RouterKey, oraclemodule.NewAssetInfoProposalHandler(&app.OracleKeeper))
 
 	app.rewardKeeper = *rewardkeeper.NewKeeper(
 		appCodec,
@@ -509,7 +516,8 @@ func NewCascadia(
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
-		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
+		AddRoute(oracletypes.ModuleName, oracleIBCModule)
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -519,6 +527,21 @@ func NewCascadia(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
+
+	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
+	app.ScopedOracleKeeper = scopedOracleKeeper
+	app.OracleKeeper = *oraclekeeper.NewKeeper(
+		appCodec,
+		keys[oracletypes.StoreKey],
+		keys[oracletypes.MemStoreKey],
+		app.GetSubspace(oracletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedOracleKeeper,
+	)
+	oracleModule := oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper)
+
+	oracleIBCModule := oraclemodule.NewIBCModule(app.OracleKeeper)
 
 	/**** Module Options ****/
 
@@ -559,7 +582,7 @@ func NewCascadia(
 		// Cascadia app modules
 		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
-
+		oracleModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -592,7 +615,7 @@ func NewCascadia(
 		paramstypes.ModuleName,
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
-
+		oracletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -621,6 +644,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		oracletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -659,6 +683,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		oracletypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -986,6 +1011,7 @@ func initParamsKeeper(
 	// cascadia subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
+	paramsKeeper.Subspace(oracletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper
