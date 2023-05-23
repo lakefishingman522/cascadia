@@ -24,7 +24,7 @@ const (
 	PortID = "oracle"
 
 	// oracle request block interval
-	ORACLE_REQUEST_BLOCK_INTERVAL = 60
+	ORACLE_REQUEST_BLOCK_INTERVAL = 10
 )
 
 var (
