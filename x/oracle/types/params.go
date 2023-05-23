@@ -64,7 +64,7 @@ func DefaultParams() Params {
 		"band_epoch",
 		37,
 		18,          // decimal 18
-		"channel-1", // used on dockernet
+		"channel-2", // cascadia <-> Bandchain
 		4,
 		3,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 30)),
