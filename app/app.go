@@ -269,10 +269,10 @@ type Cascadia struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Cascadia keepers
-	InflationKeeper inflationkeeper.Keeper
-	rewardKeeper    rewardkeeper.Keeper
-	ScopedOracleKeeper      capabilitykeeper.ScopedKeeper
-	OracleKeeper            oraclekeeper.Keeper
+	InflationKeeper    inflationkeeper.Keeper
+	rewardKeeper       rewardkeeper.Keeper
+	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
+	OracleKeeper       oraclekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -367,9 +367,6 @@ func NewCascadia(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 
-	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
-	// their scoped modules in `NewApp` with `ScopeToModule`
-	app.CapabilityKeeper.Seal()
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// use custom Ethermint account for contracts
@@ -512,6 +509,25 @@ func NewCascadia(
 	icaModule := ica.NewAppModule(&icaControllerKeeper, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
+	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
+	app.ScopedOracleKeeper = scopedOracleKeeper
+	app.OracleKeeper = *oraclekeeper.NewKeeper(
+		appCodec,
+		keys[oracletypes.StoreKey],
+		keys[oracletypes.MemStoreKey],
+		app.GetSubspace(oracletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedOracleKeeper,
+	)
+	oracleModule := oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper)
+
+	oracleIBCModule := oraclemodule.NewIBCModule(app.OracleKeeper)
+
+	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
+	// their scoped modules in `NewApp` with `ScopeToModule`
+	app.CapabilityKeeper.Seal()
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.
@@ -527,21 +543,6 @@ func NewCascadia(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-
-	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
-	app.ScopedOracleKeeper = scopedOracleKeeper
-	app.OracleKeeper = *oraclekeeper.NewKeeper(
-		appCodec,
-		keys[oracletypes.StoreKey],
-		keys[oracletypes.MemStoreKey],
-		app.GetSubspace(oracletypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		scopedOracleKeeper,
-	)
-	oracleModule := oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper)
-
-	oracleIBCModule := oraclemodule.NewIBCModule(app.OracleKeeper)
 
 	/**** Module Options ****/
 
