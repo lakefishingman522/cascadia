@@ -3,10 +3,10 @@ package keeper
 import (
 	"context"
 
+	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -70,7 +70,7 @@ func (k Keeper) Price(c context.Context, req *types.QueryGetPriceRequest) (*type
 	}
 
 	// try out cascadia source
-	val, found = k.GetLatestPriceFromAssetAndSource(ctx, req.Asset, types.cascadia)
+	val, found = k.GetLatestPriceFromAssetAndSource(ctx, req.Asset, types.CASCADIA)
 	if found {
 		return &types.QueryGetPriceResponse{Price: val}, nil
 	}

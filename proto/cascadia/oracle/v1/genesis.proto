@@ -1,11 +1,11 @@
 syntax = "proto3";
-package cascadia.oracle;
+package cascadia.oracle.v1;
 
 import "gogoproto/gogo.proto";
-import "cascadia/oracle/params.proto";
-import "cascadia/oracle/asset_info.proto";
-import "cascadia/oracle/price.proto";
-import "cascadia/oracle/price_feeder.proto";
+import "cascadia/oracle/v1/params.proto";
+import "cascadia/oracle/v1/asset_info.proto";
+import "cascadia/oracle/v1/price.proto";
+import "cascadia/oracle/v1/price_feeder.proto";
 // this line is used by starport scaffolding # genesis/proto/import
 
 option go_package = "github.com/cascadiafoundation/cascadia/x/oracle/types";

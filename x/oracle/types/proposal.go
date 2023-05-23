@@ -27,12 +27,12 @@ func NewProposalAddAssetInfo(
 	cascadiaTicker string,
 ) gov.Content {
 	return &ProposalAddAssetInfo{
-		Title:       title,
-		Description: description,
-		Denom:       denom,
-		Display:     display,
-		BandTicker:  bandTicker,
-		cascadiaTicker:  cascadiaTicker,
+		Title:          title,
+		Description:    description,
+		Denom:          denom,
+		Display:        display,
+		BandTicker:     bandTicker,
+		CascadiaTicker: cascadiaTicker,
 	}
 }
 

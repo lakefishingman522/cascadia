@@ -3,13 +3,20 @@ package keeper
 import (
 	"fmt"
 
+	"time"
+
+	"github.com/cascadiafoundation/cascadia/x/oracle/cosmosibckeeper"
+	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/cascadiafoundation/cascadia/x/oracle/types"
-	"github.com/ignite/cli/ignite/pkg/cosmosibckeeper"
 	"github.com/tendermint/tendermint/libs/log"
+
+	"github.com/bandprotocol/bandchain-packet/obi"
+	"github.com/bandprotocol/bandchain-packet/packet"
+	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 )
 
 type Keeper struct {
@@ -51,4 +58,47 @@ func NewKeeper(
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+func (k Keeper) SendOracleRequest(ctx sdk.Context) {
+	params := k.GetParams(ctx)
+	if params.BandChannelSource == "" {
+		return
+	}
+	sourcePort := types.PortID
+	channelCap, ok := k.ScopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, params.BandChannelSource))
+	if !ok {
+		return
+	}
+
+	assetInfos := k.GetAllAssetInfo(ctx)
+	symbols := []string{}
+	for _, assetInfo := range assetInfos {
+		if assetInfo.BandTicker != "" {
+			symbols = append(symbols, assetInfo.BandTicker)
+		}
+	}
+
+	if len(symbols) == 0 {
+		return
+	}
+	encodedCalldata := obi.MustEncode(types.BandPriceCallData{
+		Symbols:    symbols,
+		Multiplier: params.Multiplier,
+	})
+	packetData := packet.NewOracleRequestPacketData(
+		params.ClientID,
+		params.OracleScriptID,
+		encodedCalldata,
+		params.AskCount,
+		params.MinCount,
+		params.FeeLimit,
+		params.PrepareGas,
+		params.ExecuteGas,
+	)
+
+	_, err := k.ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, params.BandChannelSource, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), packetData.GetBytes())
+	if err != nil {
+		return
+	}
 }

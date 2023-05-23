@@ -22,6 +22,9 @@ const (
 
 	// PortID is the default port id that module binds to
 	PortID = "oracle"
+
+	// oracle request block interval
+	ORACLE_REQUEST_BLOCK_INTERVAL = 60
 )
 
 var (
