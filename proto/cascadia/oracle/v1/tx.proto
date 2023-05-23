@@ -18,6 +18,7 @@ service Msg {
   rpc RequestBandPrice(MsgRequestBandPrice) returns (MsgRequestBandPriceResponse);
   rpc SetPriceFeeder(MsgSetPriceFeeder) returns (MsgSetPriceFeederResponse);
   rpc DeletePriceFeeder(MsgDeletePriceFeeder) returns (MsgDeletePriceFeederResponse);
+  rpc UpdateChannel(MsgUpdateChannel) returns (MsgUpdateChannelResponse);
 // this line is used by starport scaffolding # proto/tx/rpc
 }
 
@@ -71,6 +72,14 @@ message MsgFeedMultiplePrices {
 }
 
 message MsgFeedMultiplePricesResponse {
+}
+
+message MsgUpdateChannel {
+  string creator = 1;
+  string channel = 2;
+}
+
+message MsgUpdateChannelResponse {
 }
 
 // this line is used by starport scaffolding # proto/tx/message
