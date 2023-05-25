@@ -62,12 +62,12 @@ func NewParams(
 func DefaultParams() Params {
 	return NewParams(
 		"band_epoch",
-		37,
-		18,          // decimal 18
+		401,
+		1,           // decimal 18
 		"channel-1", // cascadia <-> Bandchain
 		4,
 		3,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 30)),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 100000)),
 		600000,
 		600000,
 		86400, // 1 day old data

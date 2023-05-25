@@ -60,6 +60,11 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
+// Encode call data, convert the second param as uint8
+func (k Keeper) EncodeCalldata(data types.BandPriceCallData) ([]byte, error) {
+	return obi.Encode(types.Calldata{Symbols: data.Symbols, MinimumSourceCount: (uint8)(data.Multiplier)})
+}
+
 func (k Keeper) SendOracleRequest(ctx sdk.Context) {
 	params := k.GetParams(ctx)
 	if params.BandChannelSource == "" {
@@ -82,23 +87,21 @@ func (k Keeper) SendOracleRequest(ctx sdk.Context) {
 	if len(symbols) == 0 {
 		return
 	}
-	encodedCalldata := obi.MustEncode(types.BandPriceCallData{
+
+	encodedCalldata, _ := k.EncodeCalldata(types.BandPriceCallData{
 		Symbols:    symbols,
-		Multiplier: params.Multiplier,
+		Multiplier: 2,
 	})
 	packetData := packet.NewOracleRequestPacketData(
 		params.ClientID,
-		params.OracleScriptID,
+		401,
 		encodedCalldata,
 		params.AskCount,
 		params.MinCount,
-		params.FeeLimit,
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 100000)),
 		params.PrepareGas,
 		params.ExecuteGas,
 	)
 
-	_, err := k.ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, params.BandChannelSource, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), packetData.GetBytes())
-	if err != nil {
-		return
-	}
+	k.ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, params.BandChannelSource, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), packetData.GetBytes())
 }

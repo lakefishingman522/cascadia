@@ -3,10 +3,10 @@ package oracle
 import (
 	"github.com/bandprotocol/bandchain-packet/obi"
 	"github.com/bandprotocol/bandchain-packet/packet"
+	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
-	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 )
 
 // handleOraclePacket handles the result of the received BandChain oracles
@@ -24,12 +24,18 @@ func (im IBCModule) handleOraclePacket(
 	switch modulePacketData.GetClientID() {
 
 	case types.BandPriceClientIDKey:
-		var BandPriceResult types.BandPriceResult
-		if err := obi.Decode(modulePacketData.Result, &BandPriceResult); err != nil {
+		var OraclePriceResult types.OraclePriceResults_UInt8Version
+		if err := obi.Decode(modulePacketData.Result, &OraclePriceResult); err != nil {
 			ack = channeltypes.NewErrorAcknowledgement(err)
 			return ack, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot decode the BandPrice received packet")
 		}
 		reqID := types.OracleRequestID(modulePacketData.RequestID)
+
+		var BandPriceResult types.BandPriceResult
+		for _, r := range OraclePriceResult.Responses {
+			BandPriceResult.Rates = append(BandPriceResult.Rates, r.Rate)
+		}
+
 		im.keeper.SetBandPriceResult(ctx, reqID, BandPriceResult)
 
 		params := im.keeper.GetParams(ctx)
@@ -91,12 +97,17 @@ func (im IBCModule) handleOracleAcknowledgment(
 		switch data.GetClientID() {
 
 		case types.BandPriceClientIDKey:
-			var RequestBandPrice types.BandPriceCallData
+			var RequestBandPrice types.Calldata
 			if err = obi.Decode(data.GetCalldata(), &RequestBandPrice); err != nil {
 				return nil, sdkerrors.Wrap(err, "cannot decode the BandPrice oracle acknowledgment packet")
 			}
 			im.keeper.SetLastBandRequestId(ctx, requestID)
-			im.keeper.SetBandRequest(ctx, requestID, RequestBandPrice)
+
+			RequestBandPrice_ := types.BandPriceCallData{
+				Symbols:    RequestBandPrice.Symbols,
+				Multiplier: uint64(RequestBandPrice.MinimumSourceCount),
+			}
+			im.keeper.SetBandRequest(ctx, requestID, RequestBandPrice_)
 			return &sdk.Result{}, nil
 			// this line is used by starport scaffolding # oracle/module/ack
 
