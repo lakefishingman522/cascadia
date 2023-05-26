@@ -19,6 +19,16 @@ import (
 	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 )
 
+// Interface declearation
+type OracleKeeperI interface {
+	// Fetch latest price from asset and source
+	GetLatestPriceFromAssetAndSource(sdk.Context, string, string) (types.Price, bool)
+	// Fetch latest price from any source
+	GetLatestPriceFromAnySource(sdk.Context, string) (types.Price, bool)
+}
+
+var _ OracleKeeperI = Keeper{}
+
 type Keeper struct {
 	*cosmosibckeeper.Keeper
 	cdc        codec.BinaryCodec
@@ -61,8 +71,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Encode call data, convert the second param as uint8
-func (k Keeper) EncodeCalldata(data types.BandPriceCallData) ([]byte, error) {
-	return obi.Encode(types.Calldata{Symbols: data.Symbols, MinimumSourceCount: (uint8)(data.Multiplier)})
+func (k Keeper) EncodeCalldata(symbols []string, minSourceCnt uint64) ([]byte, error) {
+	return obi.Encode(types.Calldata{Symbols: symbols, MinimumSourceCount: (uint8)(minSourceCnt)})
 }
 
 func (k Keeper) SendOracleRequest(ctx sdk.Context) {
@@ -88,17 +98,14 @@ func (k Keeper) SendOracleRequest(ctx sdk.Context) {
 		return
 	}
 
-	encodedCalldata, _ := k.EncodeCalldata(types.BandPriceCallData{
-		Symbols:    symbols,
-		Multiplier: 2,
-	})
+	encodedCalldata, _ := k.EncodeCalldata(symbols, params.Multiplier)
 	packetData := packet.NewOracleRequestPacketData(
 		params.ClientID,
-		401,
+		params.OracleScriptID,
 		encodedCalldata,
 		params.AskCount,
 		params.MinCount,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 100000)),
+		params.FeeLimit,
 		params.PrepareGas,
 		params.ExecuteGas,
 	)
