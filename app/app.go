@@ -77,11 +77,14 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+
 	"github.com/cosmos/cosmos-sdk/x/slashing"
+
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+
+	"github.com/cascadiafoundation/cascadia/x/staking"
+	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
@@ -136,9 +139,14 @@ import (
 	rewardkeeper "github.com/cascadiafoundation/cascadia/x/reward/keeper"
 	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
 
+	// create multisig module account for saving panelty
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	slashredirect "github.com/cascadiafoundation/cascadia/x/sustainability"
+	slashredirectkeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
+	slashredirecttypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 func init() {
@@ -205,6 +213,7 @@ var (
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
 		reward.AppModuleBasic{},
+		slashredirect.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
@@ -220,7 +229,9 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		rewardtypes.ModuleName:         nil,
-		wasm.ModuleName:                {authtypes.Burner},
+		slashredirecttypes.ModuleName:  nil,
+
+		wasm.ModuleName: {authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -283,6 +294,7 @@ type Cascadia struct {
 	// Cascadia keepers
 	InflationKeeper  inflationkeeper.Keeper
 	rewardKeeper     rewardkeeper.Keeper
+	PenaltyKeeper    slashredirectkeeper.Keeper
 	wasmKeeper       wasm.Keeper
 	scopedWasmKeeper capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
@@ -342,6 +354,8 @@ func NewCascadia(
 		// cascadia keys
 		inflationtypes.StoreKey,
 		rewardtypes.StoreKey,
+		slashredirecttypes.StoreKey,
+
 		wasm.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
@@ -476,6 +490,14 @@ func NewCascadia(
 			app.SlashingKeeper.Hooks(),
 		),
 	)
+
+	app.PenaltyKeeper = slashredirectkeeper.NewKeeper(
+		appCodec,
+		keys[slashredirecttypes.StoreKey],
+		app.GetSubspace(slashredirecttypes.ModuleName),
+		app.StakingKeeper,
+	)
+
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(),
 	)
@@ -608,6 +630,7 @@ func NewCascadia(
 		// Cascadia app modules
 		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
+		slashredirect.NewAppModule(appCodec, app.PenaltyKeeper, app.StakingKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
@@ -641,6 +664,7 @@ func NewCascadia(
 		paramstypes.ModuleName,
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		slashredirecttypes.ModuleName,
 		wasm.ModuleName,
 
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
@@ -671,6 +695,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		slashredirecttypes.ModuleName,
 		wasm.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
@@ -710,6 +735,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		slashredirecttypes.ModuleName,
 		wasm.ModuleName,
 	)
 
@@ -823,14 +849,23 @@ func (app *Cascadia) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeli
 	return app.BaseApp.DeliverTx(req)
 }
 
-// InitChainer application update at chain initialization
 func (app *Cascadia) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+
+	// Get the MultiSig address from the genesis state
+	var multiSigAddress string
+	if err := json.Unmarshal(genesisState["multisig_address"], &multiSigAddress); err != nil {
+		panic(err)
+	}
+
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
-	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	// Call the default InitChainer
+	response := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	app.StakingKeeper.SetPenaltyAccount(ctx, sdk.MustAccAddressFromBech32(multiSigAddress))
+	return response
 }
 
 // LoadHeight loads a particular height
@@ -1041,6 +1076,7 @@ func initParamsKeeper(
 	// cascadia subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
+	paramsKeeper.Subspace(slashredirecttypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 	paramsKeeper.Subspace(wasm.ModuleName)
 

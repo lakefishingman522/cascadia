@@ -124,7 +124,7 @@ func Setup(
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         utils.MainnetChainID + "-1",
+				ChainId:         utils.TestnetChainID + "-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -195,6 +195,9 @@ func GenesisStateWithValSet(app *Cascadia, genesisState simapp.GenesisState,
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
+	multisigAddress := "cascadia1yjhzxs8prhpr84swy6jr3egq37p4e5jrh6l84z" // Replace with your multisig address
+	multisigAddressJson, _ := json.Marshal(multisigAddress)
+	genesisState["multisig_address"] = multisigAddressJson
 	return genesisState
 }
 

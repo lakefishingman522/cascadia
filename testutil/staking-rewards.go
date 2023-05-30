@@ -24,12 +24,12 @@ import (
 	"github.com/cascadiafoundation/cascadia/app"
 	testutiltx "github.com/cascadiafoundation/cascadia/testutil/tx"
 	"github.com/cascadiafoundation/cascadia/utils"
+	"github.com/cascadiafoundation/cascadia/x/staking"
+	"github.com/cascadiafoundation/cascadia/x/staking/teststaking"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 

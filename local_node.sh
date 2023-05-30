@@ -5,6 +5,7 @@ KEYS[1]="dev1"
 KEYS[2]="dev2"
 CHAINID="cascadia_6102-1"
 MONIKER="localtestnet"
+MULTISIG_ADDRESS="cascadia1duc20j5qccrawl9n7url89lk5t23hur3w0rhem"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
@@ -105,6 +106,11 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		echo "pending mode is on, please wait for the first block committed."
 	fi
 fi
+
+# Add the MultiSig address to the genesis.json file
+jq --arg ms_addr "$MULTISIG_ADDRESS" '.app_state["multisig_address"]=$ms_addr' "$GENESIS" > "$TMP_GENESIS"
+cp "$TMP_GENESIS" "$GENESIS"
+rm "$TMP_GENESIS"
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
 cascadiad start --metrics "$TRACE" --log_level info --minimum-gas-prices=0.0001aCC --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
