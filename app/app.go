@@ -11,6 +11,7 @@ import (
 	"sort"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 
@@ -76,11 +77,14 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+
 	"github.com/cosmos/cosmos-sdk/x/slashing"
+
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+
+	"github.com/cascadiafoundation/cascadia/x/staking"
+	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
@@ -138,6 +142,14 @@ import (
 	oraclemodule "github.com/cascadiafoundation/cascadia/x/oracle"
 	oraclekeeper "github.com/cascadiafoundation/cascadia/x/oracle/keeper"
 	oracletypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
+	// create multisig module account for saving panelty
+
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	slashredirect "github.com/cascadiafoundation/cascadia/x/sustainability"
+	slashredirectkeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
+	slashredirecttypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 func init() {
@@ -154,6 +166,17 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
+}
+
+func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
+	var wasmOpts []wasm.Option
+	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
+	}
+
+	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(NewCascadiaWasmGasRegister()))
+
+	return wasmOpts
 }
 
 // Name defines the application binary name
@@ -194,6 +217,8 @@ var (
 		inflation.AppModuleBasic{},
 		reward.AppModuleBasic{},
 		oraclemodule.AppModuleBasic{},
+		slashredirect.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -208,7 +233,9 @@ var (
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		rewardtypes.ModuleName:         nil,
+		slashredirecttypes.ModuleName:  nil,
 
+		wasm.ModuleName: {authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -269,10 +296,13 @@ type Cascadia struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Cascadia keepers
-	InflationKeeper    inflationkeeper.Keeper
-	rewardKeeper       rewardkeeper.Keeper
-	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
+	InflationKeeper  inflationkeeper.Keeper
+	rewardKeeper     rewardkeeper.Keeper
+	PenaltyKeeper    slashredirectkeeper.Keeper
+	wasmKeeper       wasm.Keeper
 	OracleKeeper       oraclekeeper.Keeper
+	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
+	scopedWasmKeeper capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -331,6 +361,8 @@ func NewCascadia(
 		inflationtypes.StoreKey,
 		rewardtypes.StoreKey,
 		oracletypes.StoreKey,
+		slashredirecttypes.StoreKey,
+		wasm.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 
@@ -366,7 +398,8 @@ func NewCascadia(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
-
+	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
+	
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// use custom Ethermint account for contracts
@@ -462,6 +495,14 @@ func NewCascadia(
 			app.SlashingKeeper.Hooks(),
 		),
 	)
+
+	app.PenaltyKeeper = slashredirectkeeper.NewKeeper(
+		appCodec,
+		keys[slashredirecttypes.StoreKey],
+		app.GetSubspace(slashredirecttypes.ModuleName),
+		app.StakingKeeper,
+	)
+
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(),
 	)
@@ -469,6 +510,34 @@ func NewCascadia(
 		evmkeeper.NewMultiEvmHooks(
 			app.rewardKeeper.Hooks(),
 		),
+	)
+
+	wasmDir := filepath.Join(homePath, "data")
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
+
+	supportedFeatures := "iterator,staking,stargate"
+	wasmOpts := GetWasmOpts(appOpts)
+	app.wasmKeeper = wasm.NewKeeper(
+		appCodec,
+		keys[wasm.StoreKey],
+		app.GetSubspace(wasm.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedWasmKeeper,
+		app.TransferKeeper,
+		app.MsgServiceRouter(),
+		app.GRPCQueryRouter(),
+		wasmDir,
+		wasmConfig,
+		supportedFeatures,
+		wasmOpts...,
 	)
 
 	// Create Transfer Keepers
@@ -528,12 +597,15 @@ func NewCascadia(
 	// their scoped modules in `NewApp` with `ScopeToModule`
 	app.CapabilityKeeper.Seal()
 
+	// func NewIBCHandler(k types.IBCContractKeeper, ck types.ChannelKeeper, vg appVersionGetter) IBCHandler {
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
-		AddRoute(oracletypes.ModuleName, oracleIBCModule)
+		AddRoute(oracletypes.ModuleName, oracleIBCModule).
+		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.wasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -584,6 +656,8 @@ func NewCascadia(
 		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
 		oracleModule,
+		slashredirect.NewAppModule(appCodec, app.PenaltyKeeper, app.StakingKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -617,6 +691,8 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		oracletypes.ModuleName,
+		slashredirecttypes.ModuleName,
+		wasm.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -646,6 +722,8 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		oracletypes.ModuleName,
+		slashredirecttypes.ModuleName,
+		wasm.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -685,6 +763,8 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		oracletypes.ModuleName,
+		slashredirecttypes.ModuleName,
+		wasm.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -706,7 +786,7 @@ func NewCascadia(
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	app.setAnteHandler(encodingConfig.TxConfig, wasmConfig, maxGasWanted)
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 
@@ -718,6 +798,7 @@ func NewCascadia(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
+	app.scopedWasmKeeper = scopedWasmKeeper
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
@@ -734,7 +815,7 @@ func NewCascadia(
 // Name returns the name of the App
 func (app *Cascadia) Name() string { return app.BaseApp.Name() }
 
-func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
+func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmTypes.WasmConfig, maxGasWanted uint64) {
 	options := ante.HandlerOptions{
 		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
@@ -750,6 +831,8 @@ func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint6
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
+		WasmConfig:             wasmConfig,
+		TxCounterStoreKey:      app.keys[wasm.StoreKey],
 	}
 
 	if err := options.Validate(); err != nil {
@@ -794,14 +877,23 @@ func (app *Cascadia) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeli
 	return app.BaseApp.DeliverTx(req)
 }
 
-// InitChainer application update at chain initialization
 func (app *Cascadia) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+
+	// Get the MultiSig address from the genesis state
+	var multiSigAddress string
+	if err := json.Unmarshal(genesisState["multisig_address"], &multiSigAddress); err != nil {
+		panic(err)
+	}
+
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
-	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	// Call the default InitChainer
+	response := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	app.StakingKeeper.SetPenaltyAccount(ctx, sdk.MustAccAddressFromBech32(multiSigAddress))
+	return response
 }
 
 // LoadHeight loads a particular height
@@ -1013,7 +1105,9 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(slashredirecttypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
 }
