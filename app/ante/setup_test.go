@@ -41,7 +41,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.Require().NotNil(suite.app.AppCodec())
 
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), utils.MainnetChainID+"-1", consAddress, nil, nil)
+		1, time.Now().UTC(), utils.TestnetChainID+"-1", consAddress, nil, nil)
 	suite.ctx = suite.app.BaseApp.NewContext(isCheckTx, header)
 
 	suite.denom = utils.BaseDenom
