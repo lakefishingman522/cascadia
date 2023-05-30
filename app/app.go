@@ -11,6 +11,7 @@ import (
 	"sort"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 
@@ -140,6 +141,9 @@ import (
 
 	// create multisig module account for saving panelty
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	slashredirect "github.com/cascadiafoundation/cascadia/x/sustainability"
 	slashredirectkeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
 	slashredirecttypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
@@ -159,6 +163,17 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
+}
+
+func GetWasmOpts(appOpts servertypes.AppOptions) []wasm.Option {
+	var wasmOpts []wasm.Option
+	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
+	}
+
+	wasmOpts = append(wasmOpts, wasmkeeper.WithGasRegister(NewCascadiaWasmGasRegister()))
+
+	return wasmOpts
 }
 
 // Name defines the application binary name
@@ -199,6 +214,7 @@ var (
 		inflation.AppModuleBasic{},
 		reward.AppModuleBasic{},
 		slashredirect.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -215,6 +231,7 @@ var (
 		rewardtypes.ModuleName:         nil,
 		slashredirecttypes.ModuleName:  nil,
 
+		wasm.ModuleName: {authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -275,10 +292,11 @@ type Cascadia struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Cascadia keepers
-	InflationKeeper inflationkeeper.Keeper
-	rewardKeeper    rewardkeeper.Keeper
-	PenaltyKeeper   slashredirectkeeper.Keeper
-
+	InflationKeeper  inflationkeeper.Keeper
+	rewardKeeper     rewardkeeper.Keeper
+	PenaltyKeeper    slashredirectkeeper.Keeper
+	wasmKeeper       wasm.Keeper
+	scopedWasmKeeper capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -338,6 +356,7 @@ func NewCascadia(
 		rewardtypes.StoreKey,
 		slashredirecttypes.StoreKey,
 
+		wasm.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 
@@ -373,7 +392,7 @@ func NewCascadia(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
-
+	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
 	app.CapabilityKeeper.Seal()
@@ -488,6 +507,34 @@ func NewCascadia(
 		),
 	)
 
+	wasmDir := filepath.Join(homePath, "data")
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
+
+	supportedFeatures := "iterator,staking,stargate"
+	wasmOpts := GetWasmOpts(appOpts)
+	app.wasmKeeper = wasm.NewKeeper(
+		appCodec,
+		keys[wasm.StoreKey],
+		app.GetSubspace(wasm.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedWasmKeeper,
+		app.TransferKeeper,
+		app.MsgServiceRouter(),
+		app.GRPCQueryRouter(),
+		wasmDir,
+		wasmConfig,
+		supportedFeatures,
+		wasmOpts...,
+	)
+
 	// Create Transfer Keepers
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
@@ -526,11 +573,14 @@ func NewCascadia(
 	icaModule := ica.NewAppModule(&icaControllerKeeper, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
+	// func NewIBCHandler(k types.IBCContractKeeper, ck types.ChannelKeeper, vg appVersionGetter) IBCHandler {
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
-		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
+		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
+		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.wasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -581,6 +631,7 @@ func NewCascadia(
 		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
 		slashredirect.NewAppModule(appCodec, app.PenaltyKeeper, app.StakingKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -614,6 +665,7 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		slashredirecttypes.ModuleName,
+		wasm.ModuleName,
 
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
@@ -644,6 +696,7 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		slashredirecttypes.ModuleName,
+		wasm.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -683,6 +736,7 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		slashredirecttypes.ModuleName,
+		wasm.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -704,7 +758,7 @@ func NewCascadia(
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	app.setAnteHandler(encodingConfig.TxConfig, wasmConfig, maxGasWanted)
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 
@@ -716,6 +770,7 @@ func NewCascadia(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
+	app.scopedWasmKeeper = scopedWasmKeeper
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
@@ -732,7 +787,7 @@ func NewCascadia(
 // Name returns the name of the App
 func (app *Cascadia) Name() string { return app.BaseApp.Name() }
 
-func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
+func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmTypes.WasmConfig, maxGasWanted uint64) {
 	options := ante.HandlerOptions{
 		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
@@ -748,6 +803,8 @@ func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint6
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
+		WasmConfig:             wasmConfig,
+		TxCounterStoreKey:      app.keys[wasm.StoreKey],
 	}
 
 	if err := options.Validate(); err != nil {
@@ -1021,6 +1078,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
 	paramsKeeper.Subspace(slashredirecttypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
 }
