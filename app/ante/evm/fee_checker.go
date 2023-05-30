@@ -77,7 +77,7 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
 		fee := feeCoins.AmountOfNoDenomValidation(denom)
 
 		feeCap := fee.Quo(sdkmath.NewIntFromUint64(gas))
-		baseFeeInt := sdkmath.NewIntFromBigInt(baseFee)
+		baseFeeInt := sdkmath.NewIntFromBigInt(baseFee).Quo(sdk.NewInt(1e18))
 
 		if feeCap.LT(baseFeeInt) {
 			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using a higher gas price or a higher fee", feeCap, denom, baseFeeInt, denom)
