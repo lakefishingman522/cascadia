@@ -139,6 +139,9 @@ import (
 	rewardkeeper "github.com/cascadiafoundation/cascadia/x/reward/keeper"
 	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
 
+	oraclemodule "github.com/cascadiafoundation/cascadia/x/oracle"
+	oraclekeeper "github.com/cascadiafoundation/cascadia/x/oracle/keeper"
+	oracletypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	// create multisig module account for saving panelty
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -213,6 +216,7 @@ var (
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
 		reward.AppModuleBasic{},
+		oraclemodule.AppModuleBasic{},
 		slashredirect.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
@@ -296,6 +300,8 @@ type Cascadia struct {
 	rewardKeeper     rewardkeeper.Keeper
 	PenaltyKeeper    slashredirectkeeper.Keeper
 	wasmKeeper       wasm.Keeper
+	OracleKeeper       oraclekeeper.Keeper
+	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
 	scopedWasmKeeper capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -354,8 +360,8 @@ func NewCascadia(
 		// cascadia keys
 		inflationtypes.StoreKey,
 		rewardtypes.StoreKey,
+		oracletypes.StoreKey,
 		slashredirecttypes.StoreKey,
-
 		wasm.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
@@ -393,9 +399,7 @@ func NewCascadia(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
-	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
-	// their scoped modules in `NewApp` with `ScopeToModule`
-	app.CapabilityKeeper.Seal()
+	
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// use custom Ethermint account for contracts
@@ -450,7 +454,8 @@ func NewCascadia(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(oracletypes.RouterKey, oraclemodule.NewAssetInfoProposalHandler(&app.OracleKeeper))
 
 	app.rewardKeeper = *rewardkeeper.NewKeeper(
 		appCodec,
@@ -573,6 +578,25 @@ func NewCascadia(
 	icaModule := ica.NewAppModule(&icaControllerKeeper, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
+	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
+	app.ScopedOracleKeeper = scopedOracleKeeper
+	app.OracleKeeper = *oraclekeeper.NewKeeper(
+		appCodec,
+		keys[oracletypes.StoreKey],
+		keys[oracletypes.MemStoreKey],
+		app.GetSubspace(oracletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedOracleKeeper,
+	)
+	oracleModule := oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper)
+
+	oracleIBCModule := oraclemodule.NewIBCModule(app.OracleKeeper)
+
+	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
+	// their scoped modules in `NewApp` with `ScopeToModule`
+	app.CapabilityKeeper.Seal()
+
 	// func NewIBCHandler(k types.IBCContractKeeper, ck types.ChannelKeeper, vg appVersionGetter) IBCHandler {
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -580,6 +604,7 @@ func NewCascadia(
 	ibcRouter.
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
+		AddRoute(oracletypes.ModuleName, oracleIBCModule).
 		AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.wasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCKeeper.ChannelKeeper))
 
 	app.IBCKeeper.SetRouter(ibcRouter)
@@ -630,6 +655,7 @@ func NewCascadia(
 		// Cascadia app modules
 		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
+		oracleModule,
 		slashredirect.NewAppModule(appCodec, app.PenaltyKeeper, app.StakingKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
@@ -664,9 +690,9 @@ func NewCascadia(
 		paramstypes.ModuleName,
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		oracletypes.ModuleName,
 		slashredirecttypes.ModuleName,
 		wasm.ModuleName,
-
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -695,6 +721,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		oracletypes.ModuleName,
 		slashredirecttypes.ModuleName,
 		wasm.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
@@ -735,6 +762,7 @@ func NewCascadia(
 		// Cascadia modules
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
+		oracletypes.ModuleName,
 		slashredirecttypes.ModuleName,
 		wasm.ModuleName,
 	)
@@ -1076,6 +1104,7 @@ func initParamsKeeper(
 	// cascadia subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
+	paramsKeeper.Subspace(oracletypes.ModuleName)
 	paramsKeeper.Subspace(slashredirecttypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 	paramsKeeper.Subspace(wasm.ModuleName)
