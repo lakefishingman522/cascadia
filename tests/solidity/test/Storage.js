@@ -1,36 +1,21 @@
-require('dotenv').config()
-const { expect } = require("chai")
-const { sendShieldedTransaction, sendShieldedQuery, getProvider } = require("./testUtils")
+const {expect} = require("chai");
+const {ethers} = require("hardhat")
 
 describe('Storage', () => {
     let contract
-    const provider = getProvider()
-    const signerPrivateKey = process.env.FIRST_PRIVATE_KEY
 
     before(async () => {
         const TestContract = await ethers.getContractFactory('Storage')
-        contract = await TestContract.deploy({gasLimit: 1000000})
+        contract = await TestContract.deploy()
         await contract.deployed()
     })
 
     it('Should be able to set value', async () => {
         const value = Math.floor(Math.random() * 10000)
-        const tx = await sendShieldedTransaction(
-            provider,
-            signerPrivateKey,
-            contract.address,
-            contract.interface.encodeFunctionData("store", [value])
-        )
+        const tx = await contract.store(value)
         await tx.wait()
 
-        const retrievedValueResponse = await sendShieldedQuery(
-            provider,
-            signerPrivateKey,
-            contract.address,
-            contract.interface.encodeFunctionData("retrieve", [])
-        );
-        const retrievedValue = contract.interface.decodeFunctionResult("retrieve", retrievedValueResponse)[0]
-
+        const retrievedValue = await contract.retrieve()
         expect(retrievedValue).to.be.equal(value)
     })
 })

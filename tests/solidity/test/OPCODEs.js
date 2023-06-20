@@ -1,49 +1,21 @@
-require('dotenv').config()
-const { expect } = require('chai')
-const { sendShieldedTransaction, getProvider } = require("./testUtils")
+const {expect} = require('chai')
 
 describe('OPCODE test', () => {
     let contractInstance
-    const provider = getProvider()
-    const signerPrivateKey = process.env.FIRST_PRIVATE_KEY
 
     beforeEach(async () => {
         const OpcodesContract = await ethers.getContractFactory('OpCodes')
-        contractInstance = await OpcodesContract.deploy({gasLimit: 1000000})
+        contractInstance = await OpcodesContract.deploy()
         await contractInstance.deployed()
     })
 
     it('Should throw invalid op code', async () => {
-        let failed = false
-        try {
-            const tx = await sendShieldedTransaction(
-                provider,
-                signerPrivateKey,
-                contractInstance.address,
-                contractInstance.interface.encodeFunctionData("test_invalid", [])
-            )
-            await tx.wait()
-        } catch {
-            failed = true
-        }
-
-        expect(failed).to.be.true
+        const tx = await contractInstance.test_invalid()
+        await expect(tx.wait()).to.be.rejected
     })
 
     it('Should revert', async () => {
-        let failed = false
-        try {
-            const tx = await sendShieldedTransaction(
-                provider,
-                signerPrivateKey,
-                contractInstance.address,
-                contractInstance.interface.encodeFunctionData("test_revert", [])
-            )
-            await tx.wait()
-        } catch {
-            failed = true
-        }
-
-        expect(failed).to.be.true
+        const tx = await contractInstance.test_revert()
+        await expect(tx.wait()).to.be.rejected
     })
 });
