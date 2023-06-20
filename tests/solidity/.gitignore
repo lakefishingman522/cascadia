@@ -1,6 +1,11 @@
-# dependencies
-node_modules/
+node_modules
+.env
+coverage
+coverage.json
+typechain
+typechain-types
 
-# ignore package-lock files (only use yarn.lock)
-package-lock.json
-!yarn.lock
+# Hardhat files
+cache
+artifacts
+
