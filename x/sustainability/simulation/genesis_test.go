@@ -10,6 +10,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cascadiafoundation/cascadia/x/inflation/simulation"
 	"github.com/cascadiafoundation/cascadia/x/inflation/types"
+	otypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,6 +46,14 @@ func TestRandomizedGenState(t *testing.T) {
 	dec2, _ := sdk.NewDecFromStr("0.200000000000000000")
 	dec3, _ := sdk.NewDecFromStr("0.070000000000000000")
 
+	btcPrice := otypes.Price{
+		Asset:     otypes.BTC,
+		Price:     sdk.NewDec(0),
+		Source:    otypes.BAND,
+		Provider:  "",
+		Timestamp: 0,
+	}
+
 	require.Equal(t, uint64(6311520), mintGenesis.Params.BlocksPerYear)
 	require.Equal(t, dec1, mintGenesis.Params.GoalBonded)
 	require.Equal(t, dec2, mintGenesis.Params.InflationMax)
@@ -52,7 +61,7 @@ func TestRandomizedGenState(t *testing.T) {
 	require.Equal(t, "stake", mintGenesis.Params.MintDenom)
 	require.Equal(t, "0stake", mintGenesis.Minter.BlockProvision(mintGenesis.Params).String())
 	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.NextAnnualProvisions(mintGenesis.Params, sdk.OneInt()).String())
-	require.Equal(t, "0.169999926644441493", mintGenesis.Minter.NextInflationRate(mintGenesis.Params, sdk.OneDec()).String())
+	require.Equal(t, "0.169999926644441493", mintGenesis.Minter.NextInflationRate(mintGenesis.Params, sdk.OneDec(), btcPrice).String())
 	require.Equal(t, "0.170000000000000000", mintGenesis.Minter.Inflation.String())
 	require.Equal(t, "0.000000000000000000", mintGenesis.Minter.AnnualProvisions.String())
 }

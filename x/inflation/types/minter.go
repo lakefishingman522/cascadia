@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
+	otypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -42,7 +43,7 @@ func ValidateMinter(minter Minter) error {
 }
 
 // NextInflationRate returns the new inflation rate for the next hour.
-func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec) sdk.Dec {
+func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec, btcPrice otypes.Price) sdk.Dec {
 	// The target annual inflation rate is recalculated for each previsions cycle. The
 	// inflation is also subject to a rate change (positive or negative) depending on
 	// the distance from the desired ratio (67%). The maximum rate change possible is
@@ -61,6 +62,16 @@ func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec) sdk.Dec {
 		inflation = params.InflationMax
 	}
 	if inflation.LT(params.InflationMin) {
+		inflation = params.InflationMin
+	}
+
+	// If BTC price is smaller than min BTC price
+	if btcPrice.Price.GT(otypes.MAX_BTC_PRICE) {
+		inflation = params.InflationMax
+	}
+
+	// If BTC price is smaller than min BTC price
+	if btcPrice.Price.LT(otypes.MIN_BTC_PRICE) && btcPrice.Price.GT(sdk.NewDec(0)) {
 		inflation = params.InflationMin
 	}
 

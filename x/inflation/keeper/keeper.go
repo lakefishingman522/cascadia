@@ -5,6 +5,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cascadiafoundation/cascadia/x/inflation/types"
+	otypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,6 +21,7 @@ type Keeper struct {
 	bankKeeper       types.BankKeeper
 	rewardKeeper     types.RewardKeeper
 	accountKeeper    types.AccountKeeper
+	oracleKeeper     types.OracleKeeper
 	feeCollectorName string
 }
 
@@ -31,7 +33,7 @@ const (
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
-	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper, rk types.RewardKeeper,
+	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper, rk types.RewardKeeper, ok types.OracleKeeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -52,6 +54,7 @@ func NewKeeper(
 		bankKeeper:       bk,
 		rewardKeeper:     rk,
 		accountKeeper:    ak,
+		oracleKeeper:     ok,
 		feeCollectorName: feeCollectorName,
 	}
 }
@@ -166,4 +169,8 @@ func (k Keeper) GetProportions(
 		coin.Denom,
 		sdk.NewDecFromInt(coin.Amount).Mul(distribution).TruncateInt(),
 	)
+}
+
+func (k Keeper) GetLatestPriceFromAssetAndSource(ctx sdk.Context, asset string, source string) (otypes.Price, bool) {
+	return k.oracleKeeper.GetLatestPriceFromAssetAndSource(ctx, asset, source)
 }

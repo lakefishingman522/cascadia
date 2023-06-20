@@ -481,13 +481,6 @@ func NewCascadia(
 		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig, app.rewardKeeper,
 	)
 
-	// Cascadia Keeper
-	app.InflationKeeper = inflationkeeper.NewKeeper(
-		appCodec, keys[inflationtypes.StoreKey], app.GetSubspace(inflationtypes.ModuleName),
-		&stakingKeeper, app.AccountKeeper, app.BankKeeper, app.rewardKeeper,
-		authtypes.FeeCollectorName,
-	)
-
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	// NOTE: Distr, Slashing and Claim must be created before calling the Hooks method to avoid returning a Keeper without its table generated
@@ -594,6 +587,13 @@ func NewCascadia(
 	oracleModule := oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper)
 
 	oracleIBCModule := oraclemodule.NewIBCModule(app.OracleKeeper)
+
+	// Cascadia Keeper
+	app.InflationKeeper = inflationkeeper.NewKeeper(
+		appCodec, keys[inflationtypes.StoreKey], app.GetSubspace(inflationtypes.ModuleName),
+		&stakingKeeper, app.AccountKeeper, app.BankKeeper, app.rewardKeeper, app.OracleKeeper,
+		authtypes.FeeCollectorName,
+	)
 
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
