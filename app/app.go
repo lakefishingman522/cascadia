@@ -142,6 +142,7 @@ import (
 	oraclemodule "github.com/cascadiafoundation/cascadia/x/oracle"
 	oraclekeeper "github.com/cascadiafoundation/cascadia/x/oracle/keeper"
 	oracletypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
+
 	// create multisig module account for saving panelty
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -296,13 +297,13 @@ type Cascadia struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Cascadia keepers
-	InflationKeeper  inflationkeeper.Keeper
-	rewardKeeper     rewardkeeper.Keeper
-	PenaltyKeeper    slashredirectkeeper.Keeper
-	wasmKeeper       wasm.Keeper
+	InflationKeeper    inflationkeeper.Keeper
+	rewardKeeper       rewardkeeper.Keeper
+	PenaltyKeeper      slashredirectkeeper.Keeper
+	wasmKeeper         wasm.Keeper
 	OracleKeeper       oraclekeeper.Keeper
 	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
-	scopedWasmKeeper capabilitykeeper.ScopedKeeper
+	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -399,7 +400,7 @@ func NewCascadia(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
-	
+
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// use custom Ethermint account for contracts

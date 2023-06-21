@@ -13,7 +13,7 @@ KEYRING="test"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the cascadiad instance
-HOMEDIR="$HOME/.cascadiad"
+HOMEDIR="$HOME/.testcascadiad"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -76,7 +76,24 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
 	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 
-	sed -i.bak 's/127.0.0.1:26657/0.0.0.0:26657/g' "$CONFIG"
+	sed -i.bak 's/127.0.0.1:27657/0.0.0.0:27657/g' "$CONFIG"
+	
+	# avoid confilct existing cascadia
+	sed -i.bak 's/:9090/:10090/g' "$APP_TOML"
+	sed -i.bak 's/:9091/:10091/g' "$APP_TOML"
+	sed -i.bak 's/:8545/:9545/g' "$APP_TOML"
+	sed -i.bak 's/:8546/:9546/g' "$APP_TOML"
+
+	sed -i.bak 's/:6065/:7065/g' "$APP_TOML"
+	sed -i.bak 's/:1317/:2317/g' "$APP_TOML"
+	sed -i.bak 's/:8080/:9080/g' "$APP_TOML"
+	
+
+	sed -i.bak 's/:26656/:27656/g' "$CONFIG"
+	sed -i.bak 's/:26658/:27658/g' "$CONFIG"
+	sed -i.bak 's/:26660/:27660/g' "$CONFIG"
+	sed -i.bak 's/:6060/:7060/g' "$CONFIG"
+
 	sed -i.bak 's/cors_allowed_origins\s*=\s*\[\]/cors_allowed_origins = ["*",]/g' "$CONFIG"
 
 	# Allocate genesis accounts (cosmos formatted addresses)
@@ -114,4 +131,4 @@ cp "$TMP_GENESIS" "$GENESIS"
 rm "$TMP_GENESIS"
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-cascadiad start --metrics "$TRACE" --log_level info --minimum-gas-prices=0.0001aCC --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR" --rpc.laddr "tcp://0.0.0.0:26657" --json-rpc.address 0.0.0.0:8545 --json-rpc.ws-address 0.0.0.0:8546
+cascadiad start --metrics "$TRACE" --log_level info --minimum-gas-prices=0.0001aCC --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR" --rpc.laddr "tcp://0.0.0.0:27657" --json-rpc.address 0.0.0.0:9545 --json-rpc.ws-address 0.0.0.0:9546
