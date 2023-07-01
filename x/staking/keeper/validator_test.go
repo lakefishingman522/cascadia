@@ -236,9 +236,11 @@ func TestSlashToZeroPowerRemoved(t *testing.T) {
 	validator, _ = validator.AddTokensFromDel(valTokens)
 	require.Equal(t, types.Unbonded, validator.Status)
 	require.Equal(t, valTokens, validator.Tokens)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
+
 	validator = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validator, true)
+	app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
 	require.Equal(t, valTokens, validator.Tokens, "\nvalidator %v\npool %v", validator, valTokens)
+	app.StakingKeeper.SetPenaltyAccount(ctx, sdk.AccAddress(addrVals[0]))
 
 	// slash the validator by 100%
 	app.StakingKeeper.Slash(ctx, sdk.ConsAddress(PKs[0].Address()), 0, 100, sdk.OneDec())

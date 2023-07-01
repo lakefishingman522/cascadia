@@ -142,6 +142,7 @@ import (
 	oraclemodule "github.com/cascadiafoundation/cascadia/x/oracle"
 	oraclekeeper "github.com/cascadiafoundation/cascadia/x/oracle/keeper"
 	oracletypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
+
 	// create multisig module account for saving panelty
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -296,13 +297,13 @@ type Cascadia struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Cascadia keepers
-	InflationKeeper  inflationkeeper.Keeper
-	rewardKeeper     rewardkeeper.Keeper
-	PenaltyKeeper    slashredirectkeeper.Keeper
-	wasmKeeper       wasm.Keeper
+	InflationKeeper    inflationkeeper.Keeper
+	rewardKeeper       rewardkeeper.Keeper
+	PenaltyKeeper      slashredirectkeeper.Keeper
+	wasmKeeper         wasm.Keeper
 	OracleKeeper       oraclekeeper.Keeper
 	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
-	scopedWasmKeeper capabilitykeeper.ScopedKeeper
+	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -362,7 +363,8 @@ func NewCascadia(
 		rewardtypes.StoreKey,
 		oracletypes.StoreKey,
 		slashredirecttypes.StoreKey,
-		wasm.StoreKey,
+		wasmTypes.StoreKey,
+		icacontrollertypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 
@@ -399,7 +401,7 @@ func NewCascadia(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
-	
+
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// use custom Ethermint account for contracts
@@ -883,16 +885,21 @@ func (app *Cascadia) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 		panic(err)
 	}
 
+	// TODO:
+	// Update genesis.json to include multisig_address through software upgrade handler
 	// Get the MultiSig address from the genesis state
-	var multiSigAddress string
-	if err := json.Unmarshal(genesisState["multisig_address"], &multiSigAddress); err != nil {
-		panic(err)
-	}
+	// var multiSigAddress string
+	// if err := json.Unmarshal(genesisState["multisig_address"], &multiSigAddress); err != nil {
+	// 	panic(err)
+	// }
 
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	// Call the default InitChainer
 	response := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-	app.StakingKeeper.SetPenaltyAccount(ctx, sdk.MustAccAddressFromBech32(multiSigAddress))
+
+	// TODO:
+	// Update through software upgrade handler
+	// app.StakingKeeper.SetPenaltyAccount(ctx, sdk.MustAccAddressFromBech32(multiSigAddress))
 	return response
 }
 
@@ -1058,6 +1065,8 @@ func (app *Cascadia) GetTxConfig() client.TxConfig {
 	cfg := encoding.MakeConfig(ModuleBasics)
 	return cfg.TxConfig
 }
+
+func (app *Cascadia) GetKeys() map[string]*storetypes.KVStoreKey { return app.keys }
 
 // RegisterSwaggerAPI registers swagger route with API Server
 func RegisterSwaggerAPI(_ client.Context, rtr *mux.Router) {
