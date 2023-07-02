@@ -1,0 +1,11 @@
+syntax = "proto3";
+package cascadia.sustainability.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/sustainability/types";
+
+// Params defines the parameters for the module.
+message Params {
+  
+}

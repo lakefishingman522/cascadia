@@ -11,6 +11,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	sustainabilitykeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
 )
 
 // Implements ValidatorSet interface
@@ -27,12 +29,13 @@ type Keeper struct {
 	bankKeeper types.BankKeeper
 	hooks      types.StakingHooks
 	paramstore paramtypes.Subspace
+	susKeeper  sustainabilitykeeper.Keeper
 }
 
 // NewKeeper creates a new staking Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, ak types.AccountKeeper, bk types.BankKeeper,
-	ps paramtypes.Subspace,
+	ps paramtypes.Subspace, susk sustainabilitykeeper.Keeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -55,6 +58,7 @@ func NewKeeper(
 		bankKeeper: bk,
 		paramstore: ps,
 		hooks:      nil,
+		susKeeper:  susk,
 	}
 }
 
@@ -96,13 +100,9 @@ func (k Keeper) SetLastTotalPower(ctx sdk.Context, power math.Int) {
 	store.Set(types.LastTotalPowerKey, bz)
 }
 
-func (k Keeper) SetPenaltyAccount(ctx sdk.Context, address sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte("multisigAddress"), address.Bytes())
-}
-
 func (k Keeper) GetPenaltyAccount(ctx sdk.Context) sdk.AccAddress {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get([]byte("multisigAddress"))
-	return sdk.AccAddress(bz)
+	// store := ctx.KVStore(k.storeKey)
+	// bz := store.Get([]byte("multisigAddress"))
+	acc, _ := k.susKeeper.GetPenaltyAccount(ctx)
+	return sdk.AccAddress(acc.MultisigAddress)
 }

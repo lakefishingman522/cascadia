@@ -6,8 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/cosmos/cosmos-proto"
-	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	grpc "google.golang.org/grpc"
@@ -29,23 +27,23 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type MsgUpdatePenaltyAccountRequest struct {
-	Creator    string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	NewAddress string `protobuf:"bytes,2,opt,name=new_address,json=newAddress,proto3" json:"new_address,omitempty"`
+type MsgCreatePenaltyAccount struct {
+	Creator         string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	MultisigAddress string `protobuf:"bytes,3,opt,name=multisigAddress,proto3" json:"multisigAddress,omitempty"`
 }
 
-func (m *MsgUpdatePenaltyAccountRequest) Reset()         { *m = MsgUpdatePenaltyAccountRequest{} }
-func (m *MsgUpdatePenaltyAccountRequest) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdatePenaltyAccountRequest) ProtoMessage()    {}
-func (*MsgUpdatePenaltyAccountRequest) Descriptor() ([]byte, []int) {
+func (m *MsgCreatePenaltyAccount) Reset()         { *m = MsgCreatePenaltyAccount{} }
+func (m *MsgCreatePenaltyAccount) String() string { return proto.CompactTextString(m) }
+func (*MsgCreatePenaltyAccount) ProtoMessage()    {}
+func (*MsgCreatePenaltyAccount) Descriptor() ([]byte, []int) {
 	return fileDescriptor_321d1b19a8f56691, []int{0}
 }
-func (m *MsgUpdatePenaltyAccountRequest) XXX_Unmarshal(b []byte) error {
+func (m *MsgCreatePenaltyAccount) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdatePenaltyAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgCreatePenaltyAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdatePenaltyAccountRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgCreatePenaltyAccount.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -55,41 +53,128 @@ func (m *MsgUpdatePenaltyAccountRequest) XXX_Marshal(b []byte, deterministic boo
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdatePenaltyAccountRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdatePenaltyAccountRequest.Merge(m, src)
+func (m *MsgCreatePenaltyAccount) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCreatePenaltyAccount.Merge(m, src)
 }
-func (m *MsgUpdatePenaltyAccountRequest) XXX_Size() int {
+func (m *MsgCreatePenaltyAccount) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdatePenaltyAccountRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdatePenaltyAccountRequest.DiscardUnknown(m)
+func (m *MsgCreatePenaltyAccount) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCreatePenaltyAccount.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdatePenaltyAccountRequest proto.InternalMessageInfo
+var xxx_messageInfo_MsgCreatePenaltyAccount proto.InternalMessageInfo
 
-func (m *MsgUpdatePenaltyAccountRequest) GetCreator() string {
+func (m *MsgCreatePenaltyAccount) GetCreator() string {
 	if m != nil {
 		return m.Creator
 	}
 	return ""
 }
 
-func (m *MsgUpdatePenaltyAccountRequest) GetNewAddress() string {
+func (m *MsgCreatePenaltyAccount) GetMultisigAddress() string {
 	if m != nil {
-		return m.NewAddress
+		return m.MultisigAddress
+	}
+	return ""
+}
+
+type MsgCreatePenaltyAccountResponse struct {
+}
+
+func (m *MsgCreatePenaltyAccountResponse) Reset()         { *m = MsgCreatePenaltyAccountResponse{} }
+func (m *MsgCreatePenaltyAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgCreatePenaltyAccountResponse) ProtoMessage()    {}
+func (*MsgCreatePenaltyAccountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321d1b19a8f56691, []int{1}
+}
+func (m *MsgCreatePenaltyAccountResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCreatePenaltyAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCreatePenaltyAccountResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCreatePenaltyAccountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCreatePenaltyAccountResponse.Merge(m, src)
+}
+func (m *MsgCreatePenaltyAccountResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCreatePenaltyAccountResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCreatePenaltyAccountResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCreatePenaltyAccountResponse proto.InternalMessageInfo
+
+type MsgUpdatePenaltyAccount struct {
+	Creator         string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	MultisigAddress string `protobuf:"bytes,3,opt,name=multisigAddress,proto3" json:"multisigAddress,omitempty"`
+}
+
+func (m *MsgUpdatePenaltyAccount) Reset()         { *m = MsgUpdatePenaltyAccount{} }
+func (m *MsgUpdatePenaltyAccount) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdatePenaltyAccount) ProtoMessage()    {}
+func (*MsgUpdatePenaltyAccount) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321d1b19a8f56691, []int{2}
+}
+func (m *MsgUpdatePenaltyAccount) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUpdatePenaltyAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUpdatePenaltyAccount.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUpdatePenaltyAccount) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdatePenaltyAccount.Merge(m, src)
+}
+func (m *MsgUpdatePenaltyAccount) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUpdatePenaltyAccount) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdatePenaltyAccount.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUpdatePenaltyAccount proto.InternalMessageInfo
+
+func (m *MsgUpdatePenaltyAccount) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+func (m *MsgUpdatePenaltyAccount) GetMultisigAddress() string {
+	if m != nil {
+		return m.MultisigAddress
 	}
 	return ""
 }
 
 type MsgUpdatePenaltyAccountResponse struct {
-	OldAddress string `protobuf:"bytes,1,opt,name=old_address,json=oldAddress,proto3" json:"old_address,omitempty"`
 }
 
 func (m *MsgUpdatePenaltyAccountResponse) Reset()         { *m = MsgUpdatePenaltyAccountResponse{} }
 func (m *MsgUpdatePenaltyAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdatePenaltyAccountResponse) ProtoMessage()    {}
 func (*MsgUpdatePenaltyAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321d1b19a8f56691, []int{1}
+	return fileDescriptor_321d1b19a8f56691, []int{3}
 }
 func (m *MsgUpdatePenaltyAccountResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -118,16 +203,93 @@ func (m *MsgUpdatePenaltyAccountResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdatePenaltyAccountResponse proto.InternalMessageInfo
 
-func (m *MsgUpdatePenaltyAccountResponse) GetOldAddress() string {
+type MsgDeletePenaltyAccount struct {
+	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+}
+
+func (m *MsgDeletePenaltyAccount) Reset()         { *m = MsgDeletePenaltyAccount{} }
+func (m *MsgDeletePenaltyAccount) String() string { return proto.CompactTextString(m) }
+func (*MsgDeletePenaltyAccount) ProtoMessage()    {}
+func (*MsgDeletePenaltyAccount) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321d1b19a8f56691, []int{4}
+}
+func (m *MsgDeletePenaltyAccount) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgDeletePenaltyAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgDeletePenaltyAccount.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgDeletePenaltyAccount) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgDeletePenaltyAccount.Merge(m, src)
+}
+func (m *MsgDeletePenaltyAccount) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgDeletePenaltyAccount) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgDeletePenaltyAccount.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgDeletePenaltyAccount proto.InternalMessageInfo
+
+func (m *MsgDeletePenaltyAccount) GetCreator() string {
 	if m != nil {
-		return m.OldAddress
+		return m.Creator
 	}
 	return ""
 }
 
+type MsgDeletePenaltyAccountResponse struct {
+}
+
+func (m *MsgDeletePenaltyAccountResponse) Reset()         { *m = MsgDeletePenaltyAccountResponse{} }
+func (m *MsgDeletePenaltyAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgDeletePenaltyAccountResponse) ProtoMessage()    {}
+func (*MsgDeletePenaltyAccountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321d1b19a8f56691, []int{5}
+}
+func (m *MsgDeletePenaltyAccountResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgDeletePenaltyAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgDeletePenaltyAccountResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgDeletePenaltyAccountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgDeletePenaltyAccountResponse.Merge(m, src)
+}
+func (m *MsgDeletePenaltyAccountResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgDeletePenaltyAccountResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgDeletePenaltyAccountResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgDeletePenaltyAccountResponse proto.InternalMessageInfo
+
 func init() {
-	proto.RegisterType((*MsgUpdatePenaltyAccountRequest)(nil), "cascadia.sustainability.v1.MsgUpdatePenaltyAccountRequest")
+	proto.RegisterType((*MsgCreatePenaltyAccount)(nil), "cascadia.sustainability.v1.MsgCreatePenaltyAccount")
+	proto.RegisterType((*MsgCreatePenaltyAccountResponse)(nil), "cascadia.sustainability.v1.MsgCreatePenaltyAccountResponse")
+	proto.RegisterType((*MsgUpdatePenaltyAccount)(nil), "cascadia.sustainability.v1.MsgUpdatePenaltyAccount")
 	proto.RegisterType((*MsgUpdatePenaltyAccountResponse)(nil), "cascadia.sustainability.v1.MsgUpdatePenaltyAccountResponse")
+	proto.RegisterType((*MsgDeletePenaltyAccount)(nil), "cascadia.sustainability.v1.MsgDeletePenaltyAccount")
+	proto.RegisterType((*MsgDeletePenaltyAccountResponse)(nil), "cascadia.sustainability.v1.MsgDeletePenaltyAccountResponse")
 }
 
 func init() {
@@ -135,28 +297,28 @@ func init() {
 }
 
 var fileDescriptor_321d1b19a8f56691 = []byte{
-	// 323 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x92, 0xcf, 0x4a, 0x33, 0x31,
-	0x14, 0xc5, 0x9b, 0xef, 0x03, 0xc5, 0xb8, 0x1b, 0xba, 0xa8, 0xb3, 0x88, 0x52, 0x37, 0x6e, 0x9c,
-	0xa1, 0x75, 0xa5, 0xe2, 0xa2, 0xdd, 0x17, 0xa4, 0x22, 0x82, 0x08, 0x25, 0x4d, 0xe2, 0x18, 0x98,
-	0xe6, 0x8e, 0x73, 0xef, 0xf4, 0xcf, 0x53, 0xd4, 0x9d, 0x2f, 0xe2, 0x43, 0xb8, 0x2c, 0xae, 0x5c,
-	0x4a, 0xfb, 0x22, 0xd2, 0x4e, 0xa7, 0xa0, 0x58, 0x0b, 0xee, 0x92, 0x5f, 0xce, 0x39, 0xf7, 0xe6,
-	0x26, 0xfc, 0x50, 0x49, 0x54, 0x52, 0x5b, 0x19, 0x62, 0x86, 0x24, 0xad, 0x93, 0x5d, 0x1b, 0x5b,
-	0x1a, 0x85, 0xfd, 0x5a, 0x48, 0xc3, 0x20, 0x49, 0x81, 0xc0, 0xf3, 0x0b, 0x51, 0xf0, 0x55, 0x14,
-	0xf4, 0x6b, 0xfe, 0x9e, 0x02, 0xec, 0x01, 0x76, 0x16, 0xca, 0x30, 0xdf, 0xe4, 0x36, 0xbf, 0x1c,
-	0x41, 0x04, 0x39, 0x9f, 0xaf, 0x72, 0x5a, 0x1d, 0x33, 0x2e, 0x5a, 0x18, 0x5d, 0x27, 0x5a, 0x92,
-	0xb9, 0x34, 0x4e, 0xc6, 0x34, 0x6a, 0x28, 0x05, 0x99, 0xa3, 0xb6, 0x79, 0xcc, 0x0c, 0x92, 0x57,
-	0xe7, 0xdb, 0x2a, 0x35, 0x92, 0x20, 0xad, 0xb0, 0x03, 0x76, 0xb4, 0xd3, 0xac, 0xbc, 0xbd, 0x1c,
-	0x97, 0x97, 0xd9, 0x0d, 0xad, 0x53, 0x83, 0x78, 0x45, 0xa9, 0x75, 0x51, 0xbb, 0x10, 0x7a, 0xa7,
-	0x7c, 0xd7, 0x99, 0x41, 0x47, 0xe6, 0xa7, 0x95, 0x7f, 0x1b, 0x7c, 0xdc, 0x99, 0xc1, 0x92, 0x54,
-	0xef, 0xf8, 0xfe, 0xda, 0x86, 0x30, 0x01, 0x87, 0x66, 0x9e, 0x0e, 0xb1, 0x5e, 0xa5, 0x6f, 0xea,
-	0x8a, 0x43, 0xac, 0x97, 0xa4, 0xfe, 0xcc, 0xf8, 0xff, 0x16, 0x46, 0xde, 0x98, 0xf1, 0xf2, 0x4f,
-	0x35, 0xbc, 0xb3, 0x60, 0xfd, 0x78, 0x83, 0xdf, 0x27, 0xe5, 0x9f, 0xff, 0xc9, 0x9b, 0x5f, 0xaa,
-	0x79, 0xf3, 0x3a, 0x15, 0x6c, 0x32, 0x15, 0xec, 0x63, 0x2a, 0xd8, 0xd3, 0x4c, 0x94, 0x26, 0x33,
-	0x51, 0x7a, 0x9f, 0x89, 0xd2, 0xed, 0x45, 0x64, 0xe9, 0x21, 0xeb, 0x06, 0x0a, 0x7a, 0x61, 0x51,
-	0xe0, 0x1e, 0x32, 0xa7, 0x25, 0x59, 0x70, 0x2b, 0x14, 0x0e, 0xbf, 0xff, 0x1a, 0x1a, 0x25, 0x06,
-	0xbb, 0x5b, 0x8b, 0x97, 0x3e, 0xf9, 0x0c, 0x00, 0x00, 0xff, 0xff, 0xc8, 0xad, 0x93, 0x74, 0x5d,
-	0x02, 0x00, 0x00,
+	// 327 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x4e, 0x4e, 0x2c, 0x4e,
+	0x4e, 0x4c, 0xc9, 0x4c, 0xd4, 0x2f, 0x2e, 0x2d, 0x2e, 0x49, 0xcc, 0xcc, 0x4b, 0x4c, 0xca, 0xcc,
+	0xc9, 0x2c, 0xa9, 0xd4, 0x2f, 0x33, 0xd4, 0x2f, 0xa9, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17,
+	0x92, 0x82, 0x29, 0xd2, 0x43, 0x55, 0xa4, 0x57, 0x66, 0x28, 0x65, 0x80, 0xc7, 0x80, 0x82, 0xd4,
+	0xbc, 0xc4, 0x9c, 0x92, 0xca, 0xf8, 0xc4, 0xe4, 0xe4, 0xfc, 0xd2, 0xbc, 0x12, 0x88, 0x69, 0x4a,
+	0xb1, 0x5c, 0xe2, 0xbe, 0xc5, 0xe9, 0xce, 0x45, 0xa9, 0x89, 0x25, 0xa9, 0x01, 0x10, 0x15, 0x8e,
+	0x10, 0x05, 0x42, 0x12, 0x5c, 0xec, 0xc9, 0x20, 0xf1, 0xfc, 0x22, 0x09, 0x46, 0x05, 0x46, 0x0d,
+	0xce, 0x20, 0x18, 0x57, 0x48, 0x83, 0x8b, 0x3f, 0xb7, 0x34, 0xa7, 0x24, 0xb3, 0x38, 0x33, 0xdd,
+	0x31, 0x25, 0xa5, 0x28, 0xb5, 0xb8, 0x58, 0x82, 0x19, 0xac, 0x02, 0x5d, 0x58, 0x49, 0x91, 0x4b,
+	0x1e, 0x87, 0xf1, 0x41, 0xa9, 0xc5, 0x05, 0xf9, 0x79, 0xc5, 0xa9, 0x50, 0x17, 0x84, 0x16, 0xa4,
+	0xd0, 0xd2, 0x05, 0xd8, 0x8c, 0x87, 0xbb, 0xc0, 0x18, 0xec, 0x02, 0x97, 0xd4, 0x9c, 0x54, 0xe2,
+	0x5d, 0x00, 0x35, 0x17, 0x9b, 0x26, 0x98, 0xb9, 0x46, 0xcb, 0x98, 0xb9, 0x98, 0x7d, 0x8b, 0xd3,
+	0x85, 0x3a, 0x18, 0xb9, 0x44, 0xb0, 0x86, 0xb0, 0xb1, 0x1e, 0xee, 0xb8, 0xd4, 0xc3, 0x11, 0x6e,
+	0x52, 0xd6, 0x64, 0x68, 0x82, 0x39, 0x09, 0xec, 0x14, 0xac, 0x41, 0x4d, 0xc8, 0x29, 0xd8, 0x34,
+	0x11, 0x74, 0x0a, 0xbe, 0x50, 0x07, 0x3b, 0x05, 0x6b, 0x98, 0x13, 0x72, 0x0a, 0x36, 0x4d, 0x04,
+	0x9d, 0x82, 0x2f, 0xa2, 0x9c, 0xc2, 0x4f, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1,
+	0x23, 0x39, 0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21,
+	0xca, 0x36, 0x3d, 0xb3, 0x24, 0xa3, 0x34, 0x49, 0x2f, 0x39, 0x3f, 0x57, 0x1f, 0x66, 0x41, 0x5a,
+	0x7e, 0x69, 0x5e, 0x4a, 0x62, 0x49, 0x66, 0x7e, 0x1e, 0x5c, 0x48, 0xbf, 0x02, 0x3d, 0xc3, 0x95,
+	0x54, 0x16, 0xa4, 0x16, 0x27, 0xb1, 0x81, 0x33, 0x99, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x2a,
+	0x19, 0xcd, 0xdb, 0xd9, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -171,7 +333,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	UpdatePenaltyAccount(ctx context.Context, in *MsgUpdatePenaltyAccountRequest, opts ...grpc.CallOption) (*MsgUpdatePenaltyAccountResponse, error)
+	CreatePenaltyAccount(ctx context.Context, in *MsgCreatePenaltyAccount, opts ...grpc.CallOption) (*MsgCreatePenaltyAccountResponse, error)
+	UpdatePenaltyAccount(ctx context.Context, in *MsgUpdatePenaltyAccount, opts ...grpc.CallOption) (*MsgUpdatePenaltyAccountResponse, error)
+	DeletePenaltyAccount(ctx context.Context, in *MsgDeletePenaltyAccount, opts ...grpc.CallOption) (*MsgDeletePenaltyAccountResponse, error)
 }
 
 type msgClient struct {
@@ -182,7 +346,16 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) UpdatePenaltyAccount(ctx context.Context, in *MsgUpdatePenaltyAccountRequest, opts ...grpc.CallOption) (*MsgUpdatePenaltyAccountResponse, error) {
+func (c *msgClient) CreatePenaltyAccount(ctx context.Context, in *MsgCreatePenaltyAccount, opts ...grpc.CallOption) (*MsgCreatePenaltyAccountResponse, error) {
+	out := new(MsgCreatePenaltyAccountResponse)
+	err := c.cc.Invoke(ctx, "/cascadia.sustainability.v1.Msg/CreatePenaltyAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) UpdatePenaltyAccount(ctx context.Context, in *MsgUpdatePenaltyAccount, opts ...grpc.CallOption) (*MsgUpdatePenaltyAccountResponse, error) {
 	out := new(MsgUpdatePenaltyAccountResponse)
 	err := c.cc.Invoke(ctx, "/cascadia.sustainability.v1.Msg/UpdatePenaltyAccount", in, out, opts...)
 	if err != nil {
@@ -191,25 +364,60 @@ func (c *msgClient) UpdatePenaltyAccount(ctx context.Context, in *MsgUpdatePenal
 	return out, nil
 }
 
+func (c *msgClient) DeletePenaltyAccount(ctx context.Context, in *MsgDeletePenaltyAccount, opts ...grpc.CallOption) (*MsgDeletePenaltyAccountResponse, error) {
+	out := new(MsgDeletePenaltyAccountResponse)
+	err := c.cc.Invoke(ctx, "/cascadia.sustainability.v1.Msg/DeletePenaltyAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	UpdatePenaltyAccount(context.Context, *MsgUpdatePenaltyAccountRequest) (*MsgUpdatePenaltyAccountResponse, error)
+	CreatePenaltyAccount(context.Context, *MsgCreatePenaltyAccount) (*MsgCreatePenaltyAccountResponse, error)
+	UpdatePenaltyAccount(context.Context, *MsgUpdatePenaltyAccount) (*MsgUpdatePenaltyAccountResponse, error)
+	DeletePenaltyAccount(context.Context, *MsgDeletePenaltyAccount) (*MsgDeletePenaltyAccountResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) UpdatePenaltyAccount(ctx context.Context, req *MsgUpdatePenaltyAccountRequest) (*MsgUpdatePenaltyAccountResponse, error) {
+func (*UnimplementedMsgServer) CreatePenaltyAccount(ctx context.Context, req *MsgCreatePenaltyAccount) (*MsgCreatePenaltyAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePenaltyAccount not implemented")
+}
+func (*UnimplementedMsgServer) UpdatePenaltyAccount(ctx context.Context, req *MsgUpdatePenaltyAccount) (*MsgUpdatePenaltyAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePenaltyAccount not implemented")
+}
+func (*UnimplementedMsgServer) DeletePenaltyAccount(ctx context.Context, req *MsgDeletePenaltyAccount) (*MsgDeletePenaltyAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePenaltyAccount not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
+func _Msg_CreatePenaltyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgCreatePenaltyAccount)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).CreatePenaltyAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cascadia.sustainability.v1.Msg/CreatePenaltyAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).CreatePenaltyAccount(ctx, req.(*MsgCreatePenaltyAccount))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Msg_UpdatePenaltyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUpdatePenaltyAccountRequest)
+	in := new(MsgUpdatePenaltyAccount)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -221,7 +429,25 @@ func _Msg_UpdatePenaltyAccount_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/cascadia.sustainability.v1.Msg/UpdatePenaltyAccount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).UpdatePenaltyAccount(ctx, req.(*MsgUpdatePenaltyAccountRequest))
+		return srv.(MsgServer).UpdatePenaltyAccount(ctx, req.(*MsgUpdatePenaltyAccount))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_DeletePenaltyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgDeletePenaltyAccount)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).DeletePenaltyAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cascadia.sustainability.v1.Msg/DeletePenaltyAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).DeletePenaltyAccount(ctx, req.(*MsgDeletePenaltyAccount))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -231,15 +457,23 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CreatePenaltyAccount",
+			Handler:    _Msg_CreatePenaltyAccount_Handler,
+		},
+		{
 			MethodName: "UpdatePenaltyAccount",
 			Handler:    _Msg_UpdatePenaltyAccount_Handler,
+		},
+		{
+			MethodName: "DeletePenaltyAccount",
+			Handler:    _Msg_DeletePenaltyAccount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "cascadia/sustainability/v1/tx.proto",
 }
 
-func (m *MsgUpdatePenaltyAccountRequest) Marshal() (dAtA []byte, err error) {
+func (m *MsgCreatePenaltyAccount) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -249,22 +483,82 @@ func (m *MsgUpdatePenaltyAccountRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdatePenaltyAccountRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgCreatePenaltyAccount) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdatePenaltyAccountRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgCreatePenaltyAccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.NewAddress) > 0 {
-		i -= len(m.NewAddress)
-		copy(dAtA[i:], m.NewAddress)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.NewAddress)))
+	if len(m.MultisigAddress) > 0 {
+		i -= len(m.MultisigAddress)
+		copy(dAtA[i:], m.MultisigAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.MultisigAddress)))
 		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x1a
+	}
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCreatePenaltyAccountResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCreatePenaltyAccountResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCreatePenaltyAccountResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUpdatePenaltyAccount) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUpdatePenaltyAccount) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUpdatePenaltyAccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.MultisigAddress) > 0 {
+		i -= len(m.MultisigAddress)
+		copy(dAtA[i:], m.MultisigAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.MultisigAddress)))
+		i--
+		dAtA[i] = 0x1a
 	}
 	if len(m.Creator) > 0 {
 		i -= len(m.Creator)
@@ -296,13 +590,59 @@ func (m *MsgUpdatePenaltyAccountResponse) MarshalToSizedBuffer(dAtA []byte) (int
 	_ = i
 	var l int
 	_ = l
-	if len(m.OldAddress) > 0 {
-		i -= len(m.OldAddress)
-		copy(dAtA[i:], m.OldAddress)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.OldAddress)))
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgDeletePenaltyAccount) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgDeletePenaltyAccount) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgDeletePenaltyAccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
 		i--
 		dAtA[i] = 0xa
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgDeletePenaltyAccountResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgDeletePenaltyAccountResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgDeletePenaltyAccountResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	return len(dAtA) - i, nil
 }
 
@@ -317,7 +657,7 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *MsgUpdatePenaltyAccountRequest) Size() (n int) {
+func (m *MsgCreatePenaltyAccount) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -327,7 +667,33 @@ func (m *MsgUpdatePenaltyAccountRequest) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.NewAddress)
+	l = len(m.MultisigAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgCreatePenaltyAccountResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgUpdatePenaltyAccount) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.MultisigAddress)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
@@ -340,10 +706,28 @@ func (m *MsgUpdatePenaltyAccountResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.OldAddress)
+	return n
+}
+
+func (m *MsgDeletePenaltyAccount) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Creator)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	return n
+}
+
+func (m *MsgDeletePenaltyAccountResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	return n
 }
 
@@ -353,7 +737,7 @@ func sovTx(x uint64) (n int) {
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *MsgUpdatePenaltyAccountRequest) Unmarshal(dAtA []byte) error {
+func (m *MsgCreatePenaltyAccount) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -376,10 +760,10 @@ func (m *MsgUpdatePenaltyAccountRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdatePenaltyAccountRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgCreatePenaltyAccount: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdatePenaltyAccountRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgCreatePenaltyAccount: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -414,9 +798,9 @@ func (m *MsgUpdatePenaltyAccountRequest) Unmarshal(dAtA []byte) error {
 			}
 			m.Creator = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
+		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NewAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MultisigAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -444,7 +828,171 @@ func (m *MsgUpdatePenaltyAccountRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NewAddress = string(dAtA[iNdEx:postIndex])
+			m.MultisigAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCreatePenaltyAccountResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCreatePenaltyAccountResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCreatePenaltyAccountResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUpdatePenaltyAccount) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUpdatePenaltyAccount: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUpdatePenaltyAccount: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MultisigAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MultisigAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -496,9 +1044,59 @@ func (m *MsgUpdatePenaltyAccountResponse) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: MsgUpdatePenaltyAccountResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgDeletePenaltyAccount) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgDeletePenaltyAccount: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgDeletePenaltyAccount: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OldAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -526,8 +1124,58 @@ func (m *MsgUpdatePenaltyAccountResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.OldAddress = string(dAtA[iNdEx:postIndex])
+			m.Creator = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgDeletePenaltyAccountResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgDeletePenaltyAccountResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgDeletePenaltyAccountResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])

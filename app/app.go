@@ -148,9 +148,9 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	slashredirect "github.com/cascadiafoundation/cascadia/x/sustainability"
-	slashredirectkeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
-	slashredirecttypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
+	sustainabilitymodule "github.com/cascadiafoundation/cascadia/x/sustainability"
+	sustainabilitymodulekeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
+	sustainabilitymoduletypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 func init() {
@@ -218,23 +218,23 @@ var (
 		inflation.AppModuleBasic{},
 		reward.AppModuleBasic{},
 		oraclemodule.AppModuleBasic{},
-		slashredirect.AppModuleBasic{},
+		sustainabilitymodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
-		distrtypes.ModuleName:          nil,
-		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-		govtypes.ModuleName:            {authtypes.Burner},
-		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		icatypes.ModuleName:            nil,
-		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
-		inflationtypes.ModuleName:      {authtypes.Minter},
-		rewardtypes.ModuleName:         nil,
-		slashredirecttypes.ModuleName:  nil,
+		authtypes.FeeCollectorName:           nil,
+		distrtypes.ModuleName:                nil,
+		stakingtypes.BondedPoolName:          {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName:       {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:                  {authtypes.Burner},
+		ibctransfertypes.ModuleName:          {authtypes.Minter, authtypes.Burner},
+		icatypes.ModuleName:                  nil,
+		evmtypes.ModuleName:                  {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+		inflationtypes.ModuleName:            {authtypes.Minter},
+		rewardtypes.ModuleName:               nil,
+		sustainabilitymoduletypes.ModuleName: nil,
 
 		wasm.ModuleName: {authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
@@ -297,13 +297,13 @@ type Cascadia struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Cascadia keepers
-	InflationKeeper    inflationkeeper.Keeper
-	rewardKeeper       rewardkeeper.Keeper
-	PenaltyKeeper      slashredirectkeeper.Keeper
-	wasmKeeper         wasm.Keeper
-	OracleKeeper       oraclekeeper.Keeper
-	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
-	scopedWasmKeeper   capabilitykeeper.ScopedKeeper
+	InflationKeeper      inflationkeeper.Keeper
+	rewardKeeper         rewardkeeper.Keeper
+	SustainabilityKeeper sustainabilitymodulekeeper.Keeper
+	wasmKeeper           wasm.Keeper
+	OracleKeeper         oraclekeeper.Keeper
+	ScopedOracleKeeper   capabilitykeeper.ScopedKeeper
+	scopedWasmKeeper     capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -362,7 +362,7 @@ func NewCascadia(
 		inflationtypes.StoreKey,
 		rewardtypes.StoreKey,
 		oracletypes.StoreKey,
-		slashredirecttypes.StoreKey,
+		sustainabilitymoduletypes.StoreKey,
 		wasmTypes.StoreKey,
 		icacontrollertypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
@@ -412,7 +412,7 @@ func NewCascadia(
 		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
 	)
 	stakingKeeper := stakingkeeper.NewKeeper(
-		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
+		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName), app.SustainabilityKeeper,
 	)
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -498,12 +498,13 @@ func NewCascadia(
 		),
 	)
 
-	app.PenaltyKeeper = slashredirectkeeper.NewKeeper(
+	app.SustainabilityKeeper = *sustainabilitymodulekeeper.NewKeeper(
 		appCodec,
-		keys[slashredirecttypes.StoreKey],
-		app.GetSubspace(slashredirecttypes.ModuleName),
-		app.StakingKeeper,
+		keys[sustainabilitymoduletypes.StoreKey],
+		keys[sustainabilitymoduletypes.MemStoreKey],
+		app.GetSubspace(sustainabilitymoduletypes.ModuleName),
 	)
+	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper)
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(),
@@ -640,7 +641,7 @@ func NewCascadia(
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.SustainabilityKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),
@@ -658,7 +659,7 @@ func NewCascadia(
 		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
 		oracleModule,
-		slashredirect.NewAppModule(appCodec, app.PenaltyKeeper, app.StakingKeeper),
+		sustainabilityModule,
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
@@ -693,7 +694,7 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		oracletypes.ModuleName,
-		slashredirecttypes.ModuleName,
+		sustainabilitymoduletypes.ModuleName,
 		wasm.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
@@ -724,7 +725,7 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		oracletypes.ModuleName,
-		slashredirecttypes.ModuleName,
+		sustainabilitymoduletypes.ModuleName,
 		wasm.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
@@ -765,7 +766,7 @@ func NewCascadia(
 		inflationtypes.ModuleName,
 		rewardtypes.ModuleName,
 		oracletypes.ModuleName,
-		slashredirecttypes.ModuleName,
+		sustainabilitymoduletypes.ModuleName,
 		wasm.ModuleName,
 	)
 
@@ -1114,7 +1115,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
-	paramsKeeper.Subspace(slashredirecttypes.ModuleName)
+	paramsKeeper.Subspace(sustainabilitymoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 	paramsKeeper.Subspace(wasm.ModuleName)
 

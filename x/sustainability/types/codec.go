@@ -8,13 +8,17 @@ import (
 )
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgUpdatePenaltyAccountRequest{}, "penalty/UpdatePenaltyAccount", nil)
+	cdc.RegisterConcrete(&MsgCreatePenaltyAccount{}, "sustainability/CreatePenaltyAccount", nil)
+	cdc.RegisterConcrete(&MsgUpdatePenaltyAccount{}, "sustainability/UpdatePenaltyAccount", nil)
+	cdc.RegisterConcrete(&MsgDeletePenaltyAccount{}, "sustainability/DeletePenaltyAccount", nil)
 	// this line is used by starport scaffolding # 2
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgUpdatePenaltyAccountRequest{},
+		&MsgCreatePenaltyAccount{},
+		&MsgUpdatePenaltyAccount{},
+		&MsgDeletePenaltyAccount{},
 	)
 	// this line is used by starport scaffolding # 3
 
