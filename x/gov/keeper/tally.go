@@ -46,8 +46,8 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	submitTime := big.NewInt(proposal.SubmitTime.Unix())
 
 	// Get the total voting power
-	// totalBalance := sdk.NewDecFromBigInt(keeper.rk.TotalSupply(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, submitTime))
-	totalBalance := sdk.ZeroDec()
+	totalBalance := sdk.NewDecFromBigInt(keeper.rk.TotalSupply(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, submitTime))
+	// totalBalance := sdk.ZeroDec()
 
 	keeper.IterateVotes(ctx, proposal.Id, func(vote v1.Vote) bool {
 		// if validator, just record it in the map

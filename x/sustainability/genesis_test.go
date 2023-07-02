@@ -3,8 +3,8 @@ package sustainability_test
 import (
 	"testing"
 
-	keepertest "github.com/cascadiafoundation/github.com/cascadiafoundation/cascadia/testutil/keeper"
-	"github.com/cascadiafoundation/github.com/cascadiafoundation/cascadia/testutil/nullify"
+	keepertest "github.com/cascadiafoundation/cascadia/testutil/keeper"
+	"github.com/cascadiafoundation/cascadia/testutil/nullify"
 
 	"github.com/cascadiafoundation/cascadia/x/sustainability"
 	"github.com/cascadiafoundation/cascadia/x/sustainability/types"

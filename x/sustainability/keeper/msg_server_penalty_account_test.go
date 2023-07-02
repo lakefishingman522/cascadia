@@ -7,7 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 
-	keepertest "github.com/cascadiafoundation/github.com/cascadiafoundation/cascadia/testutil/keeper"
+	keepertest "github.com/cascadiafoundation/cascadia/testutil/keeper"
 
 	"github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
 	"github.com/cascadiafoundation/cascadia/x/sustainability/types"

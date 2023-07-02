@@ -8,7 +8,7 @@ import (
 
 	keepertest "github.com/cascadiafoundation/cascadia/testutil/keeper"
 
-	"github.com/cascadiafoundation/github.com/cascadiafoundation/cascadia/testutil/nullify"
+	"github.com/cascadiafoundation/cascadia/testutil/nullify"
 
 	"github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
 	"github.com/cascadiafoundation/cascadia/x/sustainability/types"

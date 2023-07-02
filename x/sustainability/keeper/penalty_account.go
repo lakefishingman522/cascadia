@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"github.com/cascadiafoundation/cascadia/x/sustainability/types"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -11,9 +9,6 @@ import (
 
 // SetPenaltyAccount set penaltyAccount in the store
 func (k Keeper) SetPenaltyAccount(ctx sdk.Context, penaltyAccount types.PenaltyAccount) {
-
-	fmt.Println("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*")
-
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PenaltyAccountKey))
 	b := k.cdc.MustMarshal(&penaltyAccount)
 	store.Set([]byte{0}, b)
