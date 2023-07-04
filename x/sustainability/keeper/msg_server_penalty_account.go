@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/cascadiafoundation/cascadia/x/sustainability/types"
 
@@ -23,7 +22,7 @@ func (k msgServer) CreatePenaltyAccount(goCtx context.Context, msg *types.MsgCre
 		Creator:         msg.Creator,
 		MultisigAddress: msg.MultisigAddress,
 	}
-	fmt.Println("_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*")
+
 	k.SetPenaltyAccount(
 		ctx,
 		penaltyAccount,

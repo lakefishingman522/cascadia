@@ -131,7 +131,7 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 
 	multisigAddress := k.GetPenaltyAccount(ctx)
 	if multisigAddress == nil {
-		fmt.Println("+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=: multisigAddress is nil")
+
 		switch validator.GetStatus() {
 		case types.Bonded:
 			if err := k.burnBondedTokens(ctx, tokensToBurn); err != nil {
@@ -145,7 +145,7 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 			panic("invalid validator status")
 		}
 	} else {
-		fmt.Println("+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=:multisigAddress:", multisigAddress)
+
 		switch validator.GetStatus() {
 		case types.Bonded, types.Unbonding:
 			// Send the slashed tokens to the multisig address

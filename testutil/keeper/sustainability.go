@@ -37,10 +37,10 @@ func SustainabilityKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		"SustainabilityParams",
 	)
 	k := keeper.NewKeeper(
-	    cdc,
-	    storeKey,
-	    memStoreKey,
-	    paramsSubspace, 
+		cdc,
+		storeKey,
+		memStoreKey,
+		paramsSubspace,
 	)
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
