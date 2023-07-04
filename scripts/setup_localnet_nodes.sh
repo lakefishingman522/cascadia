@@ -422,7 +422,7 @@ prompt_to_delete_folders
 echo "Continuing with node setup..."
 
 # Download snapshot data
-download_snapshot_data
+# download_snapshot_data
 
 # Initialize nodes
 initialize_nodes
