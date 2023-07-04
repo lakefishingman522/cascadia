@@ -7,10 +7,14 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 // Implements ValidatorSet interface
@@ -59,7 +63,7 @@ func NewKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+func (k Keeper) Logger(ctx sdktypes.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
@@ -75,34 +79,47 @@ func (k *Keeper) SetHooks(sh types.StakingHooks) *Keeper {
 }
 
 // Load the last total validator power.
-func (k Keeper) GetLastTotalPower(ctx sdk.Context) math.Int {
+func (k Keeper) GetLastTotalPower(ctx sdktypes.Context) math.Int {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.LastTotalPowerKey)
 
 	if bz == nil {
-		return sdk.ZeroInt()
+		return sdktypes.ZeroInt()
 	}
 
-	ip := sdk.IntProto{}
+	ip := sdktypes.IntProto{}
 	k.cdc.MustUnmarshal(bz, &ip)
 
 	return ip.Int
 }
 
 // Set the last total validator power.
-func (k Keeper) SetLastTotalPower(ctx sdk.Context, power math.Int) {
+func (k Keeper) SetLastTotalPower(ctx sdktypes.Context, power math.Int) {
 	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&sdk.IntProto{Int: power})
+	bz := k.cdc.MustMarshal(&sdktypes.IntProto{Int: power})
 	store.Set(types.LastTotalPowerKey, bz)
 }
 
-func (k Keeper) SetPenaltyAccount(ctx sdk.Context, address sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte("multisigAddress"), address.Bytes())
+func (k Keeper) SetPenaltyAccount(ctx sdktypes.Context, penaltyAccount sustainabilitytypes.PenaltyAccount) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), sustainabilitytypes.KeyPrefix(sustainabilitytypes.PenaltyAccountKey))
+	b := k.cdc.MustMarshal(&penaltyAccount)
+
+	store.Set([]byte{0}, b)
 }
 
-func (k Keeper) GetPenaltyAccount(ctx sdk.Context) sdk.AccAddress {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get([]byte("multisigAddress"))
-	return sdk.AccAddress(bz)
+func (k Keeper) GetPenaltyAccount(ctx sdktypes.Context) sdktypes.AccAddress {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), sustainabilitytypes.KeyPrefix(sustainabilitytypes.PenaltyAccountKey))
+	val := sustainabilitytypes.PenaltyAccount{}
+
+	b := store.Get([]byte{0})
+	if b == nil {
+		return nil
+	}
+	k.cdc.MustUnmarshal(b, &val)
+	bz, err := sdktypes.GetFromBech32(val.GetMultisigAddress(), "cascadia")
+	if err != nil {
+		panic(err)
+	}
+	return bz
+
 }

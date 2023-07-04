@@ -130,7 +130,7 @@ var _ = Describe("Feemarket", func() {
 				})
 
 				It("should reject transactions with MinGasPrices < gasPrice < baseFee", func() {
-					gasPrice := sdkmath.NewInt(4)
+					gasPrice := sdkmath.NewInt(2)
 					_, err := testutil.CheckTx(s.ctx, s.app, privKey, &gasPrice, &msg)
 					Expect(err).ToNot(BeNil(), "transaction should have failed")
 					Expect(
@@ -160,7 +160,7 @@ var _ = Describe("Feemarket", func() {
 				})
 
 				It("should reject transactions with MinGasPrices < gasPrice < baseFee", func() {
-					gasPrice := sdkmath.NewInt(4)
+					gasPrice := sdkmath.NewInt(2)
 					_, err := testutil.CheckTx(s.ctx, s.app, privKey, &gasPrice, &msg)
 					Expect(err).ToNot(BeNil(), "transaction should have failed")
 					Expect(

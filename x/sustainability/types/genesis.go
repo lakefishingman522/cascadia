@@ -1,25 +1,25 @@
 package types
 
-// NewGenesisState creates a new GenesisState object
-func NewGenesisState(params Params) *GenesisState {
-	return &GenesisState{
-		Params: &params,
-	}
-}
+import (
+// this line is used by starport scaffolding # genesis/types/import
+)
 
-// DefaultGenesisState creates a default GenesisState object
-func DefaultGenesisState() *GenesisState {
+// DefaultIndex is the default global index
+const DefaultIndex uint64 = 1
+
+// DefaultGenesis returns the default genesis state
+func DefaultGenesis() *GenesisState {
 	return &GenesisState{
+		PenaltyAccount: nil,
+		// this line is used by starport scaffolding # genesis/types/default
 		Params: DefaultParams(),
 	}
 }
 
-// ValidateGenesis validates the provided genesis state to ensure the
-// expected invariants holds.
-func ValidateGenesis(data GenesisState) error {
-	if err := data.Params.Validate(); err != nil {
-		return err
-	}
+// Validate performs basic genesis state validation returning an error upon any
+// failure.
+func (gs GenesisState) Validate() error {
+	// this line is used by starport scaffolding # genesis/types/validate
 
-	return nil
+	return gs.Params.Validate()
 }

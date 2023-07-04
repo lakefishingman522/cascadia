@@ -1,18 +1,23 @@
 package types
 
-// MinterKey is the key to use for the keeper store.
-var MinterKey = []byte{0x00}
-
 const (
-	// module name
-	ModuleName = "slashredirect"
+	// ModuleName defines the module name
+	ModuleName = "sustainability"
 
-	// StoreKey is the default store key for mint
+	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
 
-	// QuerierRoute is the querier route for the minting store.
-	QuerierRoute = StoreKey
+	// RouterKey defines the module's message routing key
+	RouterKey = ModuleName
 
-	// Query endpoints supported by the minting querier
-	QueryParameters = "parameters"
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "mem_sustainability"
+)
+
+func KeyPrefix(p string) []byte {
+	return []byte(p)
+}
+
+const (
+	PenaltyAccountKey = "PenaltyAccount/value/"
 )

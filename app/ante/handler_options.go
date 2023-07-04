@@ -129,8 +129,6 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
 		),
-		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
-		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 		ante.NewSetUpContextDecorator(),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
@@ -147,6 +145,8 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
+		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
+		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 	)
 }
 
@@ -175,5 +175,7 @@ func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
+		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit),
+		wasmkeeper.NewCountTXDecorator(options.TxCounterStoreKey),
 	)
 }

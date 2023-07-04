@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -14,6 +15,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 // bootstrapSlashTest creates 3 validators and bootstrap the app.
@@ -21,6 +24,7 @@ func bootstrapSlashTest(t *testing.T, power int64) (*simapp.SimApp, sdk.Context,
 	_, app, ctx := createTestInput(t)
 
 	addrDels, addrVals := generateAddresses(app, ctx, 100)
+	fmt.Println(sdk.AccAddress(addrVals[0]).String())
 
 	amt := app.StakingKeeper.TokensFromConsensusPower(ctx, power)
 	totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), amt.MulRaw(int64(len(addrDels)))))
@@ -44,7 +48,14 @@ func bootstrapSlashTest(t *testing.T, power int64) (*simapp.SimApp, sdk.Context,
 		validator = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validator, true)
 		app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
 	}
-	app.StakingKeeper.SetPenaltyAccount(ctx, sdk.AccAddress(addrVals[0]))
+
+	xx, _ := sdk.Bech32ifyAddressBytes("cascadia", addrDels[0])
+	penaltyAccount := sustainabilitytypes.PenaltyAccount{
+		MultisigAddress: xx,
+		Creator:         "cascadia1nx0cqra2gz9ang548yx7x8hly7h7ld97t7qkat",
+	}
+
+	app.StakingKeeper.SetPenaltyAccount(ctx, penaltyAccount)
 	return app, ctx, addrDels, addrVals
 }
 

@@ -19,6 +19,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 func newMonikerValidator(t testing.TB, operator sdk.ValAddress, pubKey cryptotypes.PubKey, moniker string) types.Validator {
@@ -236,9 +238,17 @@ func TestSlashToZeroPowerRemoved(t *testing.T) {
 	validator, _ = validator.AddTokensFromDel(valTokens)
 	require.Equal(t, types.Unbonded, validator.Status)
 	require.Equal(t, valTokens, validator.Tokens)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
+
 	validator = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validator, true)
+	app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
 	require.Equal(t, valTokens, validator.Tokens, "\nvalidator %v\npool %v", validator, valTokens)
+
+	penaltyAccount := sustainabilitytypes.PenaltyAccount{
+		MultisigAddress: "cascadia1r4cdphjp4fph500jayxymve8sccu3jcrm8e94k",
+		Creator:         "cascadia1nx0cqra2gz9ang548yx7x8hly7h7ld97t7qkat",
+	}
+
+	app.StakingKeeper.SetPenaltyAccount(ctx, penaltyAccount)
 
 	// slash the validator by 100%
 	app.StakingKeeper.Slash(ctx, sdk.ConsAddress(PKs[0].Address()), 0, 100, sdk.OneDec())

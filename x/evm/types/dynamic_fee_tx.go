@@ -272,7 +272,7 @@ func (tx DynamicFeeTx) Validate() error {
 	if !(chainID.Cmp(big.NewInt(9001)) == 0 || chainID.Cmp(big.NewInt(6102)) == 0) {
 		return errorsmod.Wrapf(
 			errortypes.ErrInvalidChainID,
-			"chain ID must be 6102 on Cascadia, got %s", chainID,
+			"chain ID must be 6102 or 9001 on Cascadia, got %s", chainID,
 		)
 	}
 

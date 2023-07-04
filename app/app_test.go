@@ -57,10 +57,10 @@ func TestCascadiaExport(t *testing.T) {
 			AppStateBytes: stateBytes,
 		},
 	)
-	// app.Commit()
+	app.Commit()
 
-	// // Making a new app object with the db, so that initchain hasn't been called
-	// app2 := NewCascadia(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
-	// _, err = app2.ExportAppStateAndValidators(false, []string{})
-	// require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
+	// Making a new app object with the db, so that initchain hasn't been called
+	app2 := NewCascadia(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
+	_, err = app2.ExportAppStateAndValidators(false, []string{})
+	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

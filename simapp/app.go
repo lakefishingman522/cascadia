@@ -92,11 +92,13 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	
+
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	sustainabilitykeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -184,6 +186,8 @@ type SimApp struct {
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	GroupKeeper      groupkeeper.Keeper
 	NFTKeeper        nftkeeper.Keeper
+
+	SustainabilityKeeper sustainabilitykeeper.Keeper
 
 	// the module manager
 	mm *module.Manager

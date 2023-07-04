@@ -31,6 +31,7 @@ func TestGenesisState_Validate(t *testing.T) {
 					},
 				},
 				RewardContractCount: 2,
+				Params:              types.DefaultParams(),
 				// this line is used by starport scaffolding # types/genesis/validField
 			},
 			valid: true,

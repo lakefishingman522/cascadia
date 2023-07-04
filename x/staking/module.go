@@ -11,6 +11,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cascadiafoundation/cascadia/x/staking/keeper"
+	"github.com/cascadiafoundation/cascadia/x/staking/simulation"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -18,7 +19,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
-	"github.com/cascadiafoundation/cascadia/x/staking/simulation"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -97,7 +97,8 @@ type AppModule struct {
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak types.AccountKeeper, bk types.BankKeeper) AppModule {
+func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak types.AccountKeeper, bk types.BankKeeper,
+) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         keeper,

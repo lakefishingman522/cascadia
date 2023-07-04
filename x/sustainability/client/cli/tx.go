@@ -2,10 +2,22 @@ package cli
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/cascadiafoundation/cascadia/x/sustainability/types"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	// "github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cascadiafoundation/cascadia/x/sustainability/types"
+)
+
+var (
+	DefaultRelativePacketTimeoutTimestamp = uint64((time.Duration(10) * time.Minute).Nanoseconds())
+)
+
+const (
+	flagPacketTimeoutTimestamp = "packet-timeout-timestamp"
+	listSeparator              = ","
 )
 
 // GetTxCmd returns the transaction commands for this module
@@ -18,6 +30,10 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
+	cmd.AddCommand(CmdCreatePenaltyAccount())
 	cmd.AddCommand(CmdUpdatePenaltyAccount())
+	cmd.AddCommand(CmdDeletePenaltyAccount())
+	// this line is used by starport scaffolding # 1
+
 	return cmd
 }

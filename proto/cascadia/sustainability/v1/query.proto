@@ -1,41 +1,43 @@
 syntax = "proto3";
+
 package cascadia.sustainability.v1;
 
-import "cascadia/sustainability/v1/genesis.proto";
-import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "cascadia/sustainability/v1/params.proto";
+import "cascadia/sustainability/v1/penalty_account.proto";
 
 option go_package = "github.com/cascadiafoundation/cascadia/x/sustainability/types";
 
-// Query provides defines the gRPC querier service.
+// Query defines the gRPC querier service.
 service Query {
-  //  AnnualProvisions current minting annual provisions value.
-  rpc PenaltyAccount(QueryPenaltyAccountRequest) returns (QueryPenaltyAccountResponse) {
-    option (google.api.http).get = "/cascadia/penalty/v1/penalty_account";
+  
+  // Parameters queries the parameters of the module.
+  rpc Params (QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/cascadia/sustainability/params";
+  
   }
-
-  // Params retrieves the total set of minting parameters.
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/cascadia/inflation/v1/params";
+  
+  // Queries a PenaltyAccount by index.
+  rpc PenaltyAccount (QueryGetPenaltyAccountRequest) returns (QueryGetPenaltyAccountResponse) {
+    option (google.api.http).get = "/cascadia/sustainability/penalty_account";
+  
   }
 }
-
-// QueryAnnualProvisionsRequest is the request type for the
-// Query/AnnualProvisions RPC method.
-message QueryPenaltyAccountRequest {}
-
-// QueryAnnualProvisionsResponse is the response type for the
-// Query/AnnualProvisions RPC method.
-message QueryPenaltyAccountResponse {
-  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-}
-
-// QueryParamsRequest is the request type for the Query/Params RPC method.
+// QueryParamsRequest is request type for the Query/Params RPC method.
 message QueryParamsRequest {}
 
-// QueryParamsResponse is the response type for the Query/Params RPC method.
+// QueryParamsResponse is response type for the Query/Params RPC method.
 message QueryParamsResponse {
-  // params defines the parameters of the module.
+  
+  // params holds all the parameters of this module.
   Params params = 1 [(gogoproto.nullable) = false];
 }
+
+message QueryGetPenaltyAccountRequest {}
+
+message QueryGetPenaltyAccountResponse {
+  PenaltyAccount PenaltyAccount = 1 [(gogoproto.nullable) = false];
+}
+
