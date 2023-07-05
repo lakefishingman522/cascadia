@@ -132,12 +132,22 @@ update_files() {
         local node_private_key="${NODE_PRIVATE_KEYS[index]}"
         local peers=""
         for index2 in "${!NODE_FOLDERS[@]}"; do
-            peers+="${NODE_IDS[index2]}@0.0.0.0:${NODE_P2P_PORTS[index2]},"
+            peers+="${NODE_IDS[index2]}@127.0.0.1:${NODE_P2P_PORTS[index2]},"
         done
+        
         local node_rpc_port="${NODE_RPC_PORTS[index]}"
         local node_p2p_port="${NODE_P2P_PORTS[index]}"
+
+        local node_proxy_app_port="${NODE_PROXY_APP_PORTS[index]}"
+
         local node_grpc_port="${NODE_GRPC_PORTS[index]}"
         local node_grpc_web_port="${NODE_GRPC_WEB_PORTS[index]}"
+
+        local node_api_port="${NODE_API_PORTS[index]}"
+
+        local node_evm_port="${NODE_EVM_PORTS[index]}"
+        local node_evm_socket_port="${NODE_EVM_SOCKET_PORTS[index]}"
+
         local node_pprof_port="${NODE_PPROF_PORTS[index]}"
 
         echo "Updating files for $folder node..."
@@ -172,10 +182,18 @@ EOF
 
         # Update config file peers
         peers=${peers::-1} # Remove last comma
-        sed -i "s/^persistent_peers =.*/persistent_peers = \"${peers}\"/" "$config_path"
+        
+        IFS=',' read -ra peer_array <<< "$peers"
+        index2=$((1 - index))
+        
+        sed -i "s/^persistent_peers =.*/persistent_peers = \"${peer_array[index2]}\"/" "$config_path"
+
+        sed -i "s/^seeds =.*/seeds = \"${peer_array[index2]}\"/" "$config_path"
 
         # Set config file allow_duplicate_ip property to true
-        sed -i "s/^allow_duplicate_ip =.*/allow_duplicate_ip = true/" "$config_path"
+        # sed -i "s/^allow_duplicate_ip =.*/allow_duplicate_ip = true/" "$config_path"
+
+        sed -i "s/^pex =.*/pex = false/" "$config_path"
 
         # Set config file allow_duplicate_ip property to true
         sed -i "s/^cors_allowed_origins =.*/cors_allowed_origins = [\"*\"]/" "$config_path"
@@ -184,16 +202,25 @@ EOF
         sed -i "s/^laddr = \"tcp:\/\/127.0.0.1:26657\"/laddr = \"tcp:\/\/127.0.0.1:${node_rpc_port}\"/" "$config_path"
 
         # Update p2p laddr in config with node port
-        sed -i "s/^laddr = \"tcp:\/\/0.0.0.0:26656\"/laddr = \"tcp:\/\/127.0.0.1:${node_p2p_port}\"/" "$config_path"
+        sed -i "s/^laddr = \"tcp:\/\/0.0.0.0:26656\"/laddr = \"tcp:\/\/0.0.0.0:${node_p2p_port}\"/" "$config_path"
 
         # Update p2p laddr in config with node port
         sed -i "s/^pprof_laddr =.*/pprof_laddr = \"localhost:${node_pprof_port}\"/" "$config_path"
+
+
+        sed -i.bak "s/:26658/:${node_proxy_app_port}/g" "$config_path"
+
 
         # Update grpc in app with node port
         sed -i "s/^address = \"0.0.0.0:9090\"/address = \"0.0.0.0:${node_grpc_port}\"/" "$app_path"
 
         # Update grpc web in app with node port
         sed -i "s/^address = \"0.0.0.0:9091\"/address = \"0.0.0.0:${node_grpc_web_port}\"/" "$app_path"
+
+	    sed -i.bak "s/:8545/:${node_evm_port}/g" "$app_path"
+        sed -i.bak "s/:8546/:${node_evm_socket_port}/g" "$app_path"
+
+	    sed -i.bak "s/:1317/:${node_api_port}/g" "$app_path"
     done
 }
 
@@ -233,7 +260,8 @@ EOF
 extract_data_folder() {
     for folder in "${NODE_FOLDERS[@]}"; do
         echo "Extracting data folder for $folder node..."
-        lz4 -c -d "${SNAPSHOT_PATH}" | tar -x -C "/tmp/$folder"
+        { time lz4 -c -d "${SNAPSHOT_PATH}" | pv | tar -x -C "/tmp/$folder"; } 2>&1
+        /tmp/node1/data/priv_validator_state.json
     done
 }
 
@@ -256,12 +284,32 @@ EOF
     done
 }
 
+# Function to add priv_validator_state.json
+add_priv_state() {
+    for folder in "${NODE_FOLDERS[@]}"; do
+        echo "Adding priv_validator_state.json to data folder for $folder node..."
+
+        local upgrade_info_content=$(cat <<EOF
+{
+    "height": "${REAL_HEIGHT}",
+    "round": 0,
+    "step": 3,
+    "signature": "",
+    "signbytes": ""
+}
+EOF
+        )
+
+        echo "${upgrade_info_content}" > "/tmp/$folder/data/priv_validator_state.json"
+    done
+}
+
 # Function to start nodes in separate screen sessions
 start_nodes_in_screens() {
     for folder in "${NODE_FOLDERS[@]}"; do
-        echo "Starting $folder node in a screen session..."
+        echo "Starting $folder node in a screen session...!!!!!!!!!!!"
 
-        screen -dmS "$folder" "${BINARY}" start --home "/tmp/$folder"
+        screen -dmS "$folder" "${BINARY}" start --home "/tmp/$folder" --trace --log_level info --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable
         sleep 1
     done
 }
@@ -376,16 +424,23 @@ wait_for_rpc_ports() {
 # Main script execution
 
 # Load environment variables
-source scripts/testing/variables.sh
+source /home/ubuntu/cascadia/scripts/variables.sh
 
 # List of environment variables to check
 required_variables=(
     "NODE_FOLDERS"
+    "NODE_P2P_PORTS"
     "NODE_RPC_PORTS"
+
+    "NODE_PROXY_APP_PORTS"
     "NODE_GRPC_PORTS"
     "NODE_GRPC_WEB_PORTS"
-    "NODE_P2P_PORTS"
+    "NODE_API_PORTS"
+    "NODE_EVM_PORTS"
+    "NODE_EVM_SOCKET_PORTS"
+
     "NODE_PPROF_PORTS"
+
     "NODE_IDS"
     "VALIDATOR_ADDRESSES"
     "VALIDATOR_PUBLIC_KEYS"
@@ -430,14 +485,19 @@ initialize_nodes
 # Update files
 update_files
 
+cp /tmp/genesis.json /tmp/node1/config/
+cp /tmp/genesis.json /tmp/node2/config/
+
+
 # Import validator account
 import_validator_account
 
 # Extract and place data folder
 extract_data_folder
+add_priv_state
 
 # Add missing upgrade info to data folder
-add_missing_upgrade_info
+# add_missing_upgrade_info
 
 # Start nodes in separate screen sessions
 start_nodes_in_screens
@@ -452,7 +512,7 @@ wait_for_rpc_ports
 echo "Proceeding with the next steps..."
 
 # Prompt user to submit a software upgrade proposal
-prompt_to_submit_software_upgrade
+# prompt_to_submit_software_upgrade
 
 # Check if any of the named screens exist and prompt to stop them
 prompt_to_stop_screens
