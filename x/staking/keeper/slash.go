@@ -129,8 +129,8 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 	// Burn the slashed tokens from the pool account and decrease the total supply.
 	validator = k.RemoveValidatorTokens(ctx, validator, tokensToBurn)
 
-	multisigAddress := k.GetPenaltyAccount(ctx)
-	if multisigAddress == nil {
+	multisigAccount,found := k.GetPenaltyAccount(ctx)
+	if found == false {
 
 		switch validator.GetStatus() {
 		case types.Bonded:
@@ -145,11 +145,11 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 			panic("invalid validator status")
 		}
 	} else {
-
+		multisigAddress, _ := sdk.GetFromBech32(multisigAccount.GetMultisigAddress(), "cascadia")
 		switch validator.GetStatus() {
 		case types.Bonded, types.Unbonding:
 			// Send the slashed tokens to the multisig address
-			err := k.bankKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.BondedPoolName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), tokensToBurn)))
+			err := k.bankKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.BondedPoolName, multisigAddress , sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), tokensToBurn)))
 			if err != nil {
 				panic(err)
 			}
@@ -235,16 +235,18 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 		k.SetUnbondingDelegation(ctx, unbondingDelegation)
 	}
 
-	multisigAddress := k.GetPenaltyAccount(ctx)
+	multisigAccount, found := k.GetPenaltyAccount(ctx)
 
 	// If multisigAddress is nil, default burnning is executed.
-	if multisigAddress == nil {
+	if found == false {
 		if err := k.burnNotBondedTokens(ctx, burnedAmount); err != nil {
 			panic(err)
 		}
 
 		return totalSlashAmount
 	}
+
+	multisigAddress, _ := sdk.GetFromBech32(multisigAccount.GetMultisigAddress(), "cascadia")
 
 	err := k.bankKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.NotBondedPoolName, multisigAddress, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), burnedAmount)))
 	if err != nil {
@@ -329,10 +331,10 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 		}
 	}
 
-	multisigAddress := k.GetPenaltyAccount(ctx)
+	multisigAccount, found := k.GetPenaltyAccount(ctx)
 
 	// If multisigAddress is nil, the default burning is executed.
-	if multisigAddress == nil {
+	if found == false {
 		if err := k.burnBondedTokens(ctx, bondedBurnedAmount); err != nil {
 			panic(err)
 		}
@@ -343,6 +345,8 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 
 		return totalSlashAmount
 	}
+
+	multisigAddress, _ := sdk.GetFromBech32(multisigAccount.GetMultisigAddress(), "cascadia")
 
 	totalBurnedAmount := bondedBurnedAmount.Add(notBondedBurnedAmount)
 

@@ -100,26 +100,30 @@ func (k Keeper) SetLastTotalPower(ctx sdktypes.Context, power math.Int) {
 	store.Set(types.LastTotalPowerKey, bz)
 }
 
+// SetPenaltyAccount set penaltyAccount in the store
 func (k Keeper) SetPenaltyAccount(ctx sdktypes.Context, penaltyAccount sustainabilitytypes.PenaltyAccount) {
+	
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), sustainabilitytypes.KeyPrefix(sustainabilitytypes.PenaltyAccountKey))
 	b := k.cdc.MustMarshal(&penaltyAccount)
-
 	store.Set([]byte{0}, b)
 }
 
-func (k Keeper) GetPenaltyAccount(ctx sdktypes.Context) sdktypes.AccAddress {
+// GetPenaltyAccount returns penaltyAccount
+func (k Keeper) GetPenaltyAccount(ctx sdktypes.Context) (val sustainabilitytypes.PenaltyAccount, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), sustainabilitytypes.KeyPrefix(sustainabilitytypes.PenaltyAccountKey))
-	val := sustainabilitytypes.PenaltyAccount{}
 
 	b := store.Get([]byte{0})
 	if b == nil {
-		return nil
+		return val, false
 	}
-	k.cdc.MustUnmarshal(b, &val)
-	bz, err := sdktypes.GetFromBech32(val.GetMultisigAddress(), "cascadia")
-	if err != nil {
-		panic(err)
-	}
-	return bz
 
+	k.cdc.MustUnmarshal(b, &val)
+	
+	return val, true
+}
+
+// RemovePenaltyAccount removes penaltyAccount from the store
+func (k Keeper) RemovePenaltyAccount(ctx sdktypes.Context) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), sustainabilitytypes.KeyPrefix(sustainabilitytypes.PenaltyAccountKey))
+	store.Delete([]byte{0})
 }

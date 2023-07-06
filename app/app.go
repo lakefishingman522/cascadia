@@ -503,8 +503,10 @@ func NewCascadia(
 		keys[sustainabilitymoduletypes.StoreKey],
 		keys[sustainabilitymoduletypes.MemStoreKey],
 		app.GetSubspace(sustainabilitymoduletypes.ModuleName),
+		app.StakingKeeper,
+		app.AccountKeeper,
 	)
-	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper)
+	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper)
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(),
