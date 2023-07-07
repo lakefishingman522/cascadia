@@ -793,6 +793,8 @@ func NewCascadia(
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 
+	SetupHandlers(app)
+
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
