@@ -195,6 +195,8 @@ EOF
 
         sed -i "s/^pex =.*/pex = false/" "$config_path"
 
+        sed -i 's/^timeout_commit =.*/timeout_commit = "4s"/' "$config_path"
+
         # Set config file allow_duplicate_ip property to true
         sed -i "s/^cors_allowed_origins =.*/cors_allowed_origins = [\"*\"]/" "$config_path"
 
@@ -217,8 +219,8 @@ EOF
         # Update grpc web in app with node port
         sed -i "s/^address = \"0.0.0.0:9091\"/address = \"0.0.0.0:${node_grpc_web_port}\"/" "$app_path"
 
-	    sed -i.bak "s/:8545/:${node_evm_port}/g" "$app_path"
-        sed -i.bak "s/:8546/:${node_evm_socket_port}/g" "$app_path"
+	    sed -i.bak "s/127.0.0.1:8545/0.0.0.0:${node_evm_port}/g" "$app_path"
+        sed -i.bak "s/127.0.0.1:8546/0.0.0.0:${node_evm_socket_port}/g" "$app_path"
 
 	    sed -i.bak "s/:1317/:${node_api_port}/g" "$app_path"
     done
@@ -261,7 +263,6 @@ extract_data_folder() {
     for folder in "${NODE_FOLDERS[@]}"; do
         echo "Extracting data folder for $folder node..."
         { time lz4 -c -d "${SNAPSHOT_PATH}" | pv | tar -x -C "/tmp/$folder"; } 2>&1
-        /tmp/node1/data/priv_validator_state.json
     done
 }
 
@@ -301,6 +302,12 @@ EOF
         )
 
         echo "${upgrade_info_content}" > "/tmp/$folder/data/priv_validator_state.json"
+    done
+}
+
+copy_genesis(){
+    for folder in "${NODE_FOLDERS[@]}"; do
+        cp /tmp/genesis.json /tmp/$folder/config/
     done
 }
 
@@ -424,7 +431,7 @@ wait_for_rpc_ports() {
 # Main script execution
 
 # Load environment variables
-source /home/ubuntu/cascadia/scripts/variables.sh
+source /home/ubuntu/utility/upgradetest/scripts/variables.sh
 
 # List of environment variables to check
 required_variables=(
@@ -477,7 +484,7 @@ prompt_to_delete_folders
 echo "Continuing with node setup..."
 
 # Download snapshot data
-# download_snapshot_data
+download_snapshot_data
 
 # Initialize nodes
 initialize_nodes
@@ -485,8 +492,8 @@ initialize_nodes
 # Update files
 update_files
 
-cp /tmp/genesis.json /tmp/node1/config/
-cp /tmp/genesis.json /tmp/node2/config/
+
+copy_genesis
 
 
 # Import validator account
@@ -497,7 +504,7 @@ extract_data_folder
 add_priv_state
 
 # Add missing upgrade info to data folder
-# add_missing_upgrade_info
+add_missing_upgrade_info
 
 # Start nodes in separate screen sessions
 start_nodes_in_screens
@@ -512,7 +519,7 @@ wait_for_rpc_ports
 echo "Proceeding with the next steps..."
 
 # Prompt user to submit a software upgrade proposal
-# prompt_to_submit_software_upgrade
+prompt_to_submit_software_upgrade
 
 # Check if any of the named screens exist and prompt to stop them
 prompt_to_stop_screens

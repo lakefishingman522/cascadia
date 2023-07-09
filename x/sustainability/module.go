@@ -21,6 +21,8 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
 )
 
 var (
@@ -96,6 +98,7 @@ type AppModule struct {
 	keeper        keeper.Keeper
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
+	stakingKeeper stakingkeeper.Keeper
 }
 
 func NewAppModule(
@@ -103,6 +106,7 @@ func NewAppModule(
 	keeper keeper.Keeper,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
+	sk stakingkeeper.Keeper,
 
 ) AppModule {
 	return AppModule{
@@ -110,6 +114,7 @@ func NewAppModule(
 		keeper:         keeper,
 		accountKeeper:  accountKeeper,
 		bankKeeper:     bankKeeper,
+		stakingKeeper:  sk,
 	}
 }
 

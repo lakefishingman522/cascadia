@@ -620,7 +620,9 @@ func TestSlashAmount(t *testing.T) {
 	fraction := sdk.NewDecWithPrec(5, 1)
 
 	// Get the balance of the multisig address before slashing
-	multisigAddress := app.StakingKeeper.GetPenaltyAccount(ctx)
+	multisigAccount, _ := app.StakingKeeper.GetPenaltyAccount(ctx)
+	multisigAddress, _ := sdk.GetFromBech32(multisigAccount.GetMultisigAddress(), "cascadia")
+
 	initialMultisigBalance := app.BankKeeper.GetBalance(ctx, multisigAddress, app.StakingKeeper.BondDenom(ctx))
 
 	// Slash and get the amount transferred
