@@ -15,7 +15,7 @@ func SetupHandlers(app *Cascadia) {
 }
 
 func setUpgradeHandler(app *Cascadia) {
-	app.UpgradeKeeper.SetUpgradeHandler(version.Version, func(ctx sdk.Context, plan types.Plan, vm m.VersionMap) (m.VersionMap, error) {
+	app.UpgradeKeeper.SetUpgradeHandler("v0.1.3", func(ctx sdk.Context, plan types.Plan, vm m.VersionMap) (m.VersionMap, error) {
 		app.Logger().Info("Running upgrade handler for " + version.Version)
 
 		return app.mm.RunMigrations(ctx, app.configurator, vm)
@@ -41,5 +41,5 @@ func loadUpgradeStore(app *Cascadia) {
 }
 
 func shouldLoadUpgradeStore(app *Cascadia, upgradeInfo types.Plan) bool {
-	return upgradeInfo.Name == version.Version && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height)
+	return upgradeInfo.Name == "v0.1.3" && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height)
 }
