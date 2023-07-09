@@ -151,6 +151,9 @@ import (
 	sustainabilitymodule "github.com/cascadiafoundation/cascadia/x/sustainability"
 	sustainabilitymodulekeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
 	sustainabilitymoduletypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
+
+	// imports for upgrades
+	v0_1_3 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.3"
 )
 
 func init() {
@@ -795,7 +798,9 @@ func NewCascadia(
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 
-	SetupHandlers(app)
+	// SetupHandlers(app)
+
+	app.setupUpgradeHandlers()
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -1124,4 +1129,42 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
+}
+
+func (app *Cascadia) setupUpgradeHandlers() {
+	// v0.1.3 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v0_1_3.UpgradeName,
+		v0_1_3.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+	// When a planned update height is reached, the old binary will panic
+	// writing on disk the height and name of the update that triggered it
+	// This will read that value, and execute the preparations for the upgrade.
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
+	}
+
+	var storeUpgrades *storetypes.StoreUpgrades
+
+	switch upgradeInfo.Name {
+
+	case v0_1_3.UpgradeName:
+		//
+		//
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{oracletypes.ModuleName, sustainabilitymoduletypes.ModuleName, wasmTypes.ModuleName},
+		}
+	}
+
+	if storeUpgrades != nil {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	}
 }
