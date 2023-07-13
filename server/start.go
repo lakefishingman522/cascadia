@@ -37,7 +37,7 @@ import (
 
 	abciserver "github.com/tendermint/tendermint/abci/server"
 
-	tmcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
+	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 
 	tmos "github.com/tendermint/tendermint/libs/os"
 	"github.com/tendermint/tendermint/node"

@@ -153,7 +153,7 @@ import (
 	sustainabilitymoduletypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 
 	// imports for upgrades
-	v0_1_3 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.3"
+	v0_1_4 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.4"
 )
 
 func init() {
@@ -1134,8 +1134,8 @@ func initParamsKeeper(
 func (app *Cascadia) setupUpgradeHandlers() {
 	// v0.1.3 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v0_1_3.UpgradeName,
-		v0_1_3.CreateUpgradeHandler(
+		v0_1_4.UpgradeName,
+		v0_1_4.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)
@@ -1155,7 +1155,7 @@ func (app *Cascadia) setupUpgradeHandlers() {
 
 	switch upgradeInfo.Name {
 
-	case v0_1_3.UpgradeName:
+	case v0_1_4.UpgradeName:
 		//
 		//
 		storeUpgrades = &storetypes.StoreUpgrades{

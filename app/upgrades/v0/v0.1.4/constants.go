@@ -18,7 +18,7 @@ package v0_1_3
 
 const (
 	// UpgradeName is the shared upgrade plan name for mainnet and testnet
-	UpgradeName = "v0.1.3"
+	UpgradeName = "v0.1.4"
 	
 	// UpgradeHeight = 130_0000
 
