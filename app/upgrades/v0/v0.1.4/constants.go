@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 
-package v0_1_3
+package v0_1_4
 
 const (
 	// UpgradeName is the shared upgrade plan name for mainnet and testnet
