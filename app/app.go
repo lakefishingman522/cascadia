@@ -1159,7 +1159,7 @@ func (app *Cascadia) setupUpgradeHandlers() {
 		//
 		//
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{oracletypes.ModuleName, sustainabilitymoduletypes.ModuleName, wasmTypes.ModuleName},
+			Added: []string{oracletypes.StoreKey, sustainabilitymoduletypes.StoreKey, wasmTypes.StoreKey, icacontrollertypes.StoreKey},
 		}
 	}
 
