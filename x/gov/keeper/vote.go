@@ -38,10 +38,16 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 	}
 	voterEvmAddr := common.BytesToAddress(voterAddr.Bytes())
 
-	voterBalance := keeper.rk.BalanceOf(ctx, contracts.VotingEscrowContract.ABI, common.HexToAddress(contract.Address), voterEvmAddr, big.NewInt(proposal.SubmitTime.Unix())).Int64()
+	voterVotingPowerAt := keeper.rk.BalanceOf(ctx, contracts.VotingEscrowContract.ABI, common.HexToAddress(contract.Address), voterEvmAddr, big.NewInt(proposal.SubmitTime.Unix()))
+
+	if voterVotingPowerAt == nil {
+		return sdkerrors.Wrapf(types.ErrInvalidVote, "voting power of voter is nil...")
+	}
+
+	voterBalance := voterVotingPowerAt.Int64()
 
 	if voterBalance == 0 {
-		return sdkerrors.Wrapf(types.ErrInvalidVote, "invalid vote")
+		return sdkerrors.Wrapf(types.ErrInvalidVote, "voting power of voter must be bigger than 0")
 	}
 
 	vote := v1.NewVote(proposalID, voterAddr, options, metadata)
