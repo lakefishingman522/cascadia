@@ -99,8 +99,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/cascadiafoundation/cascadia/x/sustainability"
-	// sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 	sustainabilitykeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
+	sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/cosmos/cosmos-sdk/client/docs/statik"
@@ -301,13 +301,14 @@ func NewSimApp(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
-	// app.SustainabilityKeeper = *sustainabilitykeeper.NewKeeper(
-	// 	appCodec,
-	// 	keys[sustainabilitytypes.StoreKey],
-	// 	keys[sustainabilitytypes.MemStoreKey],
-	// 	app.GetSubspace(sustainabilitytypes.ModuleName),
-	// 	app.StakingKeeper,
-	// )
+	app.SustainabilityKeeper = *sustainabilitykeeper.NewKeeper(
+		appCodec,
+		keys[sustainabilitytypes.StoreKey],
+		keys[sustainabilitytypes.MemStoreKey],
+		app.GetSubspace(sustainabilitytypes.ModuleName),
+		app.StakingKeeper,
+		app.AccountKeeper,
+	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper)
 

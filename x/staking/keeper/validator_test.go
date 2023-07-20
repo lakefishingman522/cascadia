@@ -243,17 +243,27 @@ func TestSlashToZeroPowerRemoved(t *testing.T) {
 	app.StakingKeeper.SetValidatorByConsAddr(ctx, validator)
 	require.Equal(t, valTokens, validator.Tokens, "\nvalidator %v\npool %v", validator, valTokens)
 
+	addrDel, _ := generateAddresses(app, ctx, 1)
+	firstVal := app.BankKeeper.GetBalance(ctx, addrDel[0], "aCC")
+
 	penaltyAccount := sustainabilitytypes.PenaltyAccount{
-		MultisigAddress: "cascadia1r4cdphjp4fph500jayxymve8sccu3jcrm8e94k",
+		MultisigAddress: sdk.MustBech32ifyAddressBytes("cascadia", addrDel[0]),
 		Creator:         "cascadia1nx0cqra2gz9ang548yx7x8hly7h7ld97t7qkat",
 	}
 
-	app.StakingKeeper.SetPenaltyAccount(ctx, penaltyAccount)
+	app.SustainabilityKeeper.SetPenaltyAccount(ctx, penaltyAccount)
 
 	// slash the validator by 100%
 	app.StakingKeeper.Slash(ctx, sdk.ConsAddress(PKs[0].Address()), 0, 100, sdk.OneDec())
+
+	secondVal := app.BankKeeper.GetBalance(ctx, addrDel[0], "aCC")
+
 	// apply TM updates
 	applyValidatorSetUpdates(t, ctx, app.StakingKeeper, -1)
+
+	// require.Equal(t,firstVal, secondVal)
+	require.Equal(t, firstVal.Amount, secondVal.Amount)
+
 	// validator should be unbonding
 	validator, _ = app.StakingKeeper.GetValidator(ctx, addrVals[0])
 	require.Equal(t, validator.GetStatus(), types.Unbonding)

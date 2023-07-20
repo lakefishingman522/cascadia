@@ -23,11 +23,11 @@ func (k msgServer) CreatePenaltyAccount(goCtx context.Context, msg *types.MsgCre
 		MultisigAddress: msg.MultisigAddress,
 	}
 
-	k.SetPenaltyAccount(
+	err := k.SetPenaltyAccount(
 		ctx,
 		penaltyAccount,
 	)
-	return &types.MsgCreatePenaltyAccountResponse{}, nil
+	return &types.MsgCreatePenaltyAccountResponse{}, err
 }
 
 func (k msgServer) UpdatePenaltyAccount(goCtx context.Context, msg *types.MsgUpdatePenaltyAccount) (*types.MsgUpdatePenaltyAccountResponse, error) {
@@ -49,9 +49,9 @@ func (k msgServer) UpdatePenaltyAccount(goCtx context.Context, msg *types.MsgUpd
 		MultisigAddress: msg.MultisigAddress,
 	}
 
-	k.SetPenaltyAccount(ctx, penaltyAccount)
+	err := k.SetPenaltyAccount(ctx, penaltyAccount)
 
-	return &types.MsgUpdatePenaltyAccountResponse{}, nil
+	return &types.MsgUpdatePenaltyAccountResponse{}, err
 }
 
 func (k msgServer) DeletePenaltyAccount(goCtx context.Context, msg *types.MsgDeletePenaltyAccount) (*types.MsgDeletePenaltyAccountResponse, error) {
