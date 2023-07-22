@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"math/big"
+
 	"github.com/armon/go-metrics"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -13,6 +15,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
+	"github.com/cascadiafoundation/cascadia/contracts"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type msgServer struct {
@@ -57,7 +62,34 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	k.ActivateVotingPeriod(ctx, proposal)
 	votingStarted := true
 
-	// proposer, _ := sdk.AccAddressFromBech32(msg.GetProposer())
+	proposer, _ := sdk.AccAddressFromBech32(msg.GetProposer())
+
+	//*******
+	contract, found := k.Keeper.rk.GetRewardContract(ctx, 0)
+	if !found {
+		return nil, fmt.Errorf("no ve contract")
+	}
+	contractEvmAddr := common.HexToAddress(contract.Address)
+
+	submitTime := ctx.BlockHeader().Time
+	// Get the time of submission of proposal
+	senderSubmitTime := big.NewInt(submitTime.Unix())
+	senderEvmAddr := common.BytesToAddress(proposer.Bytes())
+	senderBalance := sdk.NewDecFromBigInt(k.Keeper.rk.BalanceOf(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, senderEvmAddr, senderSubmitTime))
+
+	// Create a new big.Int
+	thresholdString := "6102000000000000000000"
+
+	thresholdNum := new(big.Int)
+	thresholdNum.SetString(thresholdString, 10)
+
+	threshold := senderBalance.GTE(sdk.NewDecFromBigInt(thresholdNum))
+
+	if !threshold {
+		return nil, fmt.Errorf("Insufficient Voting Escrow Token amount:%s", senderBalance.String())
+	}
+	//********
+
 	// votingStarted, err := k.Keeper.AddDeposit(ctx, proposal.Id, proposer, msg.GetInitialDeposit())
 	if err != nil {
 		return nil, err
