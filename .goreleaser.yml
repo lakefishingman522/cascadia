@@ -1,65 +1,104 @@
-project_name: cascadia
-release:
-  github:
-    owner: cascadiafoundation
-    name: cascadia
-  name_template: '{{.Tag}}'
+before:
+  hooks:
+    - go mod download
+
 builds:
-  - id: cascadia
+  - id: "cascadiad-darwin"
+    main: ./cmd/cascadiad
+    binary: bin/cascadiad
+    env:
+      - CGO_ENABLED=1
+      - CC=o64-clang
+      - CXX=o64-clang++
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cascadiad-darwin-arm64"
+    main: ./cmd/cascadiad
+    binary: bin/cascadiad
+    env:
+      - CGO_ENABLED=1
+      - CC=oa64-clang
+      - CXX=oa64-clang++
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cascadiad-linux"
+    main: ./cmd/cascadiad
+    binary: bin/cascadiad
+    env:
+      - CGO_ENABLED=1
+      - CC=gcc
+      - CXX=g++
     goos:
       - linux
-      - darwin
+    goarch:
+      - amd64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cascadiad-linux-arm64"
+    main: ./cmd/cascadiad
+    binary: bin/cascadiad
+    env:
+      - CGO_ENABLED=1
+      - CC=aarch64-linux-gnu-gcc
+      - CXX=aarch64-linux-gnu-g++
+    goos:
+      - linux
+    goarch:
+      - arm64
+    flags:
+      - -tags=cgo
+    ldflags:
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "cascadiad-windows"
+    main: ./cmd/cascadiad
+    binary: bin/cascadiad
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+    goos:
       - windows
     goarch:
       - amd64
-      - arm64
-    goarm:
-      - "6"
-    gomips:
-      - hardfloat
-    goamd64:
-      - v1
-    targets:
-      - linux_amd64_v1
-      - linux_arm64
-      - darwin_amd64_v1
-      - darwin_arm64
-      - windows_amd64_v1
-    dir: .
-    main: ./cmd/cascadiad
-    binary: bin/cascadiad
-    builder: go
-    gobinary: go
-    command: build
+    flags:
+      - -tags=cgo
+      - -buildmode=exe
     ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+
 archives:
-  - id: default
-    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+  - name_template: '{{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{ .Arch }}'
     format_overrides:
       - goos: windows
         format: zip
-    format: tar.gz
-    files:
-      - src: license*
-      - src: LICENSE*
-      - src: readme*
-      - src: README*
-      - src: changelog*
-      - src: CHANGELOG*
-snapshot:
-  name_template: '{{ .Version }}-SNAPSHOT-{{ .ShortCommit }}'
+    builds:
+      - cascadiad-darwin
+      - cascadiad-darwin-arm64
+      - cascadiad-windows
+      - cascadiad-linux
+      - cascadiad-linux-arm64
+  
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
-  algorithm: sha256
-dist: dist
-env_files:
-  github_token: ~/.config/goreleaser/github_token
-  gitlab_token: ~/.config/goreleaser/gitlab_token
-  gitea_token: ~/.config/goreleaser/gitea_token
-source:
-  name_template: '{{ .ProjectName }}-{{ .Version }}'
-  format: tar.gz
-gomod:
-  gobinary: go
-
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+snapshot:
+  name_template: "{{ .Tag }}-next"
