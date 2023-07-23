@@ -63,22 +63,22 @@ builds:
       - -tags=cgo
     ldflags:
       - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "cascadiad-windows"
-    main: ./cmd/cascadiad
-    binary: bin/cascadiad
-    env:
-      - CGO_ENABLED=1
-      - CC=x86_64-w64-mingw32-gcc
-      - CXX=x86_64-w64-mingw32-g++
-    goos:
-      - windows
-    goarch:
-      - amd64
-    flags:
-      - -tags=cgo
-      - -buildmode=exe
-    ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  # - id: "cascadiad-windows"
+  #   main: ./cmd/cascadiad
+  #   binary: bin/cascadiad
+  #   env:
+  #     - CGO_ENABLED=1
+  #     - CC=x86_64-w64-mingw32-gcc
+  #     - CXX=x86_64-w64-mingw32-g++
+  #   goos:
+  #     - windows
+  #   goarch:
+  #     - amd64
+  #   flags:
+  #     - -tags=cgo
+  #     - -buildmode=exe
+  #   ldflags:
+  #     - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
 
 archives:
   - name_template: '{{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{ .Arch }}'
@@ -88,7 +88,7 @@ archives:
     builds:
       - cascadiad-darwin
       - cascadiad-darwin-arm64
-      - cascadiad-windows
+      # - cascadiad-windows
       - cascadiad-linux
       - cascadiad-linux-arm64
   
