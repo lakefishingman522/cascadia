@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package cascadia.sustainability.v1;
+
+import "cascadia/sustainability/v1/penalty_account.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/sustainability/types";
+
+// Msg defines the Msg service.
+service Msg {
+  rpc CreatePenaltyAccount (MsgCreatePenaltyAccount) returns (MsgCreatePenaltyAccountResponse);
+  rpc UpdatePenaltyAccount (MsgUpdatePenaltyAccount) returns (MsgUpdatePenaltyAccountResponse);
+  rpc DeletePenaltyAccount (MsgDeletePenaltyAccount) returns (MsgDeletePenaltyAccountResponse);
+}
+message MsgCreatePenaltyAccount {
+  string creator         = 1;
+  string multisigAddress = 3;
+}
+
+message MsgCreatePenaltyAccountResponse {}
+
+message MsgUpdatePenaltyAccount {
+  string creator         = 1;
+  string multisigAddress = 3;
+}
+
+message MsgUpdatePenaltyAccountResponse {}
+
+message MsgDeletePenaltyAccount {
+  string creator = 1;
+}
+
+message MsgDeletePenaltyAccountResponse {}
+

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package cascadia.sustainability.v1;
+
+import "gogoproto/gogo.proto";
+import "cascadia/sustainability/v1/params.proto";
+import "cascadia/sustainability/v1/penalty_account.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/sustainability/types";
+
+// GenesisState defines the sustainability module's genesis state.
+message GenesisState {
+  Params         params         = 1 [(gogoproto.nullable) = false];
+  PenaltyAccount penaltyAccount = 2;
+}
+

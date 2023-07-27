@@ -5,6 +5,7 @@ KEYS[1]="dev1"
 KEYS[2]="dev2"
 CHAINID="cascadia_6102-1"
 MONIKER="localtestnet"
+# MULTISIG_ADDRESS="cascadia1duc20j5qccrawl9n7url89lk5t23hur3w0rhem"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
@@ -12,7 +13,7 @@ KEYRING="test"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
 # Set dedicated home directory for the cascadiad instance
-HOMEDIR="$HOME/.cascadiad"
+HOMEDIR="$HOME/.newtestcascadiad"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -23,10 +24,12 @@ APP_TOML=$HOMEDIR/config/app.toml
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
+MNEMONIC_LOG="$HOME/utility/newtestcascadiad/log"
+
 # validate dependencies are installed
 command -v jq >/dev/null 2>&1 || {
-	echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
-	exit 1
+    echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
+    exit 1
 }
 
 # used to exit on first error (any non-zero exit code)
@@ -65,6 +68,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.app_state["staking"]["params"]["bond_denom"]="aCC"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.app_state["crisis"]["constant_fee"]["denom"]="aCC"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 	jq '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="aCC"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["feemarket"]["block_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Set gas limit in genesis
 	jq '.consensus_params["block"]["max_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -104,4 +108,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-cascadiad start --metrics "$TRACE" --log_level info --minimum-gas-prices=0.0001aCC --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
+cascadiad start --metrics "$TRACE" --log_level info --minimum-gas-prices=0.0001aCC --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR" --rpc.laddr "tcp://0.0.0.0:26657" --json-rpc.address 0.0.0.0:8545 --json-rpc.ws-address 0.0.0.0:8546

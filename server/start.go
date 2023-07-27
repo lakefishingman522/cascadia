@@ -36,7 +36,9 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	abciserver "github.com/tendermint/tendermint/abci/server"
-	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
+
+	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
+
 	tmos "github.com/tendermint/tendermint/libs/os"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
@@ -221,7 +223,7 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().Uint32(server.FlagStateSyncSnapshotKeepRecent, 2, "State sync snapshot to keep")
 
 	// add support for all Tendermint-specific command line options
-	tcmd.AddNodeFlags(cmd)
+	tmcmd.AddNodeFlags(cmd)
 	return cmd
 }
 

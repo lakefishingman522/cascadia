@@ -46,7 +46,13 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	submitTime := big.NewInt(proposal.SubmitTime.Unix())
 
 	// Get the total voting power
-	totalBalance := sdk.NewDecFromBigInt(keeper.rk.TotalSupply(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, submitTime))
+	totalSupply := keeper.rk.TotalSupply(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, submitTime)
+
+	if totalSupply == nil {
+		return false, false, v1.NewTallyResultFromMap(results)
+	}
+
+	totalBalance := sdk.NewDecFromBigInt(totalSupply)
 	// totalBalance := sdk.ZeroDec()
 
 	keeper.IterateVotes(ctx, proposal.Id, func(vote v1.Vote) bool {
@@ -54,7 +60,14 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 		voter := sdk.MustAccAddressFromBech32(vote.Voter)
 
 		voterEvmAddr := common.BytesToAddress(voter.Bytes())
-		voterBalance := sdk.NewDecFromBigInt(keeper.rk.BalanceOf(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, voterEvmAddr, submitTime))
+
+		voterVotingPowerAt := keeper.rk.BalanceOf(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, voterEvmAddr, submitTime)
+
+		if voterVotingPowerAt == nil {
+			voterVotingPowerAt = big.NewInt(0)
+		}
+
+		voterBalance := sdk.NewDecFromBigInt(voterVotingPowerAt)
 
 		// valAddrStr := sdk.ValAddress(voter.Bytes()).String()
 		// if val, ok := currValidators[valAddrStr]; ok {

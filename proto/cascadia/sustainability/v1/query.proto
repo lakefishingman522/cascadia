@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package cascadia.sustainability.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "cascadia/sustainability/v1/params.proto";
+import "cascadia/sustainability/v1/penalty_account.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/sustainability/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  
+  // Parameters queries the parameters of the module.
+  rpc Params (QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/cascadia/sustainability/params";
+  
+  }
+  
+  // Queries a PenaltyAccount by index.
+  rpc PenaltyAccount (QueryGetPenaltyAccountRequest) returns (QueryGetPenaltyAccountResponse) {
+    option (google.api.http).get = "/cascadia/sustainability/penalty_account";
+  
+  }
+}
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryGetPenaltyAccountRequest {}
+
+message QueryGetPenaltyAccountResponse {
+  PenaltyAccount PenaltyAccount = 1 [(gogoproto.nullable) = false];
+}
+

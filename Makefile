@@ -540,24 +540,19 @@ release-dry-run:
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
 		--clean --skip-validate --skip-publish --snapshot
+docker-build:
+	@DOCKER_BUILDKIT=1 docker build -t cascadia_chain_image:latest \
+	--build-arg GIT_VERSION=$(VERSION) \
+	--build-arg GIT_COMMIT=$(COMMIT) \
+	-f Dockerfile .
 
 release:
-	@if [ ! -f ".release-env" ]; then \
-		echo "\033[91m.release-env is required for release\033[0m";\
-		exit 1;\
-	fi
-	docker run \
-		--rm \
-		--privileged \
-		-e CGO_ENABLED=1 \
-		--env-file .release-env \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v `pwd`:/go/src/$(PACKAGE_NAME) \
-		-w /go/src/$(PACKAGE_NAME) \
-		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		release --clean --skip-validate
+	docker create --name temp-container cascadia_chain_image:latest
+	mkdir -p dist
+	docker cp temp-container:/bin/cascadiad ./dist/cascadiad
+	docker rm temp-container
 
-.PHONY: release-dry-run release
+.PHONY: release-dry-run release docker-build
 
 ###############################################################################
 ###                        Compile Solidity Contracts                       ###
