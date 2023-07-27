@@ -26,9 +26,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |-
           echo 'GITHUB_TOKEN=${{secrets.GITHUB_TOKEN}}' > .release-env
+
+      - name: make docker build
+        run: make docker-build
+
       - name: release publish
         run: make release
-
+        
       - name: Publish the Release
         uses: actions/upload-artifact@v3
         with:
