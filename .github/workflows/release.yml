@@ -21,9 +21,6 @@ jobs:
           go-version: 1.19
         id: go
 
-      - name: release dry run
-        run: make release-dry-run
-
       - name: setup release environment
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,11 +30,7 @@ jobs:
         run: make release
 
       - name: Publish the Release
-        uses: softprops/action-gh-release@v1
-        if: ${{ steps.vars.outputs.is_release_type_latest == 'false' && steps.vars.outputs.should_release == 'true' }}
+        uses: actions/upload-artifact@v3
         with:
-          tag_name: ${{ steps.vars.outputs.tag_name }}
-          files: release/*
-          prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: cascadiad-linux-amd64
+          path: dist/cascadiad

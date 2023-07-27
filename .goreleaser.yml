@@ -1,104 +1,154 @@
-before:
-  hooks:
-    - go mod download
+project_name: cascadiad
+
+env:
+  - CGO_ENABLED=1
+  - COSMWASM_VERSION=1.2.3
 
 builds:
-  - id: "cascadiad-darwin"
-    main: ./cmd/cascadiad
-    binary: bin/cascadiad
+  - id: cascadiad-darwin-amd64
+    main: ./cmd/cascadiad/main.go
+    binary: cascadiad
+    hooks:
+      pre:
+        - wget https://github.com/CosmWasm/wasmvm/releases/download/v{{ .Env.COSMWASM_VERSION }}/libwasmvmstatic_darwin.a -O /lib/libwasmvmstatic_darwin.a
     env:
-      - CGO_ENABLED=1
       - CC=o64-clang
-      - CXX=o64-clang++
+      - CGO_LDFLAGS=-L/lib
     goos:
       - darwin
     goarch:
       - amd64
     flags:
-      - -tags=cgo
+      - -mod=readonly
+      - -trimpath
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "cascadiad-darwin-arm64"
-    main: ./cmd/cascadiad
-    binary: bin/cascadiad
+      - -X github.com/cosmos/cosmos-sdk/version.Name=cascadia
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad
+      - -X github.com/cosmos/cosmos-sdk/version.Version={{ .Version }}
+      - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
+      - -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,static_wasm
+      - -w -s
+      - -linkmode=external
+    tags:
+      - netgo
+      - ledger
+      - static_wasm
+
+  - id: cascadiad-darwin-arm64
+    main: ./cmd/cascadiad/main.go
+    binary: cascadiad
+    hooks:
+      pre:
+        - wget https://github.com/CosmWasm/wasmvm/releases/download/v{{ .Env.COSMWASM_VERSION }}/libwasmvmstatic_darwin.a -O /lib/libwasmvmstatic_darwin.a
     env:
-      - CGO_ENABLED=1
       - CC=oa64-clang
-      - CXX=oa64-clang++
+      - CGO_LDFLAGS=-L/lib
     goos:
       - darwin
     goarch:
       - arm64
     flags:
-      - -tags=cgo
+      - -mod=readonly
+      - -trimpath
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "cascadiad-linux"
+      - -X github.com/cosmos/cosmos-sdk/version.Name=cascadia
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad
+      - -X github.com/cosmos/cosmos-sdk/version.Version={{ .Version }}
+      - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
+      - -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,static_wasm
+      - -w -s
+      - -linkmode=external
+    tags:
+      - netgo
+      - ledger
+      - static_wasm
+
+  - id: cascadiad-linux-amd64
     main: ./cmd/cascadiad
-    binary: bin/cascadiad
-    env:
-      - CGO_ENABLED=1
-      - CC=gcc
-      - CXX=g++
+    binary: cascadiad
+    hooks:
+      pre:
+        - wget https://github.com/CosmWasm/wasmvm/releases/download/v{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.x86_64.a -O /usr/lib/x86_64-linux-gnu/libwasmvm_muslc.a
     goos:
       - linux
     goarch:
       - amd64
-    flags:
-      - -tags=cgo
-    ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "cascadiad-linux-arm64"
-    main: ./cmd/cascadiad
-    binary: bin/cascadiad
     env:
-      - CGO_ENABLED=1
-      - CC=aarch64-linux-gnu-gcc
-      - CXX=aarch64-linux-gnu-g++
+      - CC=x86_64-linux-gnu-gcc
+    flags:
+      - -mod=readonly
+      - -trimpath
+    ldflags:
+      - -X github.com/cosmos/cosmos-sdk/version.Name=cascadia
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad
+      - -X github.com/cosmos/cosmos-sdk/version.Version={{ .Version }}
+      - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
+      - -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,muslc
+      - -w -s
+      - -linkmode=external
+      - -extldflags '-Wl,-z,muldefs -static -lm'
+    tags:
+      - netgo
+      - ledger
+      - muslc
+
+  - id: cascadiad-linux-arm64
+    main: ./cmd/cascadiad
+    binary: cascadiad
+    hooks:
+      pre:
+        - wget https://github.com/CosmWasm/wasmvm/releases/download/v{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.aarch64.a -O /usr/lib/aarch64-linux-gnu/libwasmvm_muslc.a
     goos:
       - linux
     goarch:
       - arm64
+    env:
+      - CC=aarch64-linux-gnu-gcc
     flags:
-      - -tags=cgo
+      - -mod=readonly
+      - -trimpath
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  # - id: "cascadiad-windows"
-  #   main: ./cmd/cascadiad
-  #   binary: bin/cascadiad
-  #   env:
-  #     - CGO_ENABLED=1
-  #     - CC=x86_64-w64-mingw32-gcc
-  #     - CXX=x86_64-w64-mingw32-g++
-  #   goos:
-  #     - windows
-  #   goarch:
-  #     - amd64
-  #   flags:
-  #     - -tags=cgo
-  #     - -buildmode=exe
-  #   ldflags:
-  #     - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=cascadia -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+      - -X github.com/cosmos/cosmos-sdk/version.Name=cascadia 
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=cascadiad 
+      - -X github.com/cosmos/cosmos-sdk/version.Version={{ .Version }} 
+      - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
+      - -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,muslc
+      - -w -s
+      - -linkmode=external
+      - -extldflags '-Wl,-z,muldefs -static -lm'
+    tags:
+      - netgo
+      - ledger
+      - muslc
+
+universal_binaries:
+  - id: cascadiad-darwin-universal
+    ids:
+      - cascadiad-darwin-amd64
+      - cascadiad-darwin-arm64
+    replace: true
+    name_template: "{{.ProjectName}}"
 
 archives:
-  - name_template: '{{ .ProjectName }}_{{ .Version }}_{{- title .Os }}_{{ .Arch }}'
-    format_overrides:
-      - goos: windows
-        format: zip
+  - id: zipped
     builds:
-      - cascadiad-darwin
-      - cascadiad-darwin-arm64
-      # - cascadiad-windows
-      - cascadiad-linux
+      - cascadiad-darwin-universal
+      - cascadiad-linux-amd64
       - cascadiad-linux-arm64
-  
+    name_template: "{{.ProjectName}}-{{ .Os }}-{{ .Arch }}"
+    format: tar.gz
+    files:
+      - none*
+  - id: binaries
+    builds:
+      - cascadiad-darwin-universal
+      - cascadiad-linux-amd64
+      - cascadiad-linux-arm64
+    name_template: "{{.ProjectName}}-{{ .Os }}-{{ .Arch }}"
+    format: binary
+    files:
+      - none*
+
 checksum:
-  name_template: 'checksums.txt'
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
-snapshot:
-  name_template: "{{ .Tag }}-next"
+  name_template: "checksums.txt"
+  algorithm: sha256
