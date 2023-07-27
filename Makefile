@@ -548,6 +548,7 @@ docker-build:
 
 release:
 	docker create --name temp-container cascadia_chain_image:latest
+	mkdir -p dist
 	docker cp temp-container:/bin/cascadiad ./dist/cascadiad
 	docker rm temp-container
 
