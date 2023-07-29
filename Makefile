@@ -552,6 +552,7 @@ release:
 	mkdir -p dist/bin
 	docker cp temp-container:/bin/cascadiad ./dist/bin/cascadiad
 	tar -czvf ./dist/cascadiad-v$(VERSION)-linux-amd64.tar.gz -C ./dist bin
+	mv ./dist/bin/cascadiad ./dist
 	docker rm temp-container
 
 .PHONY: release-dry-run release docker-build
