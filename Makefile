@@ -549,7 +549,9 @@ docker-build:
 release:
 	docker create --name temp-container cascadia_chain_image:latest
 	mkdir -p dist
-	docker cp temp-container:/bin/cascadiad ./dist/cascadiad
+	mkdir -p dist/bin
+	docker cp temp-container:/bin/cascadiad ./dist/bin/cascadiad
+	tar -czvf ./dist/cascadiad-v$(VERSION)-linux-amd64.tar.gz -C ./dist bin
 	docker rm temp-container
 
 .PHONY: release-dry-run release docker-build

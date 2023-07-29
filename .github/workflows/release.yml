@@ -33,8 +33,19 @@ jobs:
       - name: release publish
         run: make release
         
-      - name: Publish the Release
+      - name: upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: cascadiad-linux-amd64
           path: dist/cascadiad
+      - name: version
+        run: echo "::set-output name=version::$(./dist/cascadiad --version)"
+        id: version
+      - name: Publish the release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          files: dist/*
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
