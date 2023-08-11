@@ -1,11 +1,11 @@
-package v046
+package v3
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v042 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v042"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v1"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
@@ -13,7 +13,7 @@ import (
 // migrateProposals migrates all legacy proposals into MsgExecLegacyContent
 // proposals.
 func migrateProposals(store sdk.KVStore, cdc codec.BinaryCodec) error {
-	propStore := prefix.NewStore(store, v042.ProposalsKeyPrefix)
+	propStore := prefix.NewStore(store, v1.ProposalsKeyPrefix)
 
 	iter := propStore.Iterator(nil, nil)
 	defer iter.Close()
@@ -44,7 +44,7 @@ func migrateProposals(store sdk.KVStore, cdc codec.BinaryCodec) error {
 // migrateVotes migrates all v1beta1 weighted votes (with sdk.Dec as weight)
 // to v1 weighted votes (with string as weight)
 func migrateVotes(store sdk.KVStore, cdc codec.BinaryCodec) error {
-	votesStore := prefix.NewStore(store, v042.VotesKeyPrefix)
+	votesStore := prefix.NewStore(store, v1.VotesKeyPrefix)
 
 	iter := votesStore.Iterator(nil, nil)
 	defer iter.Close()

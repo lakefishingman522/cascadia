@@ -1,4 +1,4 @@
-package v046
+package v3
 
 import (
 	"fmt"
@@ -49,7 +49,7 @@ func ConvertToLegacyProposal(proposal v1.Proposal) (v1beta1.Proposal, error) {
 		return v1beta1.Proposal{}, err
 	}
 	if len(msgs) != 1 {
-		return v1beta1.Proposal{}, sdkerrors.ErrInvalidType.Wrap("can't convert a gov/v1 Proposal to gov/v1beta1 Proposal when amount of proposal messages is more than one")
+		return v1beta1.Proposal{}, sdkerrors.ErrInvalidType.Wrap("can't convert a gov/v1 Proposal to gov/v1beta1 Proposal when amount of proposal messages not exactly one")
 	}
 	if legacyMsg, ok := msgs[0].(*v1.MsgExecLegacyContent); ok {
 		// check that the content struct can be unmarshalled
@@ -152,14 +152,17 @@ func convertToNewVotes(oldVotes v1beta1.Votes) (v1.Votes, error) {
 		// - if only Options is set, or both Option & Options are set, we read from Options,
 		// - if Options is not set, and Option is set, we read from Option,
 		// - if none are set, we throw error.
-		if oldVote.Options != nil { //nolint:gocritic // should be rewritten to a switch statement
+		switch {
+		case oldVote.Options != nil:
 			newWVOs = make([]*v1.WeightedVoteOption, len(oldVote.Options))
 			for j, oldWVO := range oldVote.Options {
 				newWVOs[j] = v1.NewWeightedVoteOption(v1.VoteOption(oldWVO.Option), oldWVO.Weight)
 			}
-		} else if oldVote.Option != v1beta1.OptionEmpty {
+
+		case oldVote.Option != v1beta1.OptionEmpty:
 			newWVOs = v1.NewNonSplitVoteOption(v1.VoteOption(oldVote.Option))
-		} else {
+
+		default:
 			return nil, fmt.Errorf("vote does not have neither Options nor Option")
 		}
 
@@ -219,6 +222,8 @@ func convertToNewProposal(oldProp v1beta1.Proposal) (v1.Proposal, error) {
 		TotalDeposit:    oldProp.TotalDeposit,
 		VotingStartTime: &oldProp.VotingStartTime,
 		VotingEndTime:   &oldProp.VotingEndTime,
+		Title:           oldProp.GetContent().GetTitle(),
+		Summary:         oldProp.GetContent().GetDescription(),
 	}, nil
 }
 

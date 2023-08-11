@@ -1,4 +1,4 @@
-package v043_test
+package v2_test
 
 import (
 	"encoding/json"
@@ -7,14 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v043gov "github.com/cosmos/cosmos-sdk/x/gov/migrations/v043"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	v2 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v2"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 func TestMigrateJSON(t *testing.T) {
-	encodingConfig := simapp.MakeTestEncodingConfig()
+	encodingConfig := moduletestutil.MakeTestEncodingConfig()
 	clientCtx := client.Context{}.
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
@@ -32,7 +32,7 @@ func TestMigrateJSON(t *testing.T) {
 		},
 	}
 
-	migrated := v043gov.MigrateJSON(govGenState)
+	migrated := v2.MigrateJSON(govGenState)
 
 	bz, err := clientCtx.Codec.MarshalJSON(migrated)
 	require.NoError(t, err)

@@ -1,4 +1,4 @@
-package v046_test
+package v3_test
 
 import (
 	"testing"
@@ -6,18 +6,20 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v042gov "github.com/cosmos/cosmos-sdk/x/gov/migrations/v042"
-	v046gov "github.com/cosmos/cosmos-sdk/x/gov/migrations/v046"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	v1gov "github.com/cosmos/cosmos-sdk/x/gov/migrations/v1"
+	v3gov "github.com/cosmos/cosmos-sdk/x/gov/migrations/v3"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 func TestMigrateStore(t *testing.T) {
-	cdc := simapp.MakeTestEncodingConfig().Codec
+	cdc := moduletestutil.MakeTestEncodingConfig(upgrade.AppModuleBasic{}, gov.AppModuleBasic{}).Codec
 	govKey := sdk.NewKVStoreKey("gov")
 	ctx := testutil.DefaultContext(govKey, sdk.NewTransientStoreKey("transient_test"))
 	store := ctx.KVStore(govKey)
@@ -36,8 +38,8 @@ func TestMigrateStore(t *testing.T) {
 	prop2Bz, err := cdc.Marshal(&prop2)
 	require.NoError(t, err)
 
-	store.Set(v042gov.ProposalKey(prop1.ProposalId), prop1Bz)
-	store.Set(v042gov.ProposalKey(prop2.ProposalId), prop2Bz)
+	store.Set(v1gov.ProposalKey(prop1.ProposalId), prop1Bz)
+	store.Set(v1gov.ProposalKey(prop2.ProposalId), prop2Bz)
 
 	// Vote on prop 1
 	options := []v1beta1.WeightedVoteOption{
@@ -46,24 +48,24 @@ func TestMigrateStore(t *testing.T) {
 	}
 	vote1 := v1beta1.NewVote(1, voter, options)
 	vote1Bz := cdc.MustMarshal(&vote1)
-	store.Set(v042gov.VoteKey(1, voter), vote1Bz)
+	store.Set(v1gov.VoteKey(1, voter), vote1Bz)
 
 	// Run migrations.
-	err = v046gov.MigrateStore(ctx, govKey, cdc)
+	err = v3gov.MigrateStore(ctx, govKey, cdc)
 	require.NoError(t, err)
 
 	var newProp1 v1.Proposal
-	err = cdc.Unmarshal(store.Get(v042gov.ProposalKey(prop1.ProposalId)), &newProp1)
+	err = cdc.Unmarshal(store.Get(v1gov.ProposalKey(prop1.ProposalId)), &newProp1)
 	require.NoError(t, err)
 	compareProps(t, prop1, newProp1)
 
 	var newProp2 v1.Proposal
-	err = cdc.Unmarshal(store.Get(v042gov.ProposalKey(prop2.ProposalId)), &newProp2)
+	err = cdc.Unmarshal(store.Get(v1gov.ProposalKey(prop2.ProposalId)), &newProp2)
 	require.NoError(t, err)
 	compareProps(t, prop2, newProp2)
 
 	var newVote1 v1.Vote
-	err = cdc.Unmarshal(store.Get(v042gov.VoteKey(prop1.ProposalId, voter)), &newVote1)
+	err = cdc.Unmarshal(store.Get(v1gov.VoteKey(prop1.ProposalId, voter)), &newVote1)
 	require.NoError(t, err)
 	// Without the votes migration, we would have 300000000000000000 in state,
 	// because of how sdk.Dec stores itself in state.

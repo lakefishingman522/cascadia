@@ -1,19 +1,20 @@
-package v046_test
+package v3_test
 
 import (
 	"encoding/json"
 	"testing"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	v046 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v046"
+	"github.com/cosmos/cosmos-sdk/x/gov"
+	v3 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v3"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -22,14 +23,11 @@ import (
 var voter = sdk.MustAccAddressFromBech32("cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh")
 
 func TestMigrateJSON(t *testing.T) {
-	encodingConfig := simapp.MakeTestEncodingConfig()
+	encodingConfig := moduletestutil.MakeTestEncodingConfig(gov.AppModuleBasic{})
 	clientCtx := client.Context{}.
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithCodec(encodingConfig.Codec)
-
-	voter, err := sdk.AccAddressFromBech32("cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh")
-	require.NoError(t, err)
 
 	govGenState := v1beta1.DefaultGenesisState()
 	propTime := time.Unix(1e9, 0)
@@ -53,7 +51,7 @@ func TestMigrateJSON(t *testing.T) {
 		v1beta1.Vote{ProposalId: 2, Voter: voter.String(), Options: v1beta1.NewNonSplitVoteOption(v1beta1.OptionNo)},
 	}
 
-	migrated, err := v046.MigrateJSON(govGenState)
+	migrated, err := v3.MigrateJSON(govGenState)
 	require.NoError(t, err)
 
 	// Make sure the migrated proposal's Msg signer is the gov acct.
@@ -85,6 +83,7 @@ func TestMigrateJSON(t *testing.T) {
 		]
 	},
 	"deposits": [],
+	"params": null,
 	"proposals": [
 		{
 			"deposit_end_time": "2001-09-09T01:46:40Z",
@@ -107,8 +106,11 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"metadata": "",
+			"proposer": "",
 			"status": "PROPOSAL_STATUS_DEPOSIT_PERIOD",
 			"submit_time": "2001-09-09T01:46:40Z",
+			"summary": "my desc",
+			"title": "my title",
 			"total_deposit": [
 				{
 					"amount": "123",

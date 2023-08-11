@@ -216,7 +216,7 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/notional-labs/wasmd v0.30.1-0.20230130020453-795c06e7bc42
 
 	// use Cosmos-SDK fork to enable Ledger functionality
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.46.13
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.47.4
 
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.7
@@ -229,4 +229,7 @@ replace (
 	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
 	// use updated cometbft-db
 	github.com/tendermint/tm-db => github.com/cometbft/cometbft-db v0.8.0
+
+	// use simapp
+	github.com/cosmos/cosmos-sdk/simapp => ./simapp
 )
