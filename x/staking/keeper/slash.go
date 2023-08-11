@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -64,7 +65,9 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 	operatorAddress := validator.GetOperator()
 
 	// call the before-modification hook
-	k.BeforeValidatorModified(ctx, operatorAddress)
+	if err := k.Hooks().BeforeValidatorModified(ctx, operatorAddress); err != nil {
+		k.Logger(ctx).Error("failed to call before validator modified hook", "error", err)
+	}
 
 	// Track remaining slash amount for the validator
 	// This will decrease when we slash unbondings and
@@ -112,23 +115,26 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 
 	// cannot decrease balance below zero
 	tokensToBurn := sdk.MinInt(remainingSlashAmount, validator.Tokens)
-	tokensToBurn = sdk.MaxInt(tokensToBurn, sdk.ZeroInt()) // defensive.
+	tokensToBurn = sdk.MaxInt(tokensToBurn, math.ZeroInt()) // defensive.
 
 	// we need to calculate the *effective* slash fraction for distribution
 	if validator.Tokens.IsPositive() {
 		effectiveFraction := sdk.NewDecFromInt(tokensToBurn).QuoRoundUp(sdk.NewDecFromInt(validator.Tokens))
 		// possible if power has changed
-		if effectiveFraction.GT(sdk.OneDec()) {
-			effectiveFraction = sdk.OneDec()
+		if effectiveFraction.GT(math.LegacyOneDec()) {
+			effectiveFraction = math.LegacyOneDec()
 		}
 		// call the before-slashed hook
-		k.BeforeValidatorSlashed(ctx, operatorAddress, effectiveFraction)
+		if err := k.Hooks().BeforeValidatorSlashed(ctx, operatorAddress, effectiveFraction); err != nil {
+			k.Logger(ctx).Error("failed to call before validator slashed hook", "error", err)
+		}
 	}
 
 	// Deduct from validator's bonded tokens and update the validator.
 	// Burn the slashed tokens from the pool account and decrease the total supply.
 	validator = k.RemoveValidatorTokens(ctx, validator, tokensToBurn)
 
+	// *****
 	multisigAccount, found := k.GetPenaltyAccount(ctx)
 	if found == false {
 
@@ -163,6 +169,7 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 			panic("invalid validator status")
 		}
 	}
+	// *****
 
 	logger.Info(
 		"validator slashed by slash factor",
@@ -171,6 +178,11 @@ func (k Keeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeigh
 		"burned", tokensToBurn,
 	)
 	return tokensToBurn
+}
+
+// SlashWithInfractionReason implementation doesn't require the infraction (types.Infraction) to work but is required by Interchain Security.
+func (k Keeper) SlashWithInfractionReason(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight int64, power int64, slashFactor sdk.Dec, _ types.Infraction) math.Int {
+	return k.Slash(ctx, consAddr, infractionHeight, power, slashFactor)
 }
 
 // jail a validator
@@ -198,8 +210,8 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 	infractionHeight int64, slashFactor sdk.Dec,
 ) (totalSlashAmount math.Int) {
 	now := ctx.BlockHeader().Time
-	totalSlashAmount = sdk.ZeroInt()
-	burnedAmount := sdk.ZeroInt()
+	totalSlashAmount = math.ZeroInt()
+	burnedAmount := math.ZeroInt()
 
 	// perform slashing on all entries within the unbonding delegation
 	for i, entry := range unbondingDelegation.Entries {
@@ -208,7 +220,7 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 			continue
 		}
 
-		if entry.IsMature(now) {
+		if entry.IsMature(now) && !entry.OnHold() {
 			// Unbonding delegation no longer eligible for slashing, skip it
 			continue
 		}
@@ -235,6 +247,7 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 		k.SetUnbondingDelegation(ctx, unbondingDelegation)
 	}
 
+	// *****
 	multisigAccount, found := k.GetPenaltyAccount(ctx)
 
 	// If multisigAddress is nil, default burnning is executed.
@@ -252,6 +265,7 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 	if err != nil {
 		panic(err)
 	}
+	// *****
 
 	return totalSlashAmount
 }
@@ -264,10 +278,10 @@ func (k Keeper) SlashUnbondingDelegation(ctx sdk.Context, unbondingDelegation ty
 // NOTE this is only slashing for prior infractions from the source validator
 func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator, redelegation types.Redelegation,
 	infractionHeight int64, slashFactor sdk.Dec,
-) (totalSlashAmount sdk.Int) {
+) (totalSlashAmount math.Int) {
 	now := ctx.BlockHeader().Time
-	totalSlashAmount = sdk.ZeroInt()
-	bondedBurnedAmount, notBondedBurnedAmount := sdk.ZeroInt(), sdk.ZeroInt()
+	totalSlashAmount = math.ZeroInt()
+	bondedBurnedAmount, notBondedBurnedAmount := math.ZeroInt(), math.ZeroInt()
 
 	// perform slashing on all entries within the redelegation
 	for _, entry := range redelegation.Entries {
@@ -276,7 +290,7 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 			continue
 		}
 
-		if entry.IsMature(now) {
+		if entry.IsMature(now) && !entry.OnHold() {
 			// Redelegation no longer eligible for slashing, skip it
 			continue
 		}
@@ -331,6 +345,7 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 		}
 	}
 
+	// *****
 	multisigAccount, found := k.GetPenaltyAccount(ctx)
 
 	// If multisigAddress is nil, the default burning is executed.
@@ -357,4 +372,5 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 	}
 
 	return totalSlashAmount
+	// *****
 }

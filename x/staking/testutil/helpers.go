@@ -1,4 +1,4 @@
-package teststaking
+package testutil
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cascadiafoundation/cascadia/x/staking"
-	"github.com/cascadiafoundation/cascadia/x/staking/keeper"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cascadiafoundation/cascadia/x/staking"
+	"github.com/cascadiafoundation/cascadia/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -20,7 +20,7 @@ import (
 type Helper struct {
 	t       *testing.T
 	msgSrvr stakingtypes.MsgServer
-	k       keeper.Keeper
+	k       *keeper.Keeper
 
 	Ctx        sdk.Context
 	Commission stakingtypes.CommissionRates
@@ -29,7 +29,7 @@ type Helper struct {
 }
 
 // NewHelper creates a new instance of Helper.
-func NewHelper(t *testing.T, ctx sdk.Context, k keeper.Keeper) *Helper {
+func NewHelper(t *testing.T, ctx sdk.Context, k *keeper.Keeper) *Helper {
 	return &Helper{t, keeper.NewMsgServerImpl(k), k, ctx, ZeroCommission(), sdk.DefaultBondDenom}
 }
 
@@ -51,7 +51,7 @@ func (sh *Helper) CreateValidatorWithValPower(addr sdk.ValAddress, pk cryptotype
 // CreateValidatorMsg returns a message used to create validator in this service.
 func (sh *Helper) CreateValidatorMsg(addr sdk.ValAddress, pk cryptotypes.PubKey, stakeAmount math.Int) *stakingtypes.MsgCreateValidator {
 	coin := sdk.NewCoin(sh.Denom, stakeAmount)
-	msg, err := stakingtypes.NewMsgCreateValidator(addr, pk, coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt())
+	msg, err := stakingtypes.NewMsgCreateValidator(addr, pk, coin, stakingtypes.Description{}, sh.Commission, math.OneInt())
 	require.NoError(sh.t, err)
 	return msg
 }
@@ -62,7 +62,7 @@ func (sh *Helper) CreateValidatorWithMsg(ctx context.Context, msg *stakingtypes.
 }
 
 func (sh *Helper) createValidator(addr sdk.ValAddress, pk cryptotypes.PubKey, coin sdk.Coin, ok bool) {
-	msg, err := stakingtypes.NewMsgCreateValidator(addr, pk, coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt())
+	msg, err := stakingtypes.NewMsgCreateValidator(addr, pk, coin, stakingtypes.Description{}, sh.Commission, math.OneInt())
 	require.NoError(sh.t, err)
 	res, err := sh.msgSrvr.CreateValidator(sdk.WrapSDKContext(sh.Ctx), msg)
 	if ok {
@@ -141,5 +141,5 @@ func (sh *Helper) TurnBlockTimeDiff(diff time.Duration) sdk.Context {
 
 // ZeroCommission constructs a commission rates with all zeros.
 func ZeroCommission() stakingtypes.CommissionRates {
-	return stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
+	return stakingtypes.NewCommissionRates(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec())
 }
