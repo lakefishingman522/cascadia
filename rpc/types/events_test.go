@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	evmtypes "github.com/cascadiafoundation/cascadia/x/evm/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 func TestParseTxResult(t *testing.T) {

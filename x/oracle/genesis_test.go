@@ -8,9 +8,9 @@ import (
 	feemarkettypes "github.com/cascadiafoundation/cascadia/x/feemarket/types"
 	"github.com/cascadiafoundation/cascadia/x/oracle"
 	"github.com/cascadiafoundation/cascadia/x/oracle/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 const (

@@ -21,11 +21,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cascadiafoundation/cascadia/indexer"
+	tmnode "github.com/cometbft/cometbft/node"
+	sm "github.com/cometbft/cometbft/state"
+	tmstore "github.com/cometbft/cometbft/store"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
-	tmnode "github.com/tendermint/tendermint/node"
-	sm "github.com/tendermint/tendermint/state"
-	tmstore "github.com/tendermint/tendermint/store"
 )
 
 func NewIndexTxCmd() *cobra.Command {

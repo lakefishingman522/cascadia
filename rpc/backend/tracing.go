@@ -22,10 +22,10 @@ import (
 
 	rpctypes "github.com/cascadiafoundation/cascadia/rpc/types"
 	evmtypes "github.com/cascadiafoundation/cascadia/x/evm/types"
+	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
-	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // TraceTransaction returns the structured logs created during the execution of EVM

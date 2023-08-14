@@ -2,7 +2,7 @@ package keeper_test
 
 import (
 	evmtypes "github.com/cascadiafoundation/cascadia/x/evm/types"
-	"github.com/tendermint/tendermint/abci/types"
+	"github.com/cometbft/cometbft/abci/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {
