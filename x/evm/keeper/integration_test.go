@@ -12,6 +12,9 @@ import (
 	"github.com/cascadiafoundation/cascadia/crypto/ethsecp256k1"
 	"github.com/cascadiafoundation/cascadia/encoding"
 	"github.com/cascadiafoundation/cascadia/testutil"
+
+	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
+
 	utiltx "github.com/cascadiafoundation/cascadia/testutil/tx"
 	"github.com/cascadiafoundation/cascadia/utils"
 	"github.com/cascadiafoundation/cascadia/x/feemarket/types"
@@ -20,7 +23,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"cosmossdk.io/simapp"
 	evmtypes "github.com/cascadiafoundation/cascadia/x/evm/types"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -183,7 +185,7 @@ func setupChain(localMinGasPricesStr string) {
 		app.DefaultNodeHome,
 		5,
 		encoding.MakeConfig(app.ModuleBasics),
-		simapp.EmptyAppOptions{},
+		simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome),
 		baseapp.SetMinGasPrices(localMinGasPricesStr),
 	)
 

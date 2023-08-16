@@ -21,6 +21,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -38,6 +39,17 @@ import (
 //  3. EndBlock
 //  4. Commit
 func Commit(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
+	header, err := commit(ctx, app, t, vs)
+	if err != nil {
+		return ctx, err
+	}
+
+	return ctx.WithBlockHeader(header), nil
+}
+
+// commit is a private helper function that runs the EndBlocker logic, commits the changes,
+// updates the header, runs the BeginBlocker function and returns the updated header
+func commit(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.ValidatorSet) (tmproto.Header, error) {
 	header := ctx.BlockHeader()
 
 	if vs != nil {
@@ -45,7 +57,7 @@ func Commit(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.Val
 
 		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
 		if err != nil {
-			return ctx, err
+			return header, err
 		}
 		header.ValidatorsHash = vs.Hash()
 		header.NextValidatorsHash = nextVals.Hash()
@@ -63,7 +75,29 @@ func Commit(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.Val
 		Header: header,
 	})
 
-	return app.BaseApp.NewContext(false, header), nil
+	return header, nil
+}
+
+// CommitAndCreateNewCtx commits a block at a given time creating a ctx with the current settings
+// This is useful to keep test settings that could be affected by EndBlockers, e.g.
+// setting a baseFee == 0 and expecting this condition to continue after commit
+func CommitAndCreateNewCtx(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
+	header, err := commit(ctx, app, t, vs)
+	if err != nil {
+		return ctx, err
+	}
+
+	// NewContext function keeps the multistore
+	// but resets other context fields
+	// GasMeter is set as InfiniteGasMeter
+	newCtx := app.BaseApp.NewContext(false, header)
+	// set the reseted fields to keep the current ctx settings
+	newCtx = newCtx.WithMinGasPrices(ctx.MinGasPrices())
+	newCtx = newCtx.WithEventManager(ctx.EventManager())
+	newCtx = newCtx.WithKVGasConfig(ctx.KVGasConfig())
+	newCtx = newCtx.WithTransientKVGasConfig(ctx.TransientKVGasConfig())
+
+	return newCtx, nil
 }
 
 // DeliverTx delivers a cosmos tx for a given set of msgs

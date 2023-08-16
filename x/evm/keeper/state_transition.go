@@ -320,18 +320,19 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	}
 
 	stateDB := statedb.New(ctx, k, txConfig)
+	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
 
 	// set the custom precompiles to the EVM (if any)
-	if cfg.Params.HasCustomPrecompiles() {
-		customPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
+	// if cfg.Params.HasCustomPrecompiles() {
+	// 	customPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
 
-		activePrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(customPrecompiles))
-		copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
-		copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
+	// 	activePrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(customPrecompiles))
+	// 	copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
+	// 	copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
 
-		precompileMap := k.Precompiles(activePrecompiles...)
-		evm.WithPrecompiles(precompileMap, activePrecompiles)
-	}
+	// 	precompileMap := k.Precompiles(activePrecompiles...)
+	// 	evm.WithPrecompiles(precompileMap, activePrecompiles)
+	// }
 
 	leftoverGas := msg.Gas()
 
