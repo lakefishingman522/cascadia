@@ -8,12 +8,11 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
 	"github.com/cascadiafoundation/cascadia/x/staking/testutil"
+	abci "github.com/cometbft/cometbft/abci/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
+	// sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
 )
 
 func (s *KeeperTestSuite) applyValidatorSetUpdates(ctx sdk.Context, keeper *stakingkeeper.Keeper, expectedUpdatesLen int) []abci.ValidatorUpdate {

@@ -27,16 +27,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 
 	"github.com/cascadiafoundation/cascadia/x/gov/client/cli"
-
 	"github.com/cascadiafoundation/cascadia/x/gov/keeper"
 	"github.com/cascadiafoundation/cascadia/x/gov/simulation"
+	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -177,6 +177,7 @@ type GovInputs struct {
 	AccountKeeper govtypes.AccountKeeper
 	BankKeeper    govtypes.BankKeeper
 	StakingKeeper govtypes.StakingKeeper
+	RewardKeeper  keeper.RewardKeeper
 
 	// LegacySubspace is used solely for migration of x/params managed parameters
 	LegacySubspace govtypes.ParamSubspace `optional:"true"`
@@ -210,6 +211,7 @@ func ProvideModule(in GovInputs) GovOutputs {
 		in.StakingKeeper,
 		in.MsgServiceRouter,
 		kConfig,
+		in.RewardKeeper,
 		authority.String(),
 	)
 	m := NewAppModule(in.Cdc, k, in.AccountKeeper, in.BankKeeper, in.LegacySubspace)

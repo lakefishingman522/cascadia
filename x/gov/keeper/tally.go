@@ -2,15 +2,14 @@ package keeper
 
 import (
 	"math/big"
+
 	"github.com/cascadiafoundation/cascadia/contracts"
 	"github.com/ethereum/go-ethereum/common"
-
-
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	// stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // TODO: Break into several smaller functions for clarity
@@ -25,7 +24,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	results[v1.OptionNoWithVeto] = math.LegacyZeroDec()
 
 	totalVotingPower := math.LegacyZeroDec()
-	currValidators := make(map[string]v1.ValidatorGovInfo)
+	// currValidators := make(map[string]v1.ValidatorGovInfo)
 
 	// // fetch all the bonded validators, insert them into currValidators
 	// keeper.sk.IterateBondedValidatorsByPower(ctx, func(index int64, validator stakingtypes.ValidatorI) (stop bool) {
@@ -103,13 +102,11 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 		// 	return false
 		// })
 
-
 		for _, option := range vote.Options {
 			results[option.Option] = results[option.Option].Add(voterBalance)
 		}
 
 		totalVotingPower = totalVotingPower.Add(voterBalance)
-
 
 		keeper.deleteVote(ctx, vote.ProposalId, voter)
 		return false

@@ -30,7 +30,7 @@ import (
 	"github.com/cascadiafoundation/cascadia/x/staking/client/cli"
 	"github.com/cascadiafoundation/cascadia/x/staking/keeper"
 	"github.com/cascadiafoundation/cascadia/x/staking/simulation"
-	
+
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 

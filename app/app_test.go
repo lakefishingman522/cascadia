@@ -7,17 +7,19 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 
+	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/types"
-	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cascadiafoundation/cascadia/encoding"
 	"github.com/cascadiafoundation/cascadia/utils"
@@ -42,7 +44,13 @@ func TestCascadiaExport(t *testing.T) {
 	}
 
 	db := dbm.NewMemDB()
-	app := NewCascadia(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
+	app := NewCascadia(
+		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		db, nil, true, map[int64]bool{},
+		DefaultNodeHome, 0,
+		encoding.MakeConfig(ModuleBasics),
+		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+	)
 
 	genesisState := NewDefaultGenesisState()
 	genesisState = GenesisStateWithValSet(app, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
@@ -60,7 +68,12 @@ func TestCascadiaExport(t *testing.T) {
 	app.Commit()
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	app2 := NewCascadia(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
+	app2 := NewCascadia(log.NewTMLogger(
+		log.NewSyncWriter(os.Stdout)),
+		db, nil, true, map[int64]bool{},
+		DefaultNodeHome, 0,
+		encoding.MakeConfig(ModuleBasics),
+		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome))
 	_, err = app2.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

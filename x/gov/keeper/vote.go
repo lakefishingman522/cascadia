@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"math/big"
 
-	
 	"github.com/cascadiafoundation/cascadia/contracts"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	
+
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -22,6 +21,8 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 	if !store.Has(types.VotingPeriodProposalKey(proposalID)) {
 		return sdkerrors.Wrapf(types.ErrInactiveProposal, "%d", proposalID)
 	}
+
+	proposal, _ := keeper.GetProposal(ctx, proposalID)
 
 	err := keeper.assertMetadataLength(metadata)
 	if err != nil {
@@ -53,7 +54,6 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 		return sdkerrors.Wrapf(types.ErrInvalidVote, "voting power of voter must be bigger than 0")
 	}
 	// *****
-
 
 	vote := v1.NewVote(proposalID, voterAddr, options, metadata)
 	keeper.SetVote(ctx, vote)

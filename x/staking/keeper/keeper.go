@@ -8,9 +8,11 @@ import (
 
 	"cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	sustainabilitytypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
@@ -50,7 +52,7 @@ func NewKeeper(
 	}
 
 	// ensure that authority is a valid AccAddress
-	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+	if _, err := sdktypes.AccAddressFromBech32(authority); err != nil {
 		panic("authority is not a valid acc address")
 	}
 
@@ -65,7 +67,7 @@ func NewKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+func (k Keeper) Logger(ctx sdktypes.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
@@ -90,7 +92,7 @@ func (k *Keeper) SetHooks(sh types.StakingHooks) {
 }
 
 // GetLastTotalPower Load the last total validator power.
-func (k Keeper) GetLastTotalPower(ctx sdk.Context) math.Int {
+func (k Keeper) GetLastTotalPower(ctx sdktypes.Context) math.Int {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.LastTotalPowerKey)
 
@@ -98,16 +100,16 @@ func (k Keeper) GetLastTotalPower(ctx sdk.Context) math.Int {
 		return math.ZeroInt()
 	}
 
-	ip := sdk.IntProto{}
+	ip := sdktypes.IntProto{}
 	k.cdc.MustUnmarshal(bz, &ip)
 
 	return ip.Int
 }
 
 // SetLastTotalPower Set the last total validator power.
-func (k Keeper) SetLastTotalPower(ctx sdk.Context, power math.Int) {
+func (k Keeper) SetLastTotalPower(ctx sdktypes.Context, power math.Int) {
 	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&sdk.IntProto{Int: power})
+	bz := k.cdc.MustMarshal(&sdktypes.IntProto{Int: power})
 	store.Set(types.LastTotalPowerKey, bz)
 }
 
@@ -117,14 +119,14 @@ func (k Keeper) GetAuthority() string {
 }
 
 // SetValidatorUpdates sets the ABCI validator power updates for the current block.
-func (k Keeper) SetValidatorUpdates(ctx sdk.Context, valUpdates []abci.ValidatorUpdate) {
+func (k Keeper) SetValidatorUpdates(ctx sdktypes.Context, valUpdates []abci.ValidatorUpdate) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&types.ValidatorUpdates{Updates: valUpdates})
 	store.Set(types.ValidatorUpdatesKey, bz)
 }
 
 // GetValidatorUpdates returns the ABCI validator power updates within the current block.
-func (k Keeper) GetValidatorUpdates(ctx sdk.Context) []abci.ValidatorUpdate {
+func (k Keeper) GetValidatorUpdates(ctx sdktypes.Context) []abci.ValidatorUpdate {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ValidatorUpdatesKey)
 
@@ -133,7 +135,6 @@ func (k Keeper) GetValidatorUpdates(ctx sdk.Context) []abci.ValidatorUpdate {
 
 	return valUpdates.Updates
 }
-
 
 // *****
 // SetPenaltyAccount set penaltyAccount in the store

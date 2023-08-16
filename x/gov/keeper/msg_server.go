@@ -16,7 +16,6 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	
 	"github.com/cascadiafoundation/cascadia/contracts"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -76,7 +75,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	k.ActivateVotingPeriod(ctx, proposal)
 	votingStarted := true
 
-	proposer, _ := sdk.AccAddressFromBech32(msg.GetProposer())
+	proposer, _ = sdk.AccAddressFromBech32(msg.GetProposer())
 
 	//*******
 	contract, found := k.Keeper.rk.GetRewardContract(ctx, 0)
