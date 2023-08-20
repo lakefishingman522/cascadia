@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 
-package cosmos
+package v0_1_5
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+const (
+	// UpgradeName is the shared upgrade plan name for mainnet and testnet
+	UpgradeName = "v0.1.5"
+	
+	// UpgradeHeight = 130_0000
 
-// BankKeeper defines the exposed interface for using functionality of the bank keeper
-// in the context of the cosmos AnteHandler package.
-type BankKeeper interface {
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
-	SendCoins(ctx sdk.Context, from, to sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-	IsSendEnabledCoins(ctx sdk.Context, coins ...sdk.Coin) error
-}
+	// UpgradeInfo defines the binaries that will be used for the upgrade
+	// UpgradeInfo = `'{"binaries":{"darwin/arm64":"https://github.com/cascadiafoundation/cascadia/releases/download/v8.0.0/cascadia_8.0.0_Darwin_arm64.tar.gz"}}'`
+)

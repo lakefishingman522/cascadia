@@ -171,6 +171,7 @@ import (
 
 	// imports for upgrades
 	v0_1_4 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.4"
+	v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
 )
 
 func init() {
@@ -1210,11 +1211,22 @@ func initParamsKeeper(
 }
 
 func (app *Cascadia) setupUpgradeHandlers() {
-	// v0.1.3 upgrade handler
+	// v0.1.4 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v0_1_4.UpgradeName,
 		v0_1_4.CreateUpgradeHandler(
 			app.mm, app.configurator,
+		),
+	)
+	// v0.1.5 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v0_1_5.UpgradeName,
+		v0_1_5.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.ConsensusParamsKeeper,
+			app.IBCKeeper.ClientKeeper,
+			app.ParamsKeeper,
+			app.appCodec,
 		),
 	)
 	// When a planned update height is reached, the old binary will panic
@@ -1239,6 +1251,13 @@ func (app *Cascadia) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{oracletypes.StoreKey, sustainabilitymoduletypes.StoreKey, wasmTypes.StoreKey, icacontrollertypes.StoreKey},
 		}
+	case v0_1_5.UpgradeName:
+		//
+		//
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{crisistypes.StoreKey, consensusparamtypes.StoreKey, ibcfeetypes.StoreKey},
+		}
+	
 	}
 
 	if storeUpgrades != nil {

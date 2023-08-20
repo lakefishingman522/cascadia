@@ -7,7 +7,7 @@
   },
   "apis": [
     {
-      "url": "./tmp-swagger-gen/evmos/claims/v1/query.swagger.json",
+      "url": "./tmp-swagger-gen/cascadia/claims/v1/query.swagger.json",
       "operationIds": {
         "rename": {
           "Params": "ClaimsParams"
@@ -15,10 +15,10 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/evmos/epochs/v1/query.swagger.json"
+      "url": "./tmp-swagger-gen/cascadia/epochs/v1/query.swagger.json"
     },
     {
-      "url": "./tmp-swagger-gen/evmos/erc20/v1/query.swagger.json",
+      "url": "./tmp-swagger-gen/cascadia/erc20/v1/query.swagger.json",
       "operationIds": {
         "rename": {
           "Params": "ERC20Params"
@@ -26,7 +26,7 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/evmos/incentives/v1/query.swagger.json",
+      "url": "./tmp-swagger-gen/cascadia/incentives/v1/query.swagger.json",
       "operationIds": {
         "rename": {
           "Params": "IncentivesParams"
@@ -43,10 +43,10 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/evmos/vesting/v1/query.swagger.json"
+      "url": "./tmp-swagger-gen/cascadia/vesting/v1/query.swagger.json"
     },
     {
-      "url": "./tmp-swagger-gen/evmos/recovery/v1/query.swagger.json",
+      "url": "./tmp-swagger-gen/cascadia/recovery/v1/query.swagger.json",
       "operationIds": {
         "rename": {
           "Params": "RecoveryParams"
