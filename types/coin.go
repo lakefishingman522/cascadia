@@ -34,7 +34,7 @@ const (
 	AttoCascadia string = "aCC"
 
 	// BaseDenomUnit defines the base denomination unit for Cascadia.
-	// 1 CC = 1x10^{BaseDenomUnit} aCC
+	// 1 CC = 1x18^{BaseDenomUnit} aCC
 	BaseDenomUnit = 18
 
 	// DefaultGasPrice is default gas price for evm transactions

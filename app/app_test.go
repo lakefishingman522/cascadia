@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -44,12 +46,14 @@ func TestCascadiaExport(t *testing.T) {
 	}
 
 	db := dbm.NewMemDB()
+	chainID := utils.MainnetChainID + "-1"
 	app := NewCascadia(
 		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 0,
 		encoding.MakeConfig(ModuleBasics),
 		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		baseapp.SetChainID(chainID),
 	)
 
 	genesisState := NewDefaultGenesisState()
@@ -73,7 +77,9 @@ func TestCascadiaExport(t *testing.T) {
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 0,
 		encoding.MakeConfig(ModuleBasics),
-		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome))
+		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		baseapp.SetChainID(chainID),
+	)
 	_, err = app2.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

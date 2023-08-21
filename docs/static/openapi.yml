@@ -26705,6 +26705,12 @@ paths:
           required: false
           type: string
           format: int64
+        - name: block_max_gas
+          description: block_max_gas of the traced block
+          in: query
+          required: false
+          type: string
+          format: int64
       tags:
         - Query
   /cascadia/evm/v1/trace_tx:
@@ -27198,6 +27204,12 @@ paths:
           description: >-
             chain_id is the the eip155 chain id parsed from the requested block
             header
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: block_max_gas
+          description: block_max_gas of the block of the requested transaction
           in: query
           required: false
           type: string

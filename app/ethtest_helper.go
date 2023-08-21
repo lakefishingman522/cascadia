@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"cosmossdk.io/simapp"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -39,6 +41,8 @@ import (
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/cascadiafoundation/cascadia/utils"
 )
 
 // EthDefaultConsensusParams defines the default Tendermint consensus params used in
@@ -67,6 +71,7 @@ func EthSetup(isCheckTx bool, patchGenesis func(*Cascadia, simapp.GenesisState) 
 
 // EthSetupWithDB initializes a new CascadiaApp. A Nop logger is set in CascadiaApp.
 func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Cascadia, simapp.GenesisState) simapp.GenesisState, db dbm.DB) *Cascadia {
+	chainID := utils.TestnetChainID + "-1"
 	app := NewCascadia(log.NewNopLogger(),
 		db,
 		nil,
@@ -75,7 +80,9 @@ func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Cascadia, simapp.GenesisS
 		DefaultNodeHome,
 		5,
 		encoding.MakeConfig(ModuleBasics),
-		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome))
+		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		baseapp.SetChainID(chainID),
+	)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewTestGenesisState(app.AppCodec())
@@ -91,7 +98,7 @@ func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Cascadia, simapp.GenesisS
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "cascadia_6102-1",
+				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
