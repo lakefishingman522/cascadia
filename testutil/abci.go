@@ -47,37 +47,6 @@ func Commit(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.Val
 	return ctx.WithBlockHeader(header), nil
 }
 
-// commit is a private helper function that runs the EndBlocker logic, commits the changes,
-// updates the header, runs the BeginBlocker function and returns the updated header
-func commit(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.ValidatorSet) (tmproto.Header, error) {
-	header := ctx.BlockHeader()
-
-	if vs != nil {
-		res := app.EndBlock(abci.RequestEndBlock{Height: header.Height})
-
-		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
-		if err != nil {
-			return header, err
-		}
-		header.ValidatorsHash = vs.Hash()
-		header.NextValidatorsHash = nextVals.Hash()
-	} else {
-		app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
-	}
-
-	_ = app.Commit()
-
-	header.Height++
-	header.Time = header.Time.Add(t)
-	header.AppHash = app.LastCommitID().Hash
-
-	app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	return header, nil
-}
-
 // CommitAndCreateNewCtx commits a block at a given time creating a ctx with the current settings
 // This is useful to keep test settings that could be affected by EndBlockers, e.g.
 // setting a baseFee == 0 and expecting this condition to continue after commit
@@ -141,7 +110,40 @@ func DeliverEthTx(
 	if err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
-	return BroadcastTxBytes(appCascadia, txConfig.TxEncoder(), tx)
+	res, err := BroadcastTxBytes(appCascadia, txConfig.TxEncoder(), tx)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	codec := encoding.MakeConfig(app.ModuleBasics).Codec
+	if _, err := CheckEthTxResponse(res, codec); err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+	return res, nil
+}
+
+// DeliverEthTxWithoutCheck generates and broadcasts a Cosmos Tx populated with MsgEthereumTx messages.
+// If a private key is provided, it will attempt to sign all messages with the given private key,
+// otherwise, it will assume the messages have already been signed. It does not check if the Eth tx is
+// successful or not.
+func DeliverEthTxWithoutCheck(
+	appCascadia *app.Cascadia,
+	priv cryptotypes.PrivKey,
+	msgs ...sdk.Msg,
+) (abci.ResponseDeliverTx, error) {
+	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+
+	tx, err := tx.PrepareEthTx(txConfig, appCascadia, priv, msgs...)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	res, err := BroadcastTxBytes(appCascadia, txConfig.TxEncoder(), tx)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	return res, nil
 }
 
 // CheckTx checks a cosmos tx for a given set of msgs
@@ -202,6 +204,37 @@ func BroadcastTxBytes(app *app.Cascadia, txEncoder sdk.TxEncoder, tx sdk.Tx) (ab
 	}
 
 	return res, nil
+}
+
+// commit is a private helper function that runs the EndBlocker logic, commits the changes,
+// updates the header, runs the BeginBlocker function and returns the updated header
+func commit(ctx sdk.Context, app *app.Cascadia, t time.Duration, vs *tmtypes.ValidatorSet) (tmproto.Header, error) {
+	header := ctx.BlockHeader()
+
+	if vs != nil {
+		res := app.EndBlock(abci.RequestEndBlock{Height: header.Height})
+
+		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
+		if err != nil {
+			return header, err
+		}
+		header.ValidatorsHash = vs.Hash()
+		header.NextValidatorsHash = nextVals.Hash()
+	} else {
+		app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
+	}
+
+	_ = app.Commit()
+
+	header.Height++
+	header.Time = header.Time.Add(t)
+	header.AppHash = app.LastCommitID().Hash
+
+	app.BeginBlock(abci.RequestBeginBlock{
+		Header: header,
+	})
+
+	return header, nil
 }
 
 // checkTxBytes encodes a transaction and calls checkTx on the app.

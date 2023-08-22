@@ -37,7 +37,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
 
 	isCheckTx := false
-	chainID := utils.MainnetChainID + "-1"
+	chainID := utils.TestnetChainID + "-1"
 	suite.app = app.Setup(isCheckTx, feemarkettypes.DefaultGenesisState(), chainID)
 	suite.Require().NotNil(suite.app.AppCodec())
 

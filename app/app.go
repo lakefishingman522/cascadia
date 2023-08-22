@@ -243,7 +243,7 @@ var (
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
-		ica.AppModuleBasic{},
+		// ica.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
@@ -1257,7 +1257,7 @@ func (app *Cascadia) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{crisistypes.StoreKey, consensusparamtypes.StoreKey, ibcfeetypes.StoreKey},
 		}
-	
+
 	}
 
 	if storeUpgrades != nil {

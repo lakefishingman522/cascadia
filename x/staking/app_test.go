@@ -14,11 +14,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	stakingKeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
+	"github.com/cascadiafoundation/cascadia/x/staking/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankKeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 

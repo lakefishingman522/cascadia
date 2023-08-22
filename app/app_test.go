@@ -64,7 +64,7 @@ func TestCascadiaExport(t *testing.T) {
 	// Initialize the chain
 	app.InitChain(
 		abci.RequestInitChain{
-			ChainId:       utils.TestnetChainID + "-1",
+			ChainId:       chainID,
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
 		},

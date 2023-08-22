@@ -25,13 +25,34 @@ import (
 	testutiltx "github.com/cascadiafoundation/cascadia/testutil/tx"
 	"github.com/cascadiafoundation/cascadia/utils"
 	"github.com/cascadiafoundation/cascadia/x/staking"
-	"github.com/cascadiafoundation/cascadia/x/staking/testutil"
+	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
+	teststaking "github.com/cascadiafoundation/cascadia/x/staking/testutil"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/stretchr/testify/require"
 )
+
+// CreateValidator creates a validator with the provided public key and stake amount
+func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt sdkmath.Int) {
+	zeroDec := sdk.ZeroDec()
+	stakingParams := sk.GetParams(ctx)
+	stakingParams.BondDenom = sk.BondDenom(ctx)
+	stakingParams.MinCommissionRate = zeroDec
+	err := sk.SetParams(ctx, stakingParams)
+	require.NoError(t, err)
+
+	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
+	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
+	stakingHelper.Denom = sk.BondDenom(ctx)
+
+	valAddr := sdk.ValAddress(pubKey.Address())
+	stakingHelper.CreateValidator(valAddr, pubKey, stakeAmt, true)
+}
 
 // PrepareAccountsForDelegationRewards prepares the test suite for testing to withdraw delegation rewards.
 //
@@ -100,9 +121,10 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		stakingParams := app.StakingKeeper.GetParams(ctx)
 		stakingParams.BondDenom = utils.BaseDenom
 		stakingParams.MinCommissionRate = zeroDec
-		app.StakingKeeper.SetParams(ctx, stakingParams)
+		err = app.StakingKeeper.SetParams(ctx, stakingParams)
+		require.NoError(t, err)
 
-		stakingHelper := testutil.NewHelper(t, ctx, &app.StakingKeeper)
+		stakingHelper := teststaking.NewHelper(t, ctx, &app.StakingKeeper)
 		stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 		stakingHelper.Denom = utils.BaseDenom
 
