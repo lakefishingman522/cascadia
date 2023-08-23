@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 
 package app
 
@@ -20,13 +20,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	"cosmossdk.io/simapp"
+	"github.com/cascadiafoundation/cascadia/x/staking"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/cascadiafoundation/cascadia/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/cascadiafoundation/cascadia/encoding"
@@ -63,7 +63,7 @@ func (app *Cascadia) ExportAppStateAndValidators(
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators, err := staking.WriteValidators(ctx, app.StakingKeeper)
+	validators, err := staking.WriteValidators(ctx, &app.StakingKeeper)
 	if err != nil {
 		return servertypes.ExportedApp{}, err
 	}

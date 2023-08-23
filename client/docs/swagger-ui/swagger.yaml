@@ -4,7 +4,7 @@ info:
   description: A REST interface for state queries and transactions
   version: 1.0.0
 paths:
-  /evmos/claims/v1/claims_records:
+  /cascadia/claims/v1/claims_records:
     get:
       summary: ClaimsRecords returns all claims records
       operationId: ClaimsRecords
@@ -143,7 +143,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /evmos/claims/v1/claims_records/{address}:
+  /cascadia/claims/v1/claims_records/{address}:
     get:
       summary: ClaimsRecord returns the claims record for a given address
       operationId: ClaimsRecord
@@ -229,7 +229,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/claims/v1/params:
+  /cascadia/claims/v1/params:
     get:
       summary: Params returns the claims module parameters
       operationId: ClaimsParams
@@ -306,7 +306,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/claims/v1/total_unclaimed:
+  /cascadia/claims/v1/total_unclaimed:
     get:
       summary: TotalUnclaimed queries the total unclaimed tokens from the airdrop
       operationId: TotalUnclaimed
@@ -363,7 +363,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/epochs/v1/current_epoch:
+  /cascadia/epochs/v1/current_epoch:
     get:
       summary: CurrentEpoch provide current epoch of specified identifier
       operationId: CurrentEpoch
@@ -412,7 +412,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/epochs/v1/epochs:
+  /cascadia/epochs/v1/epochs:
     get:
       summary: EpochInfos provide running epochInfos
       operationId: EpochInfos
@@ -567,7 +567,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /evmos/erc20/v1/params:
+  /cascadia/erc20/v1/params:
     get:
       summary: Params retrieves the erc20 module params
       operationId: ERC20Params
@@ -621,7 +621,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/erc20/v1/token_pairs:
+  /cascadia/erc20/v1/token_pairs:
     get:
       summary: TokenPairs retrieves registered token pairs
       operationId: TokenPairs
@@ -776,7 +776,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /evmos/erc20/v1/token_pairs/{token}:
+  /cascadia/erc20/v1/token_pairs/{token}:
     get:
       summary: TokenPair retrieves a registered token pair
       operationId: TokenPair
@@ -860,7 +860,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/incentives/v1/allocation_meters:
+  /cascadia/incentives/v1/allocation_meters:
     get:
       summary: |-
         AllocationMeters retrieves active allocation meters for a given
@@ -994,7 +994,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /evmos/incentives/v1/allocation_meters/{denom}:
+  /cascadia/incentives/v1/allocation_meters/{denom}:
     get:
       summary: AllocationMeter retrieves a active gas meter
       operationId: AllocationMeter
@@ -1054,7 +1054,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/incentives/v1/gas_meters/{contract}:
+  /cascadia/incentives/v1/gas_meters/{contract}:
     get:
       summary: GasMeters retrieves active gas meters for a given contract
       operationId: GasMeters
@@ -1199,7 +1199,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /evmos/incentives/v1/gas_meters/{contract}/{participant}:
+  /cascadia/incentives/v1/gas_meters/{contract}/{participant}:
     get:
       summary: GasMeter retrieves a active gas meter
       operationId: GasMeter
@@ -1255,7 +1255,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/incentives/v1/incentives:
+  /cascadia/incentives/v1/incentives:
     get:
       summary: Incentives retrieves registered incentives
       operationId: Incentives
@@ -1423,7 +1423,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /evmos/incentives/v1/incentives/{contract}:
+  /cascadia/incentives/v1/incentives/{contract}:
     get:
       summary: Incentive retrieves a registered incentive
       operationId: Incentive
@@ -1518,7 +1518,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/incentives/v1/params:
+  /cascadia/incentives/v1/params:
     get:
       summary: Params retrieves the incentives module params
       operationId: IncentivesParams
@@ -1901,7 +1901,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/vesting/v1/balances/{address}:
+  /cascadia/vesting/v1/balances/{address}:
     get:
       summary: >-
         Balances retrieves the unvested, vested and locked tokens for a vesting
@@ -2002,7 +2002,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/recovery/v1/params:
+  /cascadia/recovery/v1/params:
     get:
       summary: Params retrieves the total set of recovery parameters.
       operationId: RecoveryParams
@@ -2052,7 +2052,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/evm/v1/account/{address}:
+  /cascadia/evm/v1/account/{address}:
     get:
       summary: Account queries an Ethereum account.
       operationId: Account
@@ -2274,7 +2274,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/evm/v1/balances/{address}:
+  /cascadia/evm/v1/balances/{address}:
     get:
       summary: |-
         Balance queries the balance of a the EVM denomination for a single
@@ -2491,7 +2491,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/evm/v1/base_fee:
+  /cascadia/evm/v1/base_fee:
     get:
       summary: >-
         BaseFee queries the base fee of the parent block of the current block,
@@ -2702,7 +2702,7 @@ paths:
                         }
       tags:
         - Query
-  /evmos/evm/v1/codes/{address}:
+  /cascadia/evm/v1/codes/{address}:
     get:
       summary: Code queries the balance of all coins for a single account.
       operationId: Code
@@ -2918,7 +2918,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/evm/v1/cosmos_account/{address}:
+  /cascadia/evm/v1/cosmos_account/{address}:
     get:
       summary: CosmosAccount queries an Ethereum account's Cosmos Address.
       operationId: CosmosAccount
@@ -3143,7 +3143,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/evm/v1/estimate_gas:
+  /cascadia/evm/v1/estimate_gas:
     get:
       summary: EstimateGas implements the `eth_estimateGas` rpc api
       operationId: EstimateGas
@@ -3378,7 +3378,7 @@ paths:
           format: int64
       tags:
         - Query
-  /evmos/evm/v1/eth_call:
+  /cascadia/evm/v1/eth_call:
     get:
       summary: EthCall implements the `eth_call` rpc api
       operationId: EthCall
@@ -3396,7 +3396,7 @@ paths:
 
                   Tendermint sha256 hash of the transaction bytes. See
 
-                  https://github.com/tendermint/tendermint/issues/6539 for
+                  https://github.com/cometbft/cometbft/issues/6539 for
                   reference
               logs:
                 type: array
@@ -3706,7 +3706,7 @@ paths:
           format: int64
       tags:
         - Query
-  /evmos/evm/v1/params:
+  /cascadia/evm/v1/params:
     get:
       summary: Params queries the parameters of x/evm module.
       operationId: EvmParams
@@ -4055,7 +4055,7 @@ paths:
                         }
       tags:
         - Query
-  /evmos/evm/v1/storage/{address}/{key}:
+  /cascadia/evm/v1/storage/{address}/{key}:
     get:
       summary: Storage queries the balance of all coins for a single account.
       operationId: Storage
@@ -4279,7 +4279,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/evm/v1/trace_block:
+  /cascadia/evm/v1/trace_block:
     get:
       summary: >-
         TraceBlock implements the `debug_traceBlockByNumber` and
@@ -4708,7 +4708,7 @@ paths:
           format: int64
       tags:
         - Query
-  /evmos/evm/v1/trace_tx:
+  /cascadia/evm/v1/trace_tx:
     get:
       summary: TraceTx implements the `debug_traceTransaction` rpc api
       operationId: TraceTx
@@ -5217,7 +5217,7 @@ paths:
           format: int64
       tags:
         - Query
-  /evmos/evm/v1/validator_account/{cons_address}:
+  /cascadia/evm/v1/validator_account/{cons_address}:
     get:
       summary: >-
         ValidatorAccount queries an Ethereum account's from a validator
@@ -5446,7 +5446,7 @@ paths:
           type: string
       tags:
         - Query
-  /evmos/feemarket/v1/base_fee:
+  /cascadia/feemarket/v1/base_fee:
     get:
       summary: BaseFee queries the base fee of the parent block of the current block.
       operationId: FeeMarketBaseFee
@@ -5484,7 +5484,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/feemarket/v1/block_gas:
+  /cascadia/feemarket/v1/block_gas:
     get:
       summary: BlockGas queries the gas used at a given block height
       operationId: BlockGas
@@ -5523,7 +5523,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /evmos/feemarket/v1/params:
+  /cascadia/feemarket/v1/params:
     get:
       summary: Params queries the parameters of x/feemarket module.
       operationId: FeeMarketParams
@@ -43450,7 +43450,7 @@ definitions:
 
       NOTE: The amount field is an Int which implements the custom method
       signatures required by gogoproto.
-  evmos.claims.v1.Action:
+  cascadia.claims.v1.Action:
     type: string
     enum:
       - ACTION_UNSPECIFIED
@@ -43467,7 +43467,7 @@ definitions:
        - ACTION_DELEGATE: ACTION_DELEGATE defines an staking delegation.
        - ACTION_EVM: ACTION_EVM defines an EVM transaction.
        - ACTION_IBC_TRANSFER: ACTION_IBC_TRANSFER defines a fungible token transfer transaction via IBC.
-  evmos.claims.v1.Claim:
+  cascadia.claims.v1.Claim:
     type: object
     properties:
       action:
@@ -43500,7 +43500,7 @@ definitions:
       amount
 
       for a given user. This is only used during client queries.
-  evmos.claims.v1.ClaimsRecordAddress:
+  cascadia.claims.v1.ClaimsRecordAddress:
     type: object
     properties:
       address:
@@ -43519,7 +43519,7 @@ definitions:
     description: |-
       ClaimsRecordAddress is the claims metadata per address that is used at
       Genesis.
-  evmos.claims.v1.Params:
+  cascadia.claims.v1.Params:
     type: object
     properties:
       enable_claims:
@@ -43555,7 +43555,7 @@ definitions:
           evm_channels is the list of channel identifiers from EVM compatible
           chains
     description: Params defines the claims module's parameters.
-  evmos.claims.v1.QueryClaimsRecordResponse:
+  cascadia.claims.v1.QueryClaimsRecordResponse:
     type: object
     properties:
       initial_claimable_amount:
@@ -43602,7 +43602,7 @@ definitions:
       RPC
 
       method.
-  evmos.claims.v1.QueryClaimsRecordsResponse:
+  cascadia.claims.v1.QueryClaimsRecordsResponse:
     type: object
     properties:
       claims:
@@ -43653,7 +43653,7 @@ definitions:
       Query/ClaimsRecords
 
       RPC method.
-  evmos.claims.v1.QueryParamsResponse:
+  cascadia.claims.v1.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -43693,7 +43693,7 @@ definitions:
               evm_channels is the list of channel identifiers from EVM
               compatible chains
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
-  evmos.claims.v1.QueryTotalUnclaimedResponse:
+  cascadia.claims.v1.QueryTotalUnclaimedResponse:
     type: object
     properties:
       coins:
@@ -44049,7 +44049,7 @@ definitions:
                   "@type": "type.googleapis.com/google.protobuf.Duration",
                   "value": "1.212s"
                 }
-  evmos.epochs.v1.EpochInfo:
+  cascadia.epochs.v1.EpochInfo:
     type: object
     properties:
       identifier:
@@ -44086,7 +44086,7 @@ definitions:
       informations about
 
       an epoch.
-  evmos.epochs.v1.QueryCurrentEpochResponse:
+  cascadia.epochs.v1.QueryCurrentEpochResponse:
     type: object
     properties:
       current_epoch:
@@ -44098,7 +44098,7 @@ definitions:
       RPC
 
       method.
-  evmos.epochs.v1.QueryEpochsInfoResponse:
+  cascadia.epochs.v1.QueryEpochsInfoResponse:
     type: object
     properties:
       epochs:
@@ -44163,7 +44163,7 @@ definitions:
     description: |-
       QueryEpochsInfoResponse is the response type for the Query/EpochInfos RPC
       method.
-  evmos.erc20.v1.Owner:
+  cascadia.erc20.v1.Owner:
     type: string
     enum:
       - OWNER_UNSPECIFIED
@@ -44176,7 +44176,7 @@ definitions:
        - OWNER_UNSPECIFIED: OWNER_UNSPECIFIED defines an invalid/undefined owner.
        - OWNER_MODULE: OWNER_MODULE - erc20 is owned by the erc20 module account.
        - OWNER_EXTERNAL: OWNER_EXTERNAL - erc20 is owned by an external account.
-  evmos.erc20.v1.Params:
+  cascadia.erc20.v1.Params:
     type: object
     properties:
       enable_erc20:
@@ -44193,7 +44193,7 @@ definitions:
           Coin by transferring the Tokens through a MsgEthereumTx to the
           ModuleAddress Ethereum address.
     title: Params defines the erc20 module params
-  evmos.erc20.v1.QueryParamsResponse:
+  cascadia.erc20.v1.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -44216,7 +44216,7 @@ definitions:
     description: |-
       QueryParamsResponse is the response type for the Query/Params RPC
       method.
-  evmos.erc20.v1.QueryTokenPairResponse:
+  cascadia.erc20.v1.QueryTokenPairResponse:
     type: object
     properties:
       token_pair:
@@ -44257,7 +44257,7 @@ definitions:
     description: |-
       QueryTokenPairResponse is the response type for the Query/TokenPair RPC
       method.
-  evmos.erc20.v1.QueryTokenPairsResponse:
+  cascadia.erc20.v1.QueryTokenPairsResponse:
     type: object
     properties:
       token_pairs:
@@ -44317,7 +44317,7 @@ definitions:
     description: |-
       QueryTokenPairsResponse is the response type for the Query/TokenPairs RPC
       method.
-  evmos.erc20.v1.TokenPair:
+  cascadia.erc20.v1.TokenPair:
     type: object
     properties:
       erc20_address:
@@ -44361,7 +44361,7 @@ definitions:
 
       NOTE: The amount field is an Dec which implements the custom method
       signatures required by gogoproto.
-  evmos.incentives.v1.GasMeter:
+  cascadia.incentives.v1.GasMeter:
     type: object
     properties:
       contract:
@@ -44375,7 +44375,7 @@ definitions:
         format: uint64
         title: cumulative_gas spent during the epoch
     title: GasMeter tracks the cumulative gas spent per participant in one epoch
-  evmos.incentives.v1.Incentive:
+  cascadia.incentives.v1.Incentive:
     type: object
     properties:
       contract:
@@ -44415,7 +44415,7 @@ definitions:
     title: |-
       Incentive defines an instance that organizes distribution conditions for a
       given smart contract
-  evmos.incentives.v1.Params:
+  cascadia.incentives.v1.Params:
     type: object
     properties:
       enable_incentives:
@@ -44433,7 +44433,7 @@ definitions:
         type: string
         title: reward_scaler is the scaling factor for capping rewards
     title: Params defines the incentives module params
-  evmos.incentives.v1.QueryAllocationMeterResponse:
+  cascadia.incentives.v1.QueryAllocationMeterResponse:
     type: object
     properties:
       allocation_meter:
@@ -44452,7 +44452,7 @@ definitions:
     description: |-
       QueryAllocationMeterResponse is the response type for the
       Query/AllocationMeter RPC method.
-  evmos.incentives.v1.QueryAllocationMetersResponse:
+  cascadia.incentives.v1.QueryAllocationMetersResponse:
     type: object
     properties:
       allocation_meters:
@@ -44492,7 +44492,7 @@ definitions:
     description: |-
       QueryAllocationMetersResponse is the response type for the
       Query/AllocationMeters RPC method.
-  evmos.incentives.v1.QueryGasMeterResponse:
+  cascadia.incentives.v1.QueryGasMeterResponse:
     type: object
     properties:
       gas_meter:
@@ -44504,7 +44504,7 @@ definitions:
     description: |-
       QueryGasMeterResponse is the response type for the Query/Incentive RPC
       method.
-  evmos.incentives.v1.QueryGasMetersResponse:
+  cascadia.incentives.v1.QueryGasMetersResponse:
     type: object
     properties:
       gas_meters:
@@ -44550,7 +44550,7 @@ definitions:
     description: |-
       QueryGasMetersResponse is the response type for the Query/Incentives RPC
       method.
-  evmos.incentives.v1.QueryIncentiveResponse:
+  cascadia.incentives.v1.QueryIncentiveResponse:
     type: object
     properties:
       incentive:
@@ -44602,7 +44602,7 @@ definitions:
     description: |-
       QueryIncentiveResponse is the response type for the Query/Incentive RPC
       method.
-  evmos.incentives.v1.QueryIncentivesResponse:
+  cascadia.incentives.v1.QueryIncentivesResponse:
     type: object
     properties:
       incentives:
@@ -44676,7 +44676,7 @@ definitions:
     description: |-
       QueryIncentivesResponse is the response type for the Query/Incentives RPC
       method.
-  evmos.incentives.v1.QueryParamsResponse:
+  cascadia.incentives.v1.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -44954,7 +44954,7 @@ definitions:
       Query/SkippedEpochs
 
       RPC method.
-  evmos.vesting.v1.QueryBalancesResponse:
+  cascadia.vesting.v1.QueryBalancesResponse:
     type: object
     properties:
       locked:
@@ -45005,7 +45005,7 @@ definitions:
     description: |-
       QueryBalancesResponse is the response type for the Query/Balances RPC
       method.
-  evmos.recovery.v1.Params:
+  cascadia.recovery.v1.Params:
     type: object
     properties:
       enable_recovery:
@@ -45017,7 +45017,7 @@ definitions:
           packet_timeout_duration is the duration added to timeout timestamp for
           balances recovered via IBC packets
     title: Params holds parameters for the recovery module
-  evmos.recovery.v1.QueryParamsResponse:
+  cascadia.recovery.v1.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -45393,7 +45393,7 @@ definitions:
 
           Tendermint sha256 hash of the transaction bytes. See
 
-          https://github.com/tendermint/tendermint/issues/6539 for reference
+          https://github.com/cometbft/cometbft/issues/6539 for reference
       logs:
         type: array
         items:

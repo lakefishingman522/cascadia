@@ -7,7 +7,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/cascadiafoundation/cascadia/app"
+	"github.com/cascadiafoundation/cascadia/utils"
 	"github.com/cascadiafoundation/cascadia/x/feemarket/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -49,6 +51,7 @@ func TestKeeperTestSuite(t *testing.T) {
 // SetupTest setup test environment, it uses`require.TestingT` to support both `testing.T` and `testing.B`.
 func (suite *KeeperTestSuite) SetupTest() {
 	checkTx := false
-	suite.app = app.Setup(checkTx, nil)
-	suite.SetupApp(checkTx)
+	chainID := utils.TestnetChainID + "-1"
+	suite.app = app.Setup(checkTx, nil, chainID)
+	suite.SetupApp(checkTx, chainID)
 }

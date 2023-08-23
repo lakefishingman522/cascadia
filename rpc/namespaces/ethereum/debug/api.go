@@ -37,11 +37,11 @@ import (
 
 	"github.com/cascadiafoundation/cascadia/rpc/backend"
 	rpctypes "github.com/cascadiafoundation/cascadia/rpc/types"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus/ethash"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 // HandlerT keeps track of the cpu profiler and trace execution

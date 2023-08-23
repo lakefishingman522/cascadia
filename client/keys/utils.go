@@ -12,16 +12,16 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 package keys
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"sigs.k8s.io/yaml"
 
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	cryptokeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
@@ -46,7 +46,7 @@ func printKeyringRecord(w io.Writer, k *cryptokeyring.Record, bechKeyOut bechKey
 		}
 
 	case OutputFormatJSON:
-		out, err := keys.KeysCdc.MarshalJSON(ko)
+		out, err := json.Marshal(ko)
 		if err != nil {
 			return err
 		}

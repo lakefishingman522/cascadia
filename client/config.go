@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 package client
 
 import (
@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/tendermint/tendermint/libs/cli"
+	"github.com/cometbft/cometbft/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
@@ -41,7 +41,7 @@ func InitConfig(cmd *cobra.Command) error {
 	_, err = os.Stat(configFile)
 	if err != nil && !os.IsNotExist(err) {
 		// Immediately return if the error isn't related to the file not existing.
-		// See issue https://github.com/evmos/ethermint/issues/539
+		// See issue https://github.com/cascadia/ethermint/issues/539
 		return err
 	}
 	if err == nil {

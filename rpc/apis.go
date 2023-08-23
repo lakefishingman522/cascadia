@@ -34,7 +34,7 @@ import (
 	"github.com/cascadiafoundation/cascadia/rpc/namespaces/ethereum/web3"
 	"github.com/cascadiafoundation/cascadia/types"
 
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 )
 
 // RPC namespaces and API version

@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 package server
 
 import (
@@ -21,11 +21,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cascadiafoundation/cascadia/indexer"
+	tmnode "github.com/cometbft/cometbft/node"
+	sm "github.com/cometbft/cometbft/state"
+	tmstore "github.com/cometbft/cometbft/store"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
-	tmnode "github.com/tendermint/tendermint/node"
-	sm "github.com/tendermint/tendermint/state"
-	tmstore "github.com/tendermint/tendermint/store"
 )
 
 func NewIndexTxCmd() *cobra.Command {

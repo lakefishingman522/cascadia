@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/math"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cascadiafoundation/cascadia/x/inflation/types"
 	"github.com/cosmos/cosmos-sdk/codec"

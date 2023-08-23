@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cascadiafoundation/cascadia/x/reward/types"
 	"github.com/cosmos/cosmos-sdk/codec"

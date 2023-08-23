@@ -3,9 +3,11 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/cascadiafoundation/cascadia/utils"
+
 	"github.com/stretchr/testify/suite"
 
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,7 +30,10 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	isCheckTx := false
-	app := simapp.Setup(isCheckTx, feemarkettypes.DefaultGenesisState())
+
+	chainID := utils.TestnetChainID + "-1"
+
+	app := simapp.Setup(isCheckTx, feemarkettypes.DefaultGenesisState(), chainID)
 
 	suite.legacyAmino = app.LegacyAmino()
 	suite.ctx = app.BaseApp.NewContext(initChain, tmproto.Header{})

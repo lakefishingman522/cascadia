@@ -6,9 +6,9 @@ import (
 	"github.com/cascadiafoundation/cascadia/rpc/backend/mocks"
 	ethrpc "github.com/cascadiafoundation/cascadia/rpc/types"
 	evmtypes "github.com/cascadiafoundation/cascadia/x/evm/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 func (suite *BackendTestSuite) TestGetLogs() {

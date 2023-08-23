@@ -5,22 +5,25 @@ import (
 	"math/big"
 
 	"github.com/cascadiafoundation/cascadia/contracts"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
 	"github.com/ethereum/go-ethereum/common"
 )
 
 // AddVote adds a vote on a specific proposal
 func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress, options v1.WeightedVoteOptions, metadata string) error {
-	proposal, ok := keeper.GetProposal(ctx, proposalID)
-	if !ok {
-		return sdkerrors.Wrapf(types.ErrUnknownProposal, "%d", proposalID)
-	}
-	if proposal.Status != v1.StatusVotingPeriod {
+	// Check if proposal is in voting period.
+	store := ctx.KVStore(keeper.storeKey)
+	if !store.Has(types.VotingPeriodProposalKey(proposalID)) {
 		return sdkerrors.Wrapf(types.ErrInactiveProposal, "%d", proposalID)
 	}
+
+	proposal, _ := keeper.GetProposal(ctx, proposalID)
+
 	err := keeper.assertMetadataLength(metadata)
 	if err != nil {
 		return err
@@ -32,6 +35,7 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 	// 	}
 	// }
 
+	// *****
 	contract, found := keeper.rk.GetRewardContract(ctx, 0)
 	if !found {
 		panic("no ve contract")
@@ -49,12 +53,13 @@ func (keeper Keeper) AddVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.A
 	if voterBalance == 0 {
 		return sdkerrors.Wrapf(types.ErrInvalidVote, "voting power of voter must be bigger than 0")
 	}
+	// *****
 
 	vote := v1.NewVote(proposalID, voterAddr, options, metadata)
 	keeper.SetVote(ctx, vote)
 
 	// called after a vote on a proposal is cast
-	keeper.AfterProposalVote(ctx, proposalID, voterAddr)
+	keeper.Hooks().AfterProposalVote(ctx, proposalID, voterAddr)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

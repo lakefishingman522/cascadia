@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 package server
 
 import (
@@ -32,8 +32,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 
 	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
-	tmlog "github.com/tendermint/tendermint/libs/log"
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
+	tmlog "github.com/cometbft/cometbft/libs/log"
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 )
 
 // AddCommands adds server commands
@@ -55,6 +55,8 @@ func AddCommands(
 		sdkserver.VersionCmd(),
 		tmcmd.ResetAllCmd,
 		tmcmd.ResetStateCmd,
+
+		sdkserver.BootstrapStateCmd(opts.AppCreator),
 	)
 
 	startCmd := StartCmd(opts)

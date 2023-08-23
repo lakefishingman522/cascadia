@@ -43,7 +43,7 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			)
 
 			var err error
-			s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+			s.ctx, err = testutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second*0, nil)
 			Expect(err).To(BeNil())
 		})
 
@@ -78,7 +78,7 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			)
 
 			var err error
-			s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+			s.ctx, err = testutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second*0, nil)
 			Expect(err).To(BeNil())
 		})
 
@@ -114,7 +114,7 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 				s.T(), s.ctx, s.app, addr, balance, rewardsAmt,
 			)
 			var err error
-			s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+			s.ctx, err = testutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second*0, nil)
 			Expect(err).To(BeNil())
 		})
 
@@ -124,9 +124,11 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			Expect(rewards).To(Equal(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, rewardsAmt))))
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
+
 			Expect(balance.Amount).To(Equal(sdk.NewInt(0)))
 
 			res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+
 			Expect(res.IsOK()).To(BeTrue())
 			Expect(err).To(BeNil())
 		})

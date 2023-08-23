@@ -21,10 +21,10 @@ import (
 
 	"github.com/cascadiafoundation/cascadia/types"
 	evmtypes "github.com/cascadiafoundation/cascadia/x/evm/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // EventFormat is the format version of the events.
@@ -189,7 +189,7 @@ func (p *ParsedTxs) newTx(attrs []abci.EventAttribute) error {
 
 // updateTx updates an exiting tx from events, called during parsing.
 // In event format 2, we update the tx with the attributes of the second `ethereum_tx` event,
-// Due to bug https://github.com/evmos/ethermint/issues/1175, the first `ethereum_tx` event may emit incorrect tx hash,
+// Due to bug, the first `ethereum_tx` event may emit incorrect tx hash,
 // so we prefer the second event and override the first one.
 func (p *ParsedTxs) updateTx(eventIndex int, attrs []abci.EventAttribute) error {
 	tx := NewParsedTx(eventIndex)
@@ -243,7 +243,7 @@ func (p *ParsedTxs) AccumulativeGasUsed(msgIndex int) (result uint64) {
 
 // fillTxAttribute parse attributes by name, less efficient than hardcode the index, but more stable against event
 // format changes.
-func fillTxAttribute(tx *ParsedTx, key []byte, value []byte) error {
+func fillTxAttribute(tx *ParsedTx, key string, value string) error {
 	switch string(key) {
 	case evmtypes.AttributeKeyEthereumTxHash:
 		tx.Hash = common.HexToHash(string(value))

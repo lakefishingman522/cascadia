@@ -12,6 +12,9 @@ import (
 	"github.com/cascadiafoundation/cascadia/crypto/ethsecp256k1"
 	"github.com/cascadiafoundation/cascadia/encoding"
 	"github.com/cascadiafoundation/cascadia/testutil"
+
+	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
+
 	utiltx "github.com/cascadiafoundation/cascadia/testutil/tx"
 	"github.com/cascadiafoundation/cascadia/utils"
 	"github.com/cascadiafoundation/cascadia/x/feemarket/types"
@@ -21,11 +24,10 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	evmtypes "github.com/cascadiafoundation/cascadia/x/evm/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 )
 
 var _ = Describe("Feemarket", func() {
@@ -174,6 +176,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the app, so we can use SetMinGasPrices to set the
 	// validator-specific min-gas-prices setting
 	db := dbm.NewMemDB()
+	chainID := utils.TestnetChainID + "-1"
 	newapp := app.NewCascadia(
 		log.NewNopLogger(),
 		db,
@@ -183,7 +186,8 @@ func setupChain(localMinGasPricesStr string) {
 		app.DefaultNodeHome,
 		5,
 		encoding.MakeConfig(app.ModuleBasics),
-		simapp.EmptyAppOptions{},
+		simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome),
+		baseapp.SetChainID(chainID),
 		baseapp.SetMinGasPrices(localMinGasPricesStr),
 	)
 
@@ -196,7 +200,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the chain
 	newapp.InitChain(
 		abci.RequestInitChain{
-			ChainId:         utils.TestnetChainID + "-1",
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,
 			ConsensusParams: app.DefaultConsensusParams,
@@ -204,7 +208,7 @@ func setupChain(localMinGasPricesStr string) {
 	)
 
 	s.app = newapp
-	s.SetupApp(false)
+	s.SetupApp(false, chainID)
 }
 
 func getNonce(addressBytes []byte) uint64 {

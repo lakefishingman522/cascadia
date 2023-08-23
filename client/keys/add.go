@@ -12,12 +12,13 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 package keys
 
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -75,7 +76,7 @@ func RunAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 	interactive, _ := cmd.Flags().GetBool(flagInteractive)
 	noBackup, _ := cmd.Flags().GetBool(flagNoBackup)
 	useLedger, _ := cmd.Flags().GetBool(flags.FlagUseLedger)
-	algoStr, _ := cmd.Flags().GetString(flags.FlagKeyAlgorithm)
+	algoStr, _ := cmd.Flags().GetString(flags.FlagKeyType)
 
 	showMnemonic := !noBackup
 	kb := ctx.Keyring
@@ -293,7 +294,7 @@ func printCreate(cmd *cobra.Command, k *keyring.Record, showMnemonic bool, mnemo
 			out.Mnemonic = mnemonic
 		}
 
-		jsonString, err := keys.KeysCdc.MarshalJSON(out)
+		jsonString, err := json.Marshal(out)
 		if err != nil {
 			return err
 		}

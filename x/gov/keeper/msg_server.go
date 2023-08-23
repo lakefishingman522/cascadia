@@ -7,12 +7,12 @@ import (
 
 	"math/big"
 
+	"cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
@@ -21,26 +21,38 @@ import (
 )
 
 type msgServer struct {
-	Keeper
+	*Keeper
 }
 
 // NewMsgServerImpl returns an implementation of the gov MsgServer interface
 // for the provided Keeper.
-func NewMsgServerImpl(keeper Keeper) v1.MsgServer {
+func NewMsgServerImpl(keeper *Keeper) v1.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
 
 var _ v1.MsgServer = msgServer{}
 
+// SubmitProposal implements the MsgServer.SubmitProposal method.
 func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitProposal) (*v1.MsgSubmitProposalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	initialDeposit := msg.GetInitialDeposit()
+
+	if err := k.validateInitialDeposit(ctx, initialDeposit); err != nil {
+		return nil, err
+	}
 
 	proposalMsgs, err := msg.GetMsgs()
 	if err != nil {
 		return nil, err
 	}
 
-	proposal, err := k.Keeper.SubmitProposal(ctx, proposalMsgs, msg.Metadata)
+	proposer, err := sdk.AccAddressFromBech32(msg.GetProposer())
+	if err != nil {
+		return nil, err
+	}
+
+	proposal, err := k.Keeper.SubmitProposal(ctx, proposalMsgs, msg.Metadata, msg.Title, msg.Summary, proposer)
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +68,14 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 		"submit proposal",
 	)
 
-	defer telemetry.IncrCounter(1, types.ModuleName, "proposal")
+	defer telemetry.IncrCounter(1, govtypes.ModuleName, "proposal")
 
-	// votingStarted, err := k.Keeper.AddDeposit(ctx, proposal.ProposalId, msg.GetProposer(), msg.GetInitialDeposit())
+	// votingStarted, err := k.Keeper.AddDeposit(ctx, proposal.Id, proposer, msg.GetInitialDeposit())
+	// ****
 	k.ActivateVotingPeriod(ctx, proposal)
 	votingStarted := true
 
-	proposer, _ := sdk.AccAddressFromBech32(msg.GetProposer())
+	proposer, _ = sdk.AccAddressFromBech32(msg.GetProposer())
 
 	//*******
 	contract, found := k.Keeper.rk.GetRewardContract(ctx, 0)
@@ -89,26 +102,17 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 		return nil, fmt.Errorf("Insufficient Voting Escrow Token amount:%s", senderBalance.String())
 	}
 	//********
-
-	// votingStarted, err := k.Keeper.AddDeposit(ctx, proposal.Id, proposer, msg.GetInitialDeposit())
+	// ****
 	if err != nil {
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.GetProposer()),
-		),
-	)
-
 	if votingStarted {
-		submitEvent := sdk.NewEvent(types.EventTypeSubmitProposal,
-			sdk.NewAttribute(types.AttributeKeyVotingPeriodStart, fmt.Sprintf("%d", proposal.Id)),
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(govtypes.EventTypeSubmitProposal,
+				sdk.NewAttribute(govtypes.AttributeKeyVotingPeriodStart, fmt.Sprintf("%d", proposal.Id)),
+			),
 		)
-
-		ctx.EventManager().EmitEvent(submitEvent)
 	}
 
 	return &v1.MsgSubmitProposalResponse{
@@ -116,32 +120,34 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	}, nil
 }
 
+// ExecLegacyContent implements the MsgServer.ExecLegacyContent method.
 func (k msgServer) ExecLegacyContent(goCtx context.Context, msg *v1.MsgExecLegacyContent) (*v1.MsgExecLegacyContentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	govAcct := k.GetGovernanceAccount(ctx).GetAddress().String()
 	if govAcct != msg.Authority {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidSigner, "expected %s got %s", govAcct, msg.Authority)
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", govAcct, msg.Authority)
 	}
 
 	content, err := v1.LegacyContentFromMessage(msg)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidProposalContent, "%+v", err)
+		return nil, errors.Wrapf(govtypes.ErrInvalidProposalContent, "%+v", err)
 	}
 
 	// Ensure that the content has a respective handler
 	if !k.Keeper.legacyRouter.HasRoute(content.ProposalRoute()) {
-		return nil, sdkerrors.Wrap(types.ErrNoProposalHandlerExists, content.ProposalRoute())
+		return nil, errors.Wrap(govtypes.ErrNoProposalHandlerExists, content.ProposalRoute())
 	}
 
 	handler := k.Keeper.legacyRouter.GetRoute(content.ProposalRoute())
 	if err := handler(ctx, content); err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidProposalContent, "failed to run legacy handler %s, %+v", content.ProposalRoute(), err)
+		return nil, errors.Wrapf(govtypes.ErrInvalidProposalContent, "failed to run legacy handler %s, %+v", content.ProposalRoute(), err)
 	}
 
 	return &v1.MsgExecLegacyContentResponse{}, nil
 }
 
+// Vote implements the MsgServer.Vote method.
 func (k msgServer) Vote(goCtx context.Context, msg *v1.MsgVote) (*v1.MsgVoteResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	accAddr, err := sdk.AccAddressFromBech32(msg.Voter)
@@ -154,24 +160,17 @@ func (k msgServer) Vote(goCtx context.Context, msg *v1.MsgVote) (*v1.MsgVoteResp
 	}
 
 	defer telemetry.IncrCounterWithLabels(
-		[]string{types.ModuleName, "vote"},
+		[]string{govtypes.ModuleName, "vote"},
 		1,
 		[]metrics.Label{
-			telemetry.NewLabel("proposal_id", strconv.Itoa(int(msg.ProposalId))),
+			telemetry.NewLabel("proposal_id", strconv.FormatUint(msg.ProposalId, 10)),
 		},
-	)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Voter),
-		),
 	)
 
 	return &v1.MsgVoteResponse{}, nil
 }
 
+// VoteWeighted implements the MsgServer.VoteWeighted method.
 func (k msgServer) VoteWeighted(goCtx context.Context, msg *v1.MsgVoteWeighted) (*v1.MsgVoteWeightedResponse, error) {
 	// ctx := sdk.UnwrapSDKContext(goCtx)
 	// accAddr, accErr := sdk.AccAddressFromBech32(msg.Voter)
@@ -184,24 +183,17 @@ func (k msgServer) VoteWeighted(goCtx context.Context, msg *v1.MsgVoteWeighted) 
 	// }
 
 	// defer telemetry.IncrCounterWithLabels(
-	// 	[]string{types.ModuleName, "vote"},
+	// 	[]string{govtypes.ModuleName, "vote"},
 	// 	1,
 	// 	[]metrics.Label{
-	// 		telemetry.NewLabel("proposal_id", strconv.Itoa(int(msg.ProposalId))),
+	// 		telemetry.NewLabel("proposal_id", strconv.FormatUint(msg.ProposalId, 10)),
 	// 	},
-	// )
-
-	// ctx.EventManager().EmitEvent(
-	// 	sdk.NewEvent(
-	// 		sdk.EventTypeMessage,
-	// 		sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-	// 		sdk.NewAttribute(sdk.AttributeKeySender, msg.Voter),
-	// 	),
 	// )
 
 	return &v1.MsgVoteWeightedResponse{}, nil
 }
 
+// Deposit implements the MsgServer.Deposit method.
 func (k msgServer) Deposit(goCtx context.Context, msg *v1.MsgDeposit) (*v1.MsgDepositResponse, error) {
 	// ctx := sdk.UnwrapSDKContext(goCtx)
 	// accAddr, err := sdk.AccAddressFromBech32(msg.Depositor)
@@ -214,31 +206,37 @@ func (k msgServer) Deposit(goCtx context.Context, msg *v1.MsgDeposit) (*v1.MsgDe
 	// }
 
 	// defer telemetry.IncrCounterWithLabels(
-	// 	[]string{types.ModuleName, "deposit"},
+	// 	[]string{govtypes.ModuleName, "deposit"},
 	// 	1,
 	// 	[]metrics.Label{
-	// 		telemetry.NewLabel("proposal_id", strconv.Itoa(int(msg.ProposalId))),
+	// 		telemetry.NewLabel("proposal_id", strconv.FormatUint(msg.ProposalId, 10)),
 	// 	},
-	// )
-
-	// ctx.EventManager().EmitEvent(
-	// 	sdk.NewEvent(
-	// 		sdk.EventTypeMessage,
-	// 		sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-	// 		sdk.NewAttribute(sdk.AttributeKeySender, msg.Depositor),
-	// 	),
 	// )
 
 	// if votingStarted {
 	// 	ctx.EventManager().EmitEvent(
 	// 		sdk.NewEvent(
-	// 			types.EventTypeProposalDeposit,
-	// 			sdk.NewAttribute(types.AttributeKeyVotingPeriodStart, fmt.Sprintf("%d", msg.ProposalId)),
+	// 			govtypes.EventTypeProposalDeposit,
+	// 			sdk.NewAttribute(govtypes.AttributeKeyVotingPeriodStart, fmt.Sprintf("%d", msg.ProposalId)),
 	// 		),
 	// 	)
 	// }
 
 	return &v1.MsgDepositResponse{}, nil
+}
+
+// UpdateParams implements the MsgServer.UpdateParams method.
+func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) (*v1.MsgUpdateParamsResponse, error) {
+	if k.authority != msg.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.SetParams(ctx, msg.Params); err != nil {
+		return nil, err
+	}
+
+	return &v1.MsgUpdateParamsResponse{}, nil
 }
 
 type legacyMsgServer struct {
@@ -265,6 +263,8 @@ func (k legacyMsgServer) SubmitProposal(goCtx context.Context, msg *v1beta1.MsgS
 		msg.InitialDeposit,
 		msg.Proposer,
 		"",
+		msg.GetContent().GetTitle(),
+		msg.GetContent().GetDescription(),
 	)
 	if err != nil {
 		return nil, err

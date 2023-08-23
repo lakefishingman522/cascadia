@@ -16,7 +16,7 @@
 package txpool
 
 import (
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
@@ -24,7 +24,7 @@ import (
 )
 
 // PublicAPI offers and API for the transaction pool. It only operates on data that is non-confidential.
-// NOTE: For more info about the current status of this endpoints see https://github.com/evmos/ethermint/issues/124
+// NOTE: For more info about the current status of this endpoints
 type PublicAPI struct {
 	logger log.Logger
 }

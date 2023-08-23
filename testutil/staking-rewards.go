@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 
 package testutil
 
@@ -25,13 +25,34 @@ import (
 	testutiltx "github.com/cascadiafoundation/cascadia/testutil/tx"
 	"github.com/cascadiafoundation/cascadia/utils"
 	"github.com/cascadiafoundation/cascadia/x/staking"
-	"github.com/cascadiafoundation/cascadia/x/staking/teststaking"
+	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
+	teststaking "github.com/cascadiafoundation/cascadia/x/staking/testutil"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/stretchr/testify/require"
 )
+
+// CreateValidator creates a validator with the provided public key and stake amount
+func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt sdkmath.Int) {
+	zeroDec := sdk.ZeroDec()
+	stakingParams := sk.GetParams(ctx)
+	stakingParams.BondDenom = sk.BondDenom(ctx)
+	stakingParams.MinCommissionRate = zeroDec
+	err := sk.SetParams(ctx, stakingParams)
+	require.NoError(t, err)
+
+	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
+	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
+	stakingHelper.Denom = sk.BondDenom(ctx)
+
+	valAddr := sdk.ValAddress(pubKey.Address())
+	stakingHelper.CreateValidator(valAddr, pubKey, stakeAmt, true)
+}
 
 // PrepareAccountsForDelegationRewards prepares the test suite for testing to withdraw delegation rewards.
 //
@@ -100,9 +121,10 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		stakingParams := app.StakingKeeper.GetParams(ctx)
 		stakingParams.BondDenom = utils.BaseDenom
 		stakingParams.MinCommissionRate = zeroDec
-		app.StakingKeeper.SetParams(ctx, stakingParams)
+		err = app.StakingKeeper.SetParams(ctx, stakingParams)
+		require.NoError(t, err)
 
-		stakingHelper := teststaking.NewHelper(t, ctx, app.StakingKeeper)
+		stakingHelper := teststaking.NewHelper(t, ctx, &app.StakingKeeper)
 		stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 		stakingHelper.Denom = utils.BaseDenom
 
@@ -114,7 +136,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 		// end block to bond validator and increase block height
 		// Not using Commit() here because code panics due to invalid block height
-		staking.EndBlocker(ctx, app.StakingKeeper)
+		staking.EndBlocker(ctx, &app.StakingKeeper)
 
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		validator := app.StakingKeeper.Validator(ctx, valAddr)
@@ -128,7 +150,8 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 // GetTotalDelegationRewards returns the total delegation rewards that are currently
 // outstanding for the given address.
 func GetTotalDelegationRewards(ctx sdk.Context, distributionKeeper distributionkeeper.Keeper, addr sdk.AccAddress) (sdk.DecCoins, error) {
-	resp, err := distributionKeeper.DelegationTotalRewards(
+	querier := distributionkeeper.NewQuerier(distributionKeeper)
+	resp, err := querier.DelegationTotalRewards(
 		ctx,
 		&distributiontypes.QueryDelegationTotalRewardsRequest{
 			DelegatorAddress: addr.String(),

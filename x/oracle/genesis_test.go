@@ -3,14 +3,16 @@ package oracle_test
 import (
 	"testing"
 
+	"github.com/cascadiafoundation/cascadia/utils"
+
 	simapp "github.com/cascadiafoundation/cascadia/app"
 	"github.com/cascadiafoundation/cascadia/testutil/nullify"
 	feemarkettypes "github.com/cascadiafoundation/cascadia/x/feemarket/types"
 	"github.com/cascadiafoundation/cascadia/x/oracle"
 	"github.com/cascadiafoundation/cascadia/x/oracle/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 const (
@@ -55,7 +57,10 @@ func TestGenesis(t *testing.T) {
 	}
 
 	isCheckTx := false
-	app := simapp.Setup(isCheckTx, feemarkettypes.DefaultGenesisState())
+
+	chainID := utils.TestnetChainID + "-1"
+
+	app := simapp.Setup(isCheckTx, feemarkettypes.DefaultGenesisState(), chainID)
 	ctx := app.BaseApp.NewContext(initChain, tmproto.Header{})
 	oracle.InitGenesis(ctx, app.OracleKeeper, genesisState)
 	got := oracle.ExportGenesis(ctx, app.OracleKeeper)

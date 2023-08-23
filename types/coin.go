@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 package types
 
 import (
@@ -34,7 +34,7 @@ const (
 	AttoCascadia string = "aCC"
 
 	// BaseDenomUnit defines the base denomination unit for Cascadia.
-	// 1 CC = 1x10^{BaseDenomUnit} aCC
+	// 1 CC = 1x18^{BaseDenomUnit} aCC
 	BaseDenomUnit = 18
 
 	// DefaultGasPrice is default gas price for evm transactions

@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Cascadia packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Cascadia packages. If not, see https://github.com/cascadiafoundation/cascadia/blob/main/LICENSE
 
 package config
 
@@ -21,7 +21,7 @@ func EnableObservability() error {
 	// if true {
 	// Temporarily disabling this until we can configure out port reuse
 	// fast enough or enabling observability through the config.
-	// Please see https://github.com/evmos/evmos/v9/issues/84
+	// Please see https://github.com/cascadiafoundation/cascadia/v9/issues/84
 	// return nil
 	// }
 
