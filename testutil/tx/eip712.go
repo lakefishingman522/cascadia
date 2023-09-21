@@ -73,6 +73,9 @@ func CreateEIP712CosmosTx(
 		appCascadia,
 		args,
 	)
+	if err != nil {
+		return nil, err
+	}
 	return builder.GetTx(), err
 }
 
