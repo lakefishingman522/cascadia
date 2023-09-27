@@ -65,7 +65,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM ${RUNNER_IMAGE}
 
-COPY --from=build-env /cascadia/build/cascadiad /bin/cascadiad
+COPY --from=build-env /cascadia/build/cascadiad /usr/bin/cascadiad
 ENV HOME /cascadia
 WORKDIR $HOME
 EXPOSE 26656 26657 1317 1318 9090 9091

@@ -314,7 +314,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	)
 
 	// Setup chainId
-	chainID := cast.ToString(appOpts.Get(flags.FlagChainID))
+	chainID := ""
 	if len(chainID) == 0 {
 		v := viper.New()
 		v.AddConfigPath(filepath.Join(home, "config"))
