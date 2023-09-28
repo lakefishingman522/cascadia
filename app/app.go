@@ -173,6 +173,7 @@ import (
 	// imports for upgrades
 	v0_1_4 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.4"
 	v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
+	v0_1_6 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.6"
 
 	// block-sdk imports
 	blocksdk "github.com/skip-mev/block-sdk/block"
@@ -1356,6 +1357,16 @@ func (app *Cascadia) setupUpgradeHandlers() {
 			app.appCodec,
 		),
 	)
+
+	//  v0.1.6 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v0_1_6.UpgradeName,
+		v0_1_6.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.AuctionKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1385,6 +1396,12 @@ func (app *Cascadia) setupUpgradeHandlers() {
 			Added: []string{crisistypes.StoreKey, consensusparamtypes.StoreKey, ibcfeetypes.StoreKey},
 		}
 
+	case v0_1_6.UpgradeName:
+		//
+		//
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{auctiontypes.StoreKey},
+		}
 	}
 
 	if storeUpgrades != nil {
