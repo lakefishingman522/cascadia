@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
 	"reflect"
+	"sort"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,9 +18,9 @@ import (
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
+	cometabci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
-	cometabci "github.com/cometbft/cometbft/abci/types"
 
 	"cosmossdk.io/simapp"
 	simappparams "cosmossdk.io/simapp/params"
@@ -176,20 +176,20 @@ import (
 	v0_1_6 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.6"
 
 	// block-sdk imports
-	blocksdk "github.com/skip-mev/block-sdk/block"
 	cascadiablocksdk "github.com/cascadiafoundation/cascadia/app/block-sdk"
+	blocksdkabci "github.com/skip-mev/block-sdk/abci"
+	blocksdk "github.com/skip-mev/block-sdk/block"
 	"github.com/skip-mev/block-sdk/block/base"
 	blocksdkbase "github.com/skip-mev/block-sdk/block/base"
+	blocksdkanteignore "github.com/skip-mev/block-sdk/block/utils"
 	base_lane "github.com/skip-mev/block-sdk/lanes/base"
 	"github.com/skip-mev/block-sdk/lanes/free"
-	blocksdkanteignore "github.com/skip-mev/block-sdk/block/utils"
 	free_lane "github.com/skip-mev/block-sdk/lanes/free"
 	mev_lane "github.com/skip-mev/block-sdk/lanes/mev"
+	"github.com/skip-mev/block-sdk/x/auction"
+	auctionante "github.com/skip-mev/block-sdk/x/auction/ante"
 	auctionkeeper "github.com/skip-mev/block-sdk/x/auction/keeper"
 	auctiontypes "github.com/skip-mev/block-sdk/x/auction/types"
-	auctionante "github.com/skip-mev/block-sdk/x/auction/ante"
-	"github.com/skip-mev/block-sdk/x/auction"
-	blocksdkabci "github.com/skip-mev/block-sdk/abci"
 )
 
 func init() {
@@ -367,7 +367,7 @@ type Cascadia struct {
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// auction-keeper / check-tx handler
-	AuctionKeeper auctionkeeper.Keeper
+	AuctionKeeper  auctionkeeper.Keeper
 	checkTxHandler mev_lane.CheckTx
 
 	// the module manager
@@ -379,8 +379,8 @@ type Cascadia struct {
 	tpsCounter *tpsCounter
 
 	// auction-ante-handler deps
-	Mempool auctionante.Mempool
-	MEVLane auctionante.MEVLane 
+	Mempool   auctionante.Mempool
+	MEVLane   auctionante.MEVLane
 	FreeLanes []blocksdkanteignore.Lane
 }
 
@@ -586,9 +586,10 @@ func NewCascadia(
 		keys[sustainabilitymoduletypes.MemStoreKey],
 		app.GetSubspace(sustainabilitymoduletypes.ModuleName),
 		app.StakingKeeper,
+		app.AuctionKeeper,
 		app.AccountKeeper,
 	)
-	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper)
+	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.AuctionKeeper)
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(),
@@ -898,25 +899,25 @@ func NewCascadia(
 	// add test gRPC service for testing gRPC queries in isolation
 	// testdata.RegisterTestServiceServer(app.GRPCQueryRouter(), testdata.TestServiceImpl{})
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
-	
+
 	cfg := blocksdkbase.LaneConfig{
-		Logger: app.Logger(),
-		TxDecoder: app.GetTxConfig().TxDecoder(),
-		TxEncoder: app.GetTxConfig().TxEncoder(),
+		Logger:          app.Logger(),
+		TxDecoder:       app.GetTxConfig().TxDecoder(),
+		TxEncoder:       app.GetTxConfig().TxEncoder(),
 		SignerExtractor: cascadiablocksdk.NewSignerExtractorAdapter(),
-		MaxBlockSpace: sdk.ZeroDec(),
-		MaxTxs: 0,
+		MaxBlockSpace:   sdk.ZeroDec(),
+		MaxTxs:          0,
 	}
-	
+
 	baseLane := base_lane.NewDefaultLane(cfg)
-	
+
 	freeLane := free_lane.NewFreeLane(
-		cfg, 
+		cfg,
 		base.DefaultTxPriority(),
-		free.DefaultMatchHandler(),	// modify this match-handler to determine any other transactions that the chain would like to be free	
+		free.DefaultMatchHandler(), // modify this match-handler to determine any other transactions that the chain would like to be free
 	)
 	app.FreeLanes = []blocksdkanteignore.Lane{freeLane}
-	
+
 	mevLane := mev_lane.NewMEVLane(
 		cfg,
 		mev_lane.NewDefaultAuctionFactory(app.GetTxConfig().TxDecoder(), cascadiablocksdk.NewSignerExtractorAdapter()),
@@ -927,12 +928,12 @@ func NewCascadia(
 		app.Logger(),
 		true,
 		[]blocksdk.Lane{
-			mevLane, // mev-lane is first to prioritize bids being placed at the TOB
+			mevLane,  // mev-lane is first to prioritize bids being placed at the TOB
 			freeLane, // free-lane is second to prioritize free txs
 			baseLane, // finally, all the rest of txs...
 		}...,
 	)
-	
+
 	// set the mempool first
 	app.SetMempool(mempool)
 	app.Mempool = mempool
@@ -966,7 +967,7 @@ func NewCascadia(
 		mevLane,
 		anteHandler,
 		app.ChainID(),
-	)	
+	)
 
 	app.SetCheckTx(checkTxHandler.CheckTx())
 
@@ -1019,7 +1020,6 @@ func (app *Cascadia) ChainID() string {
 	return field.String()
 }
 
-
 // Name returns the name of the App
 func (app *Cascadia) Name() string { return app.BaseApp.Name() }
 
@@ -1041,11 +1041,11 @@ func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmTyp
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
 		WasmConfig:             wasmConfig,
 		TxCounterStoreKey:      app.keys[wasmTypes.StoreKey],
-		AuctionKeeper: 		app.AuctionKeeper,
-		TxEncoder: 			txConfig.TxEncoder(),
-		Mempool: 			app.Mempool,
-		MEVLane: app.MEVLane,
-		FreeLanes: app.FreeLanes,
+		AuctionKeeper:          app.AuctionKeeper,
+		TxEncoder:              txConfig.TxEncoder(),
+		Mempool:                app.Mempool,
+		MEVLane:                app.MEVLane,
+		FreeLanes:              app.FreeLanes,
 	}
 
 	if err := options.Validate(); err != nil {
@@ -1364,6 +1364,7 @@ func (app *Cascadia) setupUpgradeHandlers() {
 		v0_1_6.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.AuctionKeeper,
+			app.StakingKeeper,
 		),
 	)
 

@@ -20,6 +20,7 @@ type (
 		paramstore paramtypes.Subspace
 
 		stakingKeeper types.StakingKeeper
+		auctionKeeper types.AuctionKeeper
 		accountKeeper types.AccountKeeper
 	}
 )
@@ -30,6 +31,7 @@ func NewKeeper(
 	memKey storetypes.StoreKey,
 	ps paramtypes.Subspace,
 	sk types.StakingKeeper,
+	auction types.AuctionKeeper,
 	ak types.AccountKeeper,
 
 ) *Keeper {
@@ -44,6 +46,7 @@ func NewKeeper(
 		memKey:        memKey,
 		paramstore:    ps,
 		stakingKeeper: sk,
+		auctionKeeper: auction,
 		accountKeeper: ak,
 	}
 }
