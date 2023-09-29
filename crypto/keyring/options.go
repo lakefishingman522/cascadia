@@ -52,7 +52,7 @@ func Option() keyring.Option {
 		options.SupportedAlgos = SupportedAlgorithms
 		options.SupportedAlgosLedger = SupportedAlgorithmsLedger
 		// options.LedgerDerivation = func() (cosmosLedger.SECP256K1, error) { return LedgerDerivation() }
-		// options.LedgerCreateKey = CreatePubkey
+		options.LedgerCreateKey = CreatePubkey
 		// options.LedgerAppName = AppName
 		// options.LedgerSigSkipDERConv = SkipDERConversion
 	}

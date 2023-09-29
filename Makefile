@@ -288,6 +288,9 @@ godocs:
 
 test: test-unit
 test-all: test-unit test-race
+test-integration: docker-build
+	@echo "Running integration tests..."
+	@cd interchaintest && go test -v -race -p 1 ./...
 # For unit tests we don't want to execute the upgrade tests in tests/e2e but
 # we want to include all unit tests in the subfolders (tests/e2e/*)
 PACKAGES_UNIT=$(shell go list ./... | grep -v '/tests/e2e$$')

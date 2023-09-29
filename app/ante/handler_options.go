@@ -131,13 +131,7 @@ func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		evmante.NewEthSigVerificationDecorator(options.EvmKeeper),
 		evmante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
 		evmante.NewCanTransferDecorator(options.EvmKeeper),
-		// notice, any transactions matching the Free-lane will not be subject to gas / fee deduction,
-		// so this ante-handler will be skipped. This is here in case any specific
-		// MsgEthereumTxs are to be free.
-		blocksdkanteignore.NewIgnoreDecorator(
-			evmante.NewEthGasConsumeDecorator(options.BankKeeper, options.DistributionKeeper, options.EvmKeeper, options.StakingKeeper, options.MaxTxGasWanted),
-			options.FreeLanes...,
-		),
+		evmante.NewEthGasConsumeDecorator(options.BankKeeper, options.DistributionKeeper, options.EvmKeeper, options.StakingKeeper, options.MaxTxGasWanted),
 		evmante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 		// emit eth tx hash and index at the very last ante handler.
