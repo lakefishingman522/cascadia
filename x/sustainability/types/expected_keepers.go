@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	auctiontypes "github.com/skip-mev/block-sdk/x/auction/types"
 )
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
@@ -22,4 +23,9 @@ type StakingKeeper interface {
 	SetPenaltyAccount(ctx sdk.Context, penaltyAccount PenaltyAccount)
 	GetPenaltyAccount(ctx sdk.Context) (val PenaltyAccount, found bool)
 	RemovePenaltyAccount(ctx sdk.Context)
+}
+
+type AuctionKeeper interface {
+	GetParams(ctx sdk.Context) (auctiontypes.Params, error)
+	SetParams(ctx sdk.Context, params auctiontypes.Params) error
 }

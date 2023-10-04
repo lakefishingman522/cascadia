@@ -23,6 +23,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
+	auctionkeeper "github.com/skip-mev/block-sdk/x/auction/keeper"
 )
 
 var (
@@ -99,6 +100,7 @@ type AppModule struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	stakingKeeper stakingkeeper.Keeper
+	auctionKeeper auctionkeeper.Keeper
 }
 
 func NewAppModule(
@@ -107,6 +109,7 @@ func NewAppModule(
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	sk stakingkeeper.Keeper,
+	auctionKeeper auctionkeeper.Keeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: NewAppModuleBasic(cdc),
@@ -114,6 +117,7 @@ func NewAppModule(
 		accountKeeper:  accountKeeper,
 		bankKeeper:     bankKeeper,
 		stakingKeeper:  sk,
+		auctionKeeper:  auctionKeeper,
 	}
 }
 

@@ -21,6 +21,21 @@ func (k Keeper) SetPenaltyAccount(ctx sdk.Context, penaltyAccount types.PenaltyA
 	}
 
 	k.stakingKeeper.SetPenaltyAccount(ctx, penaltyAccount)
+
+	// Get auction params - for escrow address
+	auctionparams, _err := k.auctionKeeper.GetParams(ctx)
+	if _err != nil {
+		return _err
+	}
+
+	// update the auction module's escrow address
+	auctionparams.EscrowAccountAddress = multisigAddress
+
+	// set auction params
+	if __err := k.auctionKeeper.SetParams(ctx, auctionparams); __err != nil {
+		return __err
+	}
+
 	return nil
 }
 

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 
 	"github.com/gorilla/mux"
@@ -17,6 +18,7 @@ import (
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
+	cometabci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
 	tmos "github.com/cometbft/cometbft/libs/os"
 
@@ -40,7 +42,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/streaming"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -172,6 +173,23 @@ import (
 	// imports for upgrades
 	v0_1_4 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.4"
 	v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
+	v0_1_6 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.6"
+
+	// block-sdk imports
+	cascadiablocksdk "github.com/cascadiafoundation/cascadia/app/block-sdk"
+	blocksdkabci "github.com/skip-mev/block-sdk/abci"
+	blocksdk "github.com/skip-mev/block-sdk/block"
+	"github.com/skip-mev/block-sdk/block/base"
+	blocksdkbase "github.com/skip-mev/block-sdk/block/base"
+	blocksdkanteignore "github.com/skip-mev/block-sdk/block/utils"
+	base_lane "github.com/skip-mev/block-sdk/lanes/base"
+	"github.com/skip-mev/block-sdk/lanes/free"
+	free_lane "github.com/skip-mev/block-sdk/lanes/free"
+	mev_lane "github.com/skip-mev/block-sdk/lanes/mev"
+	"github.com/skip-mev/block-sdk/x/auction"
+	auctionante "github.com/skip-mev/block-sdk/x/auction/ante"
+	auctionkeeper "github.com/skip-mev/block-sdk/x/auction/keeper"
+	auctiontypes "github.com/skip-mev/block-sdk/x/auction/types"
 )
 
 func init() {
@@ -252,6 +270,8 @@ var (
 		sustainabilitymodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		consensus.AppModuleBasic{},
+		// auction module-basic
+		auction.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -272,6 +292,8 @@ var (
 		sustainabilitymoduletypes.ModuleName: nil,
 
 		wasmTypes.ModuleName: {authtypes.Burner},
+		// initialize auction-module account
+		auctiontypes.ModuleName: nil,
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
@@ -344,6 +366,10 @@ type Cascadia struct {
 	scopedWasmKeeper     capabilitykeeper.ScopedKeeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
+	// auction-keeper / check-tx handler
+	AuctionKeeper  auctionkeeper.Keeper
+	checkTxHandler mev_lane.CheckTx
+
 	// the module manager
 	mm *module.Manager
 
@@ -351,6 +377,11 @@ type Cascadia struct {
 	configurator module.Configurator
 
 	tpsCounter *tpsCounter
+
+	// auction-ante-handler deps
+	Mempool   auctionante.Mempool
+	MEVLane   auctionante.MEVLane
+	FreeLanes []blocksdkanteignore.Lane
 }
 
 // New returns a reference to an initialized blockchain app
@@ -371,15 +402,6 @@ func NewCascadia(
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
 	eip712.SetEncodingConfig(encodingConfig)
-
-	// Setup Mempool and Proposal Handlers
-	baseAppOptions = append(baseAppOptions, func(app *baseapp.BaseApp) {
-		mempool := mempool.NoOpMempool{}
-		app.SetMempool(mempool)
-		handler := baseapp.NewDefaultProposalHandler(mempool, app)
-		app.SetPrepareProposal(handler.PrepareProposalHandler())
-		app.SetProcessProposal(handler.ProcessProposalHandler())
-	})
 
 	bApp := baseapp.NewBaseApp(
 		Name,
@@ -412,6 +434,9 @@ func NewCascadia(
 		sustainabilitymoduletypes.StoreKey,
 		wasmTypes.StoreKey,
 		icacontrollertypes.StoreKey,
+		// auction-module store-key
+		auctiontypes.StoreKey,
+
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 
@@ -561,9 +586,10 @@ func NewCascadia(
 		keys[sustainabilitymoduletypes.MemStoreKey],
 		app.GetSubspace(sustainabilitymoduletypes.ModuleName),
 		app.StakingKeeper,
+		app.AuctionKeeper,
 		app.AccountKeeper,
 	)
-	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper)
+	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.AuctionKeeper)
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(),
@@ -687,6 +713,12 @@ func NewCascadia(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
+	// Auction module setup
+	app.AuctionKeeper = auctionkeeper.NewKeeper(
+		appCodec, keys[auctiontypes.StoreKey],
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	/**** Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -732,6 +764,8 @@ func NewCascadia(
 		oracleModule,
 		sustainabilityModule,
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmTypes.ModuleName)),
+		// auction module
+		auction.NewAppModule(appCodec, app.AuctionKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -772,6 +806,7 @@ func NewCascadia(
 		wasmTypes.ModuleName,
 
 		consensusparamtypes.ModuleName,
+		auctiontypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -807,6 +842,7 @@ func NewCascadia(
 		wasmTypes.ModuleName,
 
 		consensusparamtypes.ModuleName,
+		auctiontypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -852,6 +888,7 @@ func NewCascadia(
 		wasmTypes.ModuleName,
 
 		consensusparamtypes.ModuleName,
+		auctiontypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -861,6 +898,48 @@ func NewCascadia(
 
 	// add test gRPC service for testing gRPC queries in isolation
 	// testdata.RegisterTestServiceServer(app.GRPCQueryRouter(), testdata.TestServiceImpl{})
+	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
+
+	cfg := blocksdkbase.LaneConfig{
+		Logger:          app.Logger(),
+		TxDecoder:       app.GetTxConfig().TxDecoder(),
+		TxEncoder:       app.GetTxConfig().TxEncoder(),
+		SignerExtractor: cascadiablocksdk.NewSignerExtractorAdapter(),
+		MaxBlockSpace:   sdk.ZeroDec(),
+		MaxTxs:          0,
+	}
+
+	baseLane := base_lane.NewDefaultLane(cfg)
+
+	freeLane := free_lane.NewFreeLane(
+		cfg,
+		base.DefaultTxPriority(),
+		free.DefaultMatchHandler(), // modify this match-handler to determine any other transactions that the chain would like to be free
+	)
+	app.FreeLanes = []blocksdkanteignore.Lane{freeLane}
+
+	mevLane := mev_lane.NewMEVLane(
+		cfg,
+		mev_lane.NewDefaultAuctionFactory(app.GetTxConfig().TxDecoder(), cascadiablocksdk.NewSignerExtractorAdapter()),
+	)
+	app.MEVLane = mevLane
+	// initialize mempool
+	mempool := blocksdk.NewLanedMempool(
+		app.Logger(),
+		true,
+		[]blocksdk.Lane{
+			mevLane,  // mev-lane is first to prioritize bids being placed at the TOB
+			freeLane, // free-lane is second to prioritize free txs
+			baseLane, // finally, all the rest of txs...
+		}...,
+	)
+
+	// set the mempool first
+	app.SetMempool(mempool)
+	app.Mempool = mempool
+
+	// set the ante-handlers
+	anteHandler := app.setAnteHandler(encodingConfig.TxConfig, wasmConfig, maxGasWanted)
 
 	// initialize stores
 	app.MountKVStores(keys)
@@ -871,9 +950,27 @@ func NewCascadia(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 
-	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
+	// initialize proposal handlers
+	proposalHandler := blocksdkabci.NewProposalHandler(
+		app.Logger(),
+		app.GetTxConfig().TxDecoder(),
+		mempool,
+	)
+	// proposal-handler
+	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
-	app.setAnteHandler(encodingConfig.TxConfig, wasmConfig, maxGasWanted)
+	// custom check-tx
+	checkTxHandler := mev_lane.NewCheckTxHandler(
+		app.BaseApp, // want access to the base-application's non-overridden check-tx
+		app.GetTxConfig().TxDecoder(),
+		mevLane,
+		anteHandler,
+		app.ChainID(),
+	)
+
+	app.SetCheckTx(checkTxHandler.CheckTx())
+
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 
@@ -903,10 +1000,30 @@ func NewCascadia(
 	return app
 }
 
+// CheckTx will check the transaction with the provided checkTxHandler. We override the default
+// handler so that we can verify bid transactions before they are inserted into the mempool.
+// With the POB CheckTx, we can verify the bid transaction and all of the bundled transactions
+// before inserting the bid transaction into the mempool.
+func (app *Cascadia) CheckTx(req cometabci.RequestCheckTx) cometabci.ResponseCheckTx {
+	return app.checkTxHandler(req)
+}
+
+// SetCheckTx sets the checkTxHandler for the app.
+func (app *Cascadia) SetCheckTx(handler mev_lane.CheckTx) {
+	app.checkTxHandler = handler
+}
+
+// ChainID gets chainID from private fields of BaseApp
+// Should be removed once SDK 0.50.x will be adopted
+func (app *Cascadia) ChainID() string {
+	field := reflect.ValueOf(app.BaseApp).Elem().FieldByName("chainID")
+	return field.String()
+}
+
 // Name returns the name of the App
 func (app *Cascadia) Name() string { return app.BaseApp.Name() }
 
-func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmTypes.WasmConfig, maxGasWanted uint64) {
+func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmTypes.WasmConfig, maxGasWanted uint64) sdk.AnteHandler {
 	options := ante.HandlerOptions{
 		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
@@ -924,13 +1041,21 @@ func (app *Cascadia) setAnteHandler(txConfig client.TxConfig, wasmConfig wasmTyp
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
 		WasmConfig:             wasmConfig,
 		TxCounterStoreKey:      app.keys[wasmTypes.StoreKey],
+		AuctionKeeper:          app.AuctionKeeper,
+		TxEncoder:              txConfig.TxEncoder(),
+		Mempool:                app.Mempool,
+		MEVLane:                app.MEVLane,
+		FreeLanes:              app.FreeLanes,
 	}
 
 	if err := options.Validate(); err != nil {
 		panic(err)
 	}
 
-	app.SetAnteHandler(ante.NewAnteHandler(options))
+	ah := ante.NewAnteHandler(options)
+	app.SetAnteHandler(ah)
+
+	return ah
 }
 
 func (app *Cascadia) setPostHandler() {
@@ -1204,6 +1329,9 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(rewardtypes.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 	paramsKeeper.Subspace(sustainabilitymoduletypes.ModuleName)
+
+	// auction subspaces
+	paramsKeeper.Subspace(auctiontypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 	paramsKeeper.Subspace(wasmTypes.ModuleName)
 
@@ -1229,6 +1357,17 @@ func (app *Cascadia) setupUpgradeHandlers() {
 			app.appCodec,
 		),
 	)
+
+	//  v0.1.6 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v0_1_6.UpgradeName,
+		v0_1_6.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.AuctionKeeper,
+			app.StakingKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1258,6 +1397,12 @@ func (app *Cascadia) setupUpgradeHandlers() {
 			Added: []string{crisistypes.StoreKey, consensusparamtypes.StoreKey, ibcfeetypes.StoreKey},
 		}
 
+	case v0_1_6.UpgradeName:
+		//
+		//
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{auctiontypes.StoreKey},
+		}
 	}
 
 	if storeUpgrades != nil {

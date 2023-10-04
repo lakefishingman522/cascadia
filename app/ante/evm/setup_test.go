@@ -110,6 +110,10 @@ func (suite *AnteTestSuite) SetupTest() {
 		SignModeHandler:    encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:     ante.SigVerificationGasConsumer,
 		TxCounterStoreKey:  keys[wasm.StoreKey],
+		AuctionKeeper: 	suite.app.AuctionKeeper,
+		Mempool: 		  suite.app.Mempool,
+		MEVLane: 		  suite.app.MEVLane,
+		TxEncoder: suite.app.GetTxConfig().TxEncoder(),
 	})
 
 	suite.anteHandler = anteHandler
