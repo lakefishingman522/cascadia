@@ -553,7 +553,7 @@ release:
 	docker create --name temp-container cascadia_chain_image:latest
 	mkdir -p dist
 	mkdir -p dist/bin
-	docker cp temp-container:/bin/cascadiad ./dist/bin/cascadiad
+	docker cp temp-container:/usr/bin/cascadiad ./dist/bin/cascadiad
 	tar -czvf ./dist/cascadiad-v$(VERSION)-linux-amd64.tar.gz -C ./dist bin
 	mv ./dist/bin/cascadiad ./dist
 	docker rm temp-container
