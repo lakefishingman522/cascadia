@@ -941,10 +941,6 @@ func NewCascadia(
 	// set the ante-handlers
 	anteHandler := app.setAnteHandler(encodingConfig.TxConfig, wasmConfig, maxGasWanted)
 
-	baseLane.SetAnteHandler(anteHandler)
-	freeLane.SetAnteHandler(anteHandler)
-	mevLane.SetAnteHandler(anteHandler)
-
 	// initialize stores
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
