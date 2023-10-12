@@ -1412,12 +1412,6 @@ func (app *Cascadia) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{auctiontypes.StoreKey},
 		}
-
-	case v0_1_7.UpgradeName:
-		//
-		//
-		storeUpgrades = &storetypes.StoreUpgrades{
-		}
 	}
 
 	if storeUpgrades != nil {
