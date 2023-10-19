@@ -2,6 +2,7 @@ package types // noalias
 
 import (
 	"cosmossdk.io/math"
+	otypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -33,4 +34,11 @@ type BankKeeper interface {
 
 type RewardKeeper interface {
 	GetRewardContract(ctx sdk.Context, id uint64) (val rewardtypes.RewardContract, found bool)
+}
+
+type OracleKeeper interface {
+	// Fetch latest price from asset and source
+	GetLatestPriceFromAssetAndSource(sdk.Context, string, string) (otypes.Price, bool)
+	// Fetch latest price from any source
+	GetLatestPriceFromAnySource(sdk.Context, string) (otypes.Price, bool)
 }

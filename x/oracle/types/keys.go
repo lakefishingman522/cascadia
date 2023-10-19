@@ -28,6 +28,11 @@ const (
 )
 
 var (
+	MAX_BTC_PRICE = sdk.NewDec(100000)
+	MIN_BTC_PRICE = sdk.NewDec(10000)
+)
+
+var (
 	// PortKey defines the key to store the port ID in store
 	PortKey = KeyPrefix("oracle-port-")
 	// AssetInfoKeyPrefix is the prefix to retrieve all AssetInfo

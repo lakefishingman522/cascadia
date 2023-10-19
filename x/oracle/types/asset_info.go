@@ -1,6 +1,7 @@
 package types
 
 var (
-	BAND = "band"
+	BAND     = "band"
+	BTC      = "btc"
 	CASCADIA = "aCC"
 )

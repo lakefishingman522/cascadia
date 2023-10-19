@@ -565,7 +565,8 @@ func NewCascadia(
 	// Cascadia Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(
 		appCodec, keys[inflationtypes.StoreKey], app.GetSubspace(inflationtypes.ModuleName),
-		stakingKeeper, app.AccountKeeper, app.BankKeeper, app.rewardKeeper,
+		stakingKeeper, app.AccountKeeper, app.OracleKeeper, 
+		app.BankKeeper, app.rewardKeeper,
 		authtypes.FeeCollectorName,
 	)
 
