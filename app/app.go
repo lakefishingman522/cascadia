@@ -182,7 +182,6 @@ import (
 	blocksdk "github.com/skip-mev/block-sdk/block"
 	"github.com/skip-mev/block-sdk/block/base"
 	blocksdkbase "github.com/skip-mev/block-sdk/block/base"
-	blocksdkanteignore "github.com/skip-mev/block-sdk/block/utils"
 	base_lane "github.com/skip-mev/block-sdk/lanes/base"
 	"github.com/skip-mev/block-sdk/lanes/free"
 	free_lane "github.com/skip-mev/block-sdk/lanes/free"
@@ -380,9 +379,9 @@ type Cascadia struct {
 	tpsCounter *tpsCounter
 
 	// auction-ante-handler deps
-	Mempool   auctionante.Mempool
+	Mempool   blocksdk.Mempool
 	MEVLane   auctionante.MEVLane
-	FreeLanes []blocksdkanteignore.Lane
+	FreeLanes []blocksdk.Lane
 }
 
 // New returns a reference to an initialized blockchain app
@@ -917,7 +916,7 @@ func NewCascadia(
 		base.DefaultTxPriority(),
 		free.DefaultMatchHandler(), // modify this match-handler to determine any other transactions that the chain would like to be free
 	)
-	app.FreeLanes = []blocksdkanteignore.Lane{freeLane}
+	app.FreeLanes = []blocksdk.Lane{freeLane}
 
 	mevLane := mev_lane.NewMEVLane(
 		cfg,
@@ -955,6 +954,7 @@ func NewCascadia(
 	proposalHandler := blocksdkabci.NewProposalHandler(
 		app.Logger(),
 		app.GetTxConfig().TxDecoder(),
+		app.GetTxConfig().TxEncoder(),
 		mempool,
 	)
 	// proposal-handler
