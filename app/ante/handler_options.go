@@ -40,7 +40,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	auctionante "github.com/skip-mev/block-sdk/x/auction/ante"
 	auctionkeeper "github.com/skip-mev/block-sdk/x/auction/keeper"
-	blocksdkanteignore "github.com/skip-mev/block-sdk/block/utils"
+	blocksdk "github.com/skip-mev/block-sdk/block"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Cascadia
@@ -68,8 +68,8 @@ type HandlerOptions struct {
 	AuctionKeeper auctionkeeper.Keeper
 	TxEncoder sdk.TxEncoder
 	MEVLane auctionante.MEVLane
-	FreeLanes []blocksdkanteignore.Lane
-	Mempool auctionante.Mempool
+	FreeLanes []blocksdk.Lane
+	Mempool blocksdk.Mempool
 }
 
 // Validate checks if the keepers are defined
@@ -156,7 +156,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		// notice, any transactions matching the Free-lane will not be subject to gas / fee deduction,
 		// so this ante-handler will be skipped.
-		blocksdkanteignore.NewIgnoreDecorator(
+		blocksdk.NewIgnoreDecorator(
 			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
 			options.FreeLanes...,
 		),
@@ -174,7 +174,6 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			options.AuctionKeeper,
 			options.TxEncoder,
 			options.MEVLane,
-			options.Mempool,
 		),
 	)
 }
@@ -195,7 +194,7 @@ func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		// notice, any transactions matching the Free-lane will not be subject to gas / fee deduction,
 		// so this ante-handler will be skipped.
-		blocksdkanteignore.NewIgnoreDecorator(
+		blocksdk.NewIgnoreDecorator(
 			cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
 			options.FreeLanes...,
 		),
@@ -215,7 +214,6 @@ func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 			options.AuctionKeeper,
 			options.TxEncoder,
 			options.MEVLane,
-			options.Mempool,
 		),
 	)
 }
