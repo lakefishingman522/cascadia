@@ -6,6 +6,8 @@ import "cascadia/oracle/v1/params.proto";
 import "cascadia/oracle/v1/asset_info.proto";
 import "cascadia/oracle/v1/price.proto";
 import "cascadia/oracle/v1/price_feeder.proto";
+import "cascadia/oracle/v1/price_statistics.proto";
+
 // this line is used by starport scaffolding # genesis/proto/import
 
 option go_package = "github.com/cascadiafoundation/cascadia/x/oracle/types";
@@ -18,4 +20,5 @@ message GenesisState {
   repeated Price prices = 4 [(gogoproto.nullable) = false];
   repeated PriceFeeder priceFeeders = 5 [(gogoproto.nullable) = false];
   // this line is used by starport scaffolding # genesis/proto/state
+  PriceStatistics priceStatistics = 6;
 }

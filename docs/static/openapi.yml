@@ -850,6 +850,60 @@ paths:
           type: string
       tags:
         - Query
+  /cascadia/oracle/price_statistics:
+    get:
+      summary: Queries a PriceStatistics by index.
+      operationId: CascadiaOracleV1PriceStatistics
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              PriceStatistics:
+                type: object
+                properties:
+                  p360:
+                    type: string
+                    title: p360 defines avg Token Price of 360 days
+                  p180:
+                    type: string
+                    title: p180 defines avg Token Price of 180 days
+                  p90:
+                    type: string
+                    title: p180 defines avg Token Price of 90 days
+                  p30:
+                    type: string
+                    title: p30 defines avg Token Price of 30 days
+                  p14:
+                    type: string
+                    title: p14 defines avg Token Price of 14 days
+                  p7:
+                    type: string
+                    title: p7 defines avg Token Price of a week
+                  p1:
+                    type: string
+                    title: p1 defines avg Token Price of a day
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   /cascadia/reward/params:
     get:
       summary: Parameters queries the parameters of the module.
@@ -42911,6 +42965,30 @@ definitions:
         type: string
       is_active:
         type: boolean
+  cascadia.oracle.v1.PriceStatistics:
+    type: object
+    properties:
+      p360:
+        type: string
+        title: p360 defines avg Token Price of 360 days
+      p180:
+        type: string
+        title: p180 defines avg Token Price of 180 days
+      p90:
+        type: string
+        title: p180 defines avg Token Price of 90 days
+      p30:
+        type: string
+        title: p30 defines avg Token Price of 30 days
+      p14:
+        type: string
+        title: p14 defines avg Token Price of 14 days
+      p7:
+        type: string
+        title: p7 defines avg Token Price of a week
+      p1:
+        type: string
+        title: p1 defines avg Token Price of a day
   cascadia.oracle.v1.QueryAllAssetInfoResponse:
     type: object
     properties:
@@ -43088,6 +43166,33 @@ definitions:
           timestamp:
             type: string
             format: uint64
+  cascadia.oracle.v1.QueryGetPriceStatisticsResponse:
+    type: object
+    properties:
+      PriceStatistics:
+        type: object
+        properties:
+          p360:
+            type: string
+            title: p360 defines avg Token Price of 360 days
+          p180:
+            type: string
+            title: p180 defines avg Token Price of 180 days
+          p90:
+            type: string
+            title: p180 defines avg Token Price of 90 days
+          p30:
+            type: string
+            title: p30 defines avg Token Price of 30 days
+          p14:
+            type: string
+            title: p14 defines avg Token Price of 14 days
+          p7:
+            type: string
+            title: p7 defines avg Token Price of a week
+          p1:
+            type: string
+            title: p1 defines avg Token Price of a day
   cascadia.oracle.v1.QueryLastBandRequestIdResponse:
     type: object
     properties:

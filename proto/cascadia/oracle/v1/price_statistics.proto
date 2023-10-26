@@ -1,0 +1,30 @@
+syntax = "proto3";
+package cascadia.oracle.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/oracle/types";
+
+message PriceStatistics {
+    // p360 defines avg Token Price of 360 days
+	string p360 = 1
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    // p180 defines avg Token Price of 180 days
+	string p180 = 2
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    // p180 defines avg Token Price of 90 days 
+	string p90 = 3
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+    // p30 defines avg Token Price of 30 days
+	string p30 = 4
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    // p14 defines avg Token Price of 14 days
+	string p14 = 5
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+    // p7 defines avg Token Price of a week
+	string p7 = 6
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+    // p1 defines avg Token Price of a day
+	string p1 = 7
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+	}
