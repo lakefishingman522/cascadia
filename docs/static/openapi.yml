@@ -43,6 +43,63 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
+  /cascadia/inflation/v1/inflation_control_params:
+    get:
+      summary: Queries a InflationControlParams by index.
+      operationId: CascadiaInflationV1InflationControlParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              InflationControlParams:
+                type: object
+                properties:
+                  lambda:
+                    type: string
+                    title: multiplier value
+                  w360:
+                    type: string
+                    title: w360 defines the weight about avg Token Price of 360 days
+                  w180:
+                    type: string
+                    title: w180 defines the weight about avg Token Price of 180 days
+                  w90:
+                    type: string
+                    title: w180 defines the weight about avg Token Price of 90 days
+                  w30:
+                    type: string
+                    title: w180 defines the weight about avg Token Price of 30 days
+                  w14:
+                    type: string
+                    title: w14 defines the weight about avg Token Price of 14 days
+                  w7:
+                    type: string
+                    title: w7 defines the weight about avg Token Price of a week
+                  w1:
+                    type: string
+                    title: w1 defines the weight about avg Token Price of a day
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   /cascadia/inflation/v1/inflation_rate:
     get:
       summary: InflationRate retrieves the inflation rate of the current period.
@@ -42210,6 +42267,33 @@ paths:
       tags:
         - Query
 definitions:
+  cascadia.inflation.v1.InflationControlParams:
+    type: object
+    properties:
+      lambda:
+        type: string
+        title: multiplier value
+      w360:
+        type: string
+        title: w360 defines the weight about avg Token Price of 360 days
+      w180:
+        type: string
+        title: w180 defines the weight about avg Token Price of 180 days
+      w90:
+        type: string
+        title: w180 defines the weight about avg Token Price of 90 days
+      w30:
+        type: string
+        title: w180 defines the weight about avg Token Price of 30 days
+      w14:
+        type: string
+        title: w14 defines the weight about avg Token Price of 14 days
+      w7:
+        type: string
+        title: w7 defines the weight about avg Token Price of a week
+      w1:
+        type: string
+        title: w1 defines the weight about avg Token Price of a day
   cascadia.inflation.v1.InflationDistribution:
     type: object
     properties:
@@ -42234,6 +42318,13 @@ definitions:
           that is
 
           to be allocated to the nprotocol
+  cascadia.inflation.v1.MsgUpdateInflationControlParamsResponse:
+    type: object
+    description: >-
+      MsgUpdateInflationControlParamsResponse defines the response structure for
+      executing a
+
+      MsgUpdateInflationControlParams message.
   cascadia.inflation.v1.MsgUpdateParamsResponse:
     type: object
     description: |-
@@ -42297,6 +42388,36 @@ definitions:
     description: |-
       QueryAnnualProvisionsResponse is the response type for the
       Query/AnnualProvisions RPC method.
+  cascadia.inflation.v1.QueryGetInflationControlParamsResponse:
+    type: object
+    properties:
+      InflationControlParams:
+        type: object
+        properties:
+          lambda:
+            type: string
+            title: multiplier value
+          w360:
+            type: string
+            title: w360 defines the weight about avg Token Price of 360 days
+          w180:
+            type: string
+            title: w180 defines the weight about avg Token Price of 180 days
+          w90:
+            type: string
+            title: w180 defines the weight about avg Token Price of 90 days
+          w30:
+            type: string
+            title: w180 defines the weight about avg Token Price of 30 days
+          w14:
+            type: string
+            title: w14 defines the weight about avg Token Price of 14 days
+          w7:
+            type: string
+            title: w7 defines the weight about avg Token Price of a week
+          w1:
+            type: string
+            title: w1 defines the weight about avg Token Price of a day
   cascadia.inflation.v1.QueryInflationRateResponse:
     type: object
     properties:

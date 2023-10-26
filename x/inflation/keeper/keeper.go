@@ -10,6 +10,8 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 )
 
 // Keeper of the mint store
@@ -88,6 +90,26 @@ func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
 	return params
+}
+
+// GetInflationControlParams returns the total set of inflation control parameters.
+func (k Keeper) GetInflationControlParams(ctx sdk.Context) (inflationcontrolparams types.InflationControlParams, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
+
+	b := store.Get([]byte{0})
+	if b == nil {
+		return inflationcontrolparams, false
+	}
+
+	k.cdc.MustUnmarshal(b, &inflationcontrolparams)
+	return inflationcontrolparams, true
+}
+
+// SetInflationControlParams set inflation Control Params in the store
+func (k Keeper) SetInflationControlParams(ctx sdk.Context, inflationControlParams types.InflationControlParams) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
+	b := k.cdc.MustMarshal(&inflationControlParams)
+	store.Set([]byte{0}, b)
 }
 
 // SetParams sets the total set of minting parameters.

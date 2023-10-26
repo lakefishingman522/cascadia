@@ -4,6 +4,7 @@ package cascadia.inflation.v1;
 import "gogoproto/gogo.proto";
 
 import "cascadia/inflation/v1/inflation.proto";
+import "cascadia/inflation/v1/inflation_params.proto";
 
 option go_package = "github.com/cascadiafoundation/cascadia/x/inflation/types";
 
@@ -13,6 +14,8 @@ message GenesisState {
   Minter minter = 1 [(gogoproto.nullable) = false];
   // params defines all the parameters of the module.
   Params params = 2 [(gogoproto.nullable) = false];
+  // InflationControlParams defines all the parametres related to inflation control
+  InflationControlParams inflationControlParams = 3 [(gogoproto.nullable) = false];
 }
 
 // Params holds parameters for the inflation module.
@@ -60,3 +63,4 @@ message Minter {
     (gogoproto.nullable)   = false
   ];
 }
+

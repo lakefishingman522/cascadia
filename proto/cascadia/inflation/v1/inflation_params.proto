@@ -1,0 +1,33 @@
+syntax = "proto3";
+package cascadia.inflation.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/inflation/types";
+
+message InflationControlParams {
+    // multiplier value 
+	string lambda = 1
+		[(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    // w360 defines the weight about avg Token Price of 360 days
+	string w360 = 2
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    // w180 defines the weight about avg Token Price of 180 days
+	string w180 = 3
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    // w180 defines the weight about avg Token Price of 90 days 
+	string w90 = 4
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+    // w180 defines the weight about avg Token Price of 30 days
+	string w30 = 5
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    // w14 defines the weight about avg Token Price of 14 days
+	string w14 = 6
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+    // w7 defines the weight about avg Token Price of a week
+	string w7 = 7
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+    // w1 defines the weight about avg Token Price of a day
+	string w1 = 8
+        [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false]; 
+	}

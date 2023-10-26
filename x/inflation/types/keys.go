@@ -18,3 +18,12 @@ const (
 	QueryInflation        = "inflation"
 	QueryAnnualProvisions = "annual_provisions"
 )
+
+func KeyPrefix(p string) []byte {
+	return []byte(p)
+}
+
+
+const (
+	InflationControlParamsKey = "InflationControlParams"
+)
