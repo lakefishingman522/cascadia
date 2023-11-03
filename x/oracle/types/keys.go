@@ -66,6 +66,7 @@ func PriceKeyPrefixAsset(asset string) []byte {
 
 func PriceKeyPrefixAssetAndSource(asset, source string) []byte {
 	key := PriceKeyPrefixAsset(asset)
+	key = append(key, []byte("/")...)
 	key = append(key, source...)
 	return key
 }

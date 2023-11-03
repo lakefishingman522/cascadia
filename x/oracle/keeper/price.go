@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"fmt"
+
+	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 )
 
 // SetPrice set a specific price in the store from its index
@@ -27,15 +29,23 @@ func (k Keeper) GetPrice(ctx sdk.Context, asset, source string, timestamp uint64
 }
 
 func (k Keeper) GetLatestPriceFromAssetAndSource(ctx sdk.Context, asset, source string) (val types.Price, found bool) {
+	fmt.Println(asset, " - ", source, " - ", k.storeKey)
+
 	store := ctx.KVStore(k.storeKey)
+
 	iterator := sdk.KVStoreReversePrefixIterator(store, types.PriceKeyPrefixAssetAndSource(asset, source))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.Price
 		k.cdc.MustUnmarshal(iterator.Value(), &val)
+
+		fmt.Println("val: ", val, " - ", true)
+
 		return val, true
 	}
+
+	fmt.Println("final val:", val, " - ", false)
 
 	return val, false
 }

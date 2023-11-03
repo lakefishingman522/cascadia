@@ -39,7 +39,7 @@ type Keeper struct {
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	storeKey,
+	storeKey storetypes.StoreKey,
 	memKey storetypes.StoreKey,
 	ps paramtypes.Subspace,
 	channelKeeper cosmosibckeeper.ChannelKeeper,
