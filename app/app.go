@@ -175,6 +175,7 @@ import (
 	v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
 	v0_1_6 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.6"
 	v0_1_7 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.7"
+	v0_1_8 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.8"
 
 	// block-sdk imports
 	cascadiablocksdk "github.com/cascadiafoundation/cascadia/app/block-sdk"
@@ -1373,6 +1374,14 @@ func (app *Cascadia) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v0_1_7.UpgradeName,
 		v0_1_7.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	//  v0.1.8 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v0_1_8.UpgradeName,
+		v0_1_8.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)
