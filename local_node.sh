@@ -90,6 +90,44 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
 	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 
+
+	# ===========================================================
+	# Update rpc laddr in config with node port
+	
+	node_rpc_port=27657
+	node_api_port=27656
+	node_pprof_port=7060
+	node_proxy_app_port=27658
+	node_grpc_port=10090
+	node_grpc_web_port=10091
+	node_evm_port=9545
+	node_evm_socket_port=9546
+	node_api_port=2317
+
+	sed -i "s/^laddr = \"tcp:\/\/127.0.0.1:26657\"/laddr = \"tcp:\/\/127.0.0.1:${node_rpc_port}\"/" "$CONFIG"
+
+	# Update p2p laddr in config with node port
+	sed -i "s/^laddr = \"tcp:\/\/0.0.0.0:26656\"/laddr = \"tcp:\/\/0.0.0.0:${node_api_port}\"/" "$CONFIG"
+
+	# Update p2p laddr in config with node port
+	sed -i "s/^pprof_laddr =.*/pprof_laddr = \"localhost:${node_pprof_port}\"/" "$CONFIG"
+
+
+	sed -i.bak "s/:26658/:${node_proxy_app_port}/g" "$CONFIG"
+
+
+	# Update grpc in app with node port
+	sed -i "s/^address = \"localhost:9090\"/address = \"0.0.0.0:${node_grpc_port}\"/" "$APP_TOML"
+
+	# Update grpc web in app with node port
+	sed -i "s/^address = \"localhost:9091\"/address = \"0.0.0.0:${node_grpc_web_port}\"/" "$APP_TOML"
+
+	sed -i.bak "s/127.0.0.1:8545/0.0.0.0:${node_evm_port}/g" "$APP_TOML"
+	sed -i.bak "s/127.0.0.1:8546/0.0.0.0:${node_evm_socket_port}/g" "$APP_TOML"
+
+	sed -i.bak "s/:1317/:${node_api_port}/g" "$APP_TOML"
+	# ===========================================================
+
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
 		cascadiad add-genesis-account "$KEY" 100000000000000000000000000aCC --keyring-backend $KEYRING --home "$HOMEDIR"
