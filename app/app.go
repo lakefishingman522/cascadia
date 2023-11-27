@@ -172,6 +172,7 @@ import (
 	// imports for upgrades
 	v0_1_4 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.4"
 	v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
+	v0_1_9 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.9"
 )
 
 func init() {
@@ -1229,6 +1230,15 @@ func (app *Cascadia) setupUpgradeHandlers() {
 			app.appCodec,
 		),
 	)
+
+	//  v0.1.9 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v0_1_9.UpgradeName,
+		v0_1_9.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
