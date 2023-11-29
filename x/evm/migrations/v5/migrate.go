@@ -47,7 +47,7 @@ func MigrateStore(
 	cdc.MustUnmarshal(extraEIPsBz, &extraEIPs)
 
 	// revert ExtraEIP change for Cascadia testnet
-	if ctx.ChainID() == "cascadia_6102-4" {
+	if ctx.ChainID() == "cascadia_11029-4" {
 		extraEIPs.EIPs = []int64{}
 	}
 

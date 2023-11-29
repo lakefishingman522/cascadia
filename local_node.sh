@@ -3,7 +3,7 @@
 KEYS[0]="dev0"
 KEYS[1]="dev1"
 KEYS[2]="dev2"
-CHAINID="cascadia_6102-1"
+CHAINID="cascadia_11029-1"
 MONIKER="localtestnet"
 # MULTISIG_ADDRESS="cascadia1duc20j5qccrawl9n7url89lk5t23hur3w0rhem"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,

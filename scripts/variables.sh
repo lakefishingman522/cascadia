@@ -67,9 +67,9 @@ VALIDATOR_ACCOUNT_PASSPHRASES=(
 )
 
 BINARY="/home/ubuntu/old/cascadiad"
-CHAIN_ID="cascadia_6102-1"
+CHAIN_ID="cascadia_11029-1"
 SNAPSHOT_URL="https://snapshotlink"
-SNAPSHOT_PATH="/home/ubuntu/utility/snapshots/cascadia/cascadia_6102-1_2023-07-04.tar.lz4"
+SNAPSHOT_PATH="/home/ubuntu/utility/snapshots/cascadia/cascadia_11029-1_2023-07-04.tar.lz4"
 NEW_VERSION="v0.1.3"
 NEW_BINARY="/home/ubuntu/cascadiad"
 PROPOSAL_ID="7"

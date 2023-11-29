@@ -168,11 +168,10 @@ import (
 	sustainabilitymodule "github.com/cascadiafoundation/cascadia/x/sustainability"
 	sustainabilitymodulekeeper "github.com/cascadiafoundation/cascadia/x/sustainability/keeper"
 	sustainabilitymoduletypes "github.com/cascadiafoundation/cascadia/x/sustainability/types"
-
 	// imports for upgrades
-	v0_1_4 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.4"
-	v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
-	v0_1_9 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.9"
+	// v0_1_4 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.4"
+	// v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
+	// v0_1_9 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.9"
 )
 
 func init() {
@@ -1213,31 +1212,31 @@ func initParamsKeeper(
 
 func (app *Cascadia) setupUpgradeHandlers() {
 	// v0.1.4 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v0_1_4.UpgradeName,
-		v0_1_4.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	v0_1_4.UpgradeName,
+	// 	v0_1_4.CreateUpgradeHandler(
+	// 		app.mm, app.configurator,
+	// 	),
+	// )
 	// v0.1.5 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v0_1_5.UpgradeName,
-		v0_1_5.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.ConsensusParamsKeeper,
-			app.IBCKeeper.ClientKeeper,
-			app.ParamsKeeper,
-			app.appCodec,
-		),
-	)
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	v0_1_5.UpgradeName,
+	// 	v0_1_5.CreateUpgradeHandler(
+	// 		app.mm, app.configurator,
+	// 		app.ConsensusParamsKeeper,
+	// 		app.IBCKeeper.ClientKeeper,
+	// 		app.ParamsKeeper,
+	// 		app.appCodec,
+	// 	),
+	// )
 
 	//  v0.1.9 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v0_1_9.UpgradeName,
-		v0_1_9.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	v0_1_9.UpgradeName,
+	// 	v0_1_9.CreateUpgradeHandler(
+	// 		app.mm, app.configurator,
+	// 	),
+	// )
 
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
@@ -1253,22 +1252,22 @@ func (app *Cascadia) setupUpgradeHandlers() {
 
 	var storeUpgrades *storetypes.StoreUpgrades
 
-	switch upgradeInfo.Name {
+	// switch upgradeInfo.Name {
 
-	case v0_1_4.UpgradeName:
-		//
-		//
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{oracletypes.StoreKey, sustainabilitymoduletypes.StoreKey, wasmTypes.StoreKey, icacontrollertypes.StoreKey},
-		}
-	case v0_1_5.UpgradeName:
-		//
-		//
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{crisistypes.StoreKey, consensusparamtypes.StoreKey, ibcfeetypes.StoreKey},
-		}
+	// case v0_1_4.UpgradeName:
+	// 	//
+	// 	//
+	// 	storeUpgrades = &storetypes.StoreUpgrades{
+	// 		Added: []string{oracletypes.StoreKey, sustainabilitymoduletypes.StoreKey, wasmTypes.StoreKey, icacontrollertypes.StoreKey},
+	// 	}
+	// case v0_1_5.UpgradeName:
+	// 	//
+	// 	//
+	// 	storeUpgrades = &storetypes.StoreUpgrades{
+	// 		Added: []string{crisistypes.StoreKey, consensusparamtypes.StoreKey, ibcfeetypes.StoreKey},
+	// 	}
 
-	}
+	// }
 
 	if storeUpgrades != nil {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades

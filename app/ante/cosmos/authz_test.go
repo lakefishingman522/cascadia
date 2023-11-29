@@ -28,7 +28,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(5)
 	require.NoError(t, err)
 
-	distantFuture := time.Date(6102, 1, 1, 0, 0, 0, 0, time.UTC)
+	distantFuture := time.Date(6000, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	validator := sdk.ValAddress(testAddresses[4])
 	stakingAuthDelegate, err := stakingtypes.NewStakeAuthorization([]sdk.ValAddress{validator}, nil, stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE, nil)
@@ -281,12 +281,12 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	_, testAddresses, err := generatePrivKeyAddressPairs(10)
 	suite.Require().NoError(err)
 
-	distantFuture := time.Date(6102, 1, 1, 0, 0, 0, 0, time.UTC)
+	distantFuture := time.Date(6000, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
-		ChainID:   big.NewInt(6102),
+		ChainID:   big.NewInt(11029),
 		Nonce:     0,
 		GasLimit:  1000000,
 		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),

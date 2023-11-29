@@ -127,8 +127,8 @@ func (k *Keeper) WithChainID(ctx sdk.Context) {
 	}
 
 	// Check mainnet and testnetId
-	if chainID.Cmp(big.NewInt(6102)) != 0 && chainID.Cmp(big.NewInt(9001)) != 0 {
-		panic("EVM only supports Cascadia chain identifiers (6102), (9001)")
+	if chainID.Cmp(big.NewInt(11029)) != 0 && chainID.Cmp(big.NewInt(9001)) != 0 {
+		panic("EVM only supports Cascadia chain identifiers (11029), (9001)")
 	}
 
 	k.eip155ChainID = chainID

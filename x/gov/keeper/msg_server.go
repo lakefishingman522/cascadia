@@ -91,7 +91,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	senderBalance := sdk.NewDecFromBigInt(k.Keeper.rk.BalanceOf(ctx, contracts.VotingEscrowContract.ABI, contractEvmAddr, senderEvmAddr, senderSubmitTime))
 
 	// Create a new big.Int
-	thresholdString := "6102000000000000000000"
+	thresholdString := "1129000000000000000000"
 
 	thresholdNum := new(big.Int)
 	thresholdNum.SetString(thresholdString, 10)

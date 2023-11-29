@@ -37,7 +37,7 @@ func (m MockEVMKeeper) GetParams(ctx sdk.Context) evmtypes.Params {
 }
 
 func (m MockEVMKeeper) ChainID() *big.Int {
-	return big.NewInt(6102)
+	return big.NewInt(11029)
 }
 
 func TestSDKTxFeeChecker(t *testing.T) {

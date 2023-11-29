@@ -52,7 +52,7 @@ func TestParseChainID(t *testing.T) {
 			"invalid eip155 chain-id, cannot invalid base", "cascadia_0x212-1", true, nil,
 		},
 		{
-			"invalid eip155 chain-id, non-integer", "cascadia_cascadia_6102-1", true, nil,
+			"invalid eip155 chain-id, non-integer", "cascadia_cascadia_11029-1", true, nil,
 		},
 		{
 			"invalid epoch, undefined", "cascadia_-", true, nil,

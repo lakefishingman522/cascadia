@@ -63,7 +63,7 @@ VALIDATOR_ACCOUNT_PASSPHRASES=(
 )
 
 BINARY="/tmp/cascadiad-010"
-CHAIN_ID="cascadia_6102-1"
+CHAIN_ID="cascadia_11029-1"
 SNAPSHOT_URL="https://snapshotlink"
 SNAPSHOT_PATH="/tmp/cascadiad_testnet_snapshot.tar.lz4"
 NEW_VERSION="v0.2.0"

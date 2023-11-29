@@ -81,7 +81,7 @@ func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 	tmp := whitespaceRegex.ReplaceAllString(
 		`{
 			"account_number": "0",
-			"chain_id":"cascadia_6102-1",
+			"chain_id":"cascadia_11029-1",
 			"fee":{
 				"amount":[{"amount":"150","denom":"atom"}],
 				"gas":"20000"
@@ -160,7 +160,7 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 	signBytes, err := auxTx.DirectSignBytes(
 		bodyBytes,
 		authInfoBytes,
-		"cascadia_6102-1",
+		"cascadia_11029-1",
 		0,
 	)
 	suite.Require().NoError(err)
