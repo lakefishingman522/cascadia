@@ -4,4 +4,4 @@ release/
 .idea/
 .vscode/
 .DS_Store
-/dist
+dist
