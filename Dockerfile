@@ -3,18 +3,20 @@ ARG RUNNER_IMAGE="gcr.io/distroless/static-debian11"
 ARG GO_VERSION="1.20"
 
 # Builder image
-FROM golang:1.20-alpine AS build-env
+FROM golang:1.20-alpine3.18 AS build-env
 
 ARG GIT_VERSION
 ARG GIT_COMMIT
 
-RUN apk add --no-cache \
-    ca-certificates \
-    build-base \
-    linux-headers \
-    git \
+RUN set -eux; \
+    apk add --no-cache \
+    ca-certificates=20230506-r0 \
+    build-base=0.5-r3 \
+    linux-headers=6.3-r0 \
+    git=2.40.1-r0 \
     psmisc \
-    openssh
+    openssh \
+    bash=5.2.15-r5
 
 RUN mkdir /cascadia
 WORKDIR /cascadia
@@ -33,13 +35,12 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=secret,id=sshKey,dst=/root/.ssh/id_ecdsa \
     go mod download
 
-RUN WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm | cut -d ' ' -f 2) && \
-    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm_muslc.$(uname -m).a \
-        -O /lib/libwasmvm_muslc.a 
-    # && \
+RUN ARCH=$(uname -m) && WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm | sed 's/.* //') && \
+    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm_muslc.$ARCH.a \
+    -O /lib/libwasmvm_muslc.a && \
     # verify checksum
-    # wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/checksums.txt -O /tmp/checksums.txt && \
-    # sha256sum /lib/libwasmvm_muslc.a | grep $(cat /tmp/checksums.txt | grep $(uname -m) | cut -d ' ' -f 1)
+    wget https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/checksums.txt -O /tmp/checksums.txt && \
+    sha256sum /lib/libwasmvm_muslc.a | grep $(cat /tmp/checksums.txt | grep libwasmvm_muslc.$ARCH | cut -d ' ' -f 1)
 
 # Add source code
 COPY . .
