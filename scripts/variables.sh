@@ -34,28 +34,28 @@ VALIDATOR_ADDRESSES=(
     "421497B73E9E4725DB54E2B19A446C2F2A124DAD"
 )
 VALIDATOR_PUBLIC_KEYS=(
-    "w8hrD9USp85r3Nt3xlKWRIrQiZ1q8rcLKoPaSvkC5Nw="
-    "aWj2GamyiycAXJmmrHBEweQNSzjEm8ZUVmv+XwGaAKw="
+    "w8----------3Nt3xlKWRIrQiZ----------SvkC5Nw="
+    "aWj2Gamy----------BEweQNSz----------XwGaAKw="
 )
 VALIDATOR_PRIVATE_KEYS=(
-    "cXgF1k2JzC5XtnVgyZkA4chW7c5qV8HVEGOLbRSR15fDyGsP1RKnzmvc23fGUpZEitCJnWrytwsqg9pK+QLk3A=="
-    "/X1ZjS/SG3gNYtc+0JN5a/xNie7YvBeAPMzlfXAGGddpaPYZqbKLJwBcmaascETB5A1LOMSbxlRWa/5fAZoArA=="
+    "cXgF----------VgyZkA4chW7c----------bRSR15fDyGsP1RKnzmvc----------CJnWrytwsqg9pK+QLk3A=="
+    "/X1ZjS/SG3gNYt----------ie7YvBeAPMzlfXAGGddpaPYZqbKLJwBc----------1LOMSbxlRWa/5fAZoArA=="
 )
 NODE_PRIVATE_KEYS=(
-    "7HefM+EnzC89AxJVPNsuNKI/o8kg4ufjsOQFgVx5e+aFyCDbCs72VhymgN+4V7IrmZHjbIb4Ne9yz9lI6e4Xkg=="
-    "B7SPJbfNoVWwHnzJemxWeql4xUhn/l6GyMmuB+OBH9KzS3jFIqTVH9YwtgP6W+xNJ0HeYa49/7clbX3IyIiWiw=="
+    "7HefM+EnzC89AxJVPNsuNKI/o8kg4ufjs----------FyCDbCs72VhymgN+4V7IrmZHjbIb4Ne9yz9lI6e4Xkg=="
+    "B7SPJbfNoVWwHn----------xUhn/l6GyMmuB+OBH9KzS3jFIqTV----------xNJ0HeYa49/7clbX3IyIiWiw=="
 )
 VALIDATOR_PRIVATE_KEY_SALTS=(
-    "E6AD82398C536D7D67D5A6CF15B6B82C"
-    "9273D25939636534459F0DE7D8EF707A"
+    "E6AD82398C----------A6CF15B6B82C"
+    "9273D259396365----------D8EF707A"
 )
 VALIDATOR_PRIVATE_KEY_FIRST_LINES=(
-    "O1OR0/bFHFR/I1YOCWJPjae3+few7Ai0/7Nh+qH4HVvzg94WRvJTYU7RXyVs/AC7"
-    "b3GUrvNwFKpZ+SAZZjC2ffnXqoPdjIrnuCWolAIJkB2L6Dvcabuh86I689q2g6tt"
+    "O1OR0/bFHFR/I1Y----------few7Ai0/7Nh+qH4HVvzg94WRvJTYU7RXyVs/AC7"
+    "b3GUrvNwFKpZ+SAZZjC2ffnXqoPdjIrnuCW----------Dvcabuh86I689q2g6tt"
 )
 VALIDATOR_PRIVATE_KEY_SECOND_LINES=(
-    "DExFPDEELILmHCzL1wvCzMqXOtrkMk+dnt9sLHQ="
-    "CxyezuDUyqSZOsiK5TbL2IG+h5dXfzWtqN9u2hk="
+    "DExFPDEELILm----------qXOtrkMk+dnt9sLHQ="
+    "CxyezuDUyqSZOsiK5TbL2IG----------N9u2hk="
 )
 VALIDATOR_PRIVATE_KEY_THIRD_LINES=(
     "=RRCr"

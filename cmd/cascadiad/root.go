@@ -22,6 +22,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -141,6 +142,33 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			initClientCtx, err = config.ReadFromClientConfig(initClientCtx)
 			if err != nil {
 				return err
+			}
+
+			// if init command, then we set chainID in the client.toml
+			if cmd.Name() == "init" {
+				clienttomlpath := filepath.Join(initClientCtx.HomeDir, "config", "client.toml")
+
+				// Read the file
+				content, err := os.ReadFile(clienttomlpath)
+				if err != nil {
+					return err
+				}
+
+				// Check chainID
+				chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
+				if chainID == "" {
+					chainID = "cascadia_11029-1"
+				}
+
+				// Use regular expression to replace chain-id value
+				re := regexp.MustCompile(`(?m)^chain-id = ".*"`)
+				newContent := re.ReplaceAllString(string(content), fmt.Sprintf(`chain-id = "%s"`, chainID))
+
+				// Write back to file
+				err = os.WriteFile(clienttomlpath, []byte(newContent), 0644)
+				if err != nil {
+					return err
+				}
 			}
 
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {

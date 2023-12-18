@@ -31,7 +31,8 @@ import (
 	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/libs/cli"
 	tmos "github.com/cometbft/cometbft/libs/os"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
+
+	// tmrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/types"
 
 	"github.com/cosmos/go-bip39"
@@ -108,8 +109,10 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			if chainID == "" {
-				chainID = fmt.Sprintf("cascadia_11029-%v", tmrand.Str(6))
+				chainID = fmt.Sprintf("cascadia_11029-%v", 1)
 			}
+
+			clientCtx.ChainID = chainID
 
 			// Get bip39 mnemonic
 			var mnemonic string
