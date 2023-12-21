@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
+	oraclekeeper "github.com/cascadiafoundation/cascadia/x/oracle/keeper"
 	stakingkeeper "github.com/cascadiafoundation/cascadia/x/staking/keeper"
 )
 
@@ -84,6 +85,7 @@ type AppModule struct {
 	keeper     keeper.Keeper
 	authKeeper types.AccountKeeper
 	sk         stakingkeeper.Keeper
+	ok         oraclekeeper.Keeper
 
 	// inflationCalculator is used to calculate the inflation rate during BeginBlock.
 	// If inflationCalculator is nil, the default inflation calculation logic is used.
@@ -92,7 +94,14 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object. If the InflationCalculationFn
 // argument is nil, then the SDK's default inflation function will be used.
-func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak types.AccountKeeper, sk stakingkeeper.Keeper, ic types.InflationCalculationFn) AppModule {
+func NewAppModule(
+	cdc codec.Codec,
+	keeper keeper.Keeper,
+	ak types.AccountKeeper,
+	sk stakingkeeper.Keeper,
+	ok oraclekeeper.Keeper,
+	ic types.InflationCalculationFn,
+) AppModule {
 	if ic == nil {
 		ic = types.DefaultInflationCalculationFn
 	}
@@ -101,6 +110,7 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak types.AccountKeeper,
 		keeper:              keeper,
 		authKeeper:          ak,
 		sk:                  sk,
+		ok:                  ok,
 		inflationCalculator: ic,
 	}
 }

@@ -9,6 +9,7 @@ import (
 func (keeper Keeper) InitGenesis(ctx sdk.Context, ak types.AccountKeeper, data *types.GenesisState) {
 	keeper.SetMinter(ctx, data.Minter)
 	keeper.SetParams(ctx, data.Params)
+	keeper.SetInflationControlParams(ctx, data.InflationControlParams)
 	ak.GetModuleAccount(ctx, types.ModuleName)
 }
 
@@ -16,5 +17,6 @@ func (keeper Keeper) InitGenesis(ctx sdk.Context, ak types.AccountKeeper, data *
 func (keeper Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	minter := keeper.GetMinter(ctx)
 	params := keeper.GetParams(ctx)
-	return types.NewGenesisState(minter, params)
+	inflation_control_params, _ := keeper.GetInflationControlParams(ctx)
+	return types.NewGenesisState(minter, params, inflation_control_params)
 }

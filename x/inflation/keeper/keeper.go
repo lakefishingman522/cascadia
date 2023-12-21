@@ -5,10 +5,13 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cascadiafoundation/cascadia/x/inflation/types"
+	otypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 )
 
 // Keeper of the mint store
@@ -20,6 +23,7 @@ type Keeper struct {
 	bankKeeper       types.BankKeeper
 	rewardKeeper     types.RewardKeeper
 	accountKeeper    types.AccountKeeper
+	oracleKeeper     types.OracleKeeper
 	feeCollectorName string
 }
 
@@ -31,7 +35,8 @@ const (
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
-	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper, rk types.RewardKeeper,
+	sk types.StakingKeeper, ak types.AccountKeeper, ok types.OracleKeeper,
+	bk types.BankKeeper, rk types.RewardKeeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -52,6 +57,7 @@ func NewKeeper(
 		bankKeeper:       bk,
 		rewardKeeper:     rk,
 		accountKeeper:    ak,
+		oracleKeeper:     ok,
 		feeCollectorName: feeCollectorName,
 	}
 }
@@ -84,6 +90,26 @@ func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
 	return params
+}
+
+// GetInflationControlParams returns the total set of inflation control parameters.
+func (k Keeper) GetInflationControlParams(ctx sdk.Context) (inflationcontrolparams types.InflationControlParams, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
+
+	b := store.Get([]byte{0})
+	if b == nil {
+		return inflationcontrolparams, false
+	}
+
+	k.cdc.MustUnmarshal(b, &inflationcontrolparams)
+	return inflationcontrolparams, true
+}
+
+// SetInflationControlParams set inflation Control Params in the store
+func (k Keeper) SetInflationControlParams(ctx sdk.Context, inflationControlParams types.InflationControlParams) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
+	b := k.cdc.MustMarshal(&inflationControlParams)
+	store.Set([]byte{0}, b)
 }
 
 // SetParams sets the total set of minting parameters.
@@ -166,4 +192,8 @@ func (k Keeper) GetProportions(
 		coin.Denom,
 		sdk.NewDecFromInt(coin.Amount).Mul(distribution).TruncateInt(),
 	)
+}
+
+func (k Keeper) GetLatestPriceFromAssetAndSource(ctx sdk.Context, asset string, source string) (otypes.Price, bool) {
+	return k.oracleKeeper.GetLatestPriceFromAssetAndSource(ctx, asset, source)
 }

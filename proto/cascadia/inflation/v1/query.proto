@@ -3,6 +3,7 @@ package cascadia.inflation.v1;
 
 import "cosmos/base/v1beta1/coin.proto";
 import "cascadia/inflation/v1/genesis.proto";
+import "cascadia/inflation/v1/inflation_params.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
@@ -23,6 +24,12 @@ service Query {
   // Params retrieves the total set of minting parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/cascadia/inflation/v1/params";
+  }
+
+  // Queries a InflationControlParams by index.
+  rpc InflationControlParams (QueryGetInflationControlParamsRequest) returns (QueryGetInflationControlParamsResponse) {
+    option (google.api.http).get = "/cascadia/inflation/v1/inflation_control_params";
+  
   }
 }
 
@@ -59,4 +66,13 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params defines the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
+}
+
+
+// ------------------------------Inflation Control Params Query ---------------------
+
+message QueryGetInflationControlParamsRequest {}
+
+message QueryGetInflationControlParamsResponse {
+  InflationControlParams InflationControlParams = 1 [(gogoproto.nullable) = false];
 }

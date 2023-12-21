@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	otypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -47,10 +48,19 @@ func TestNextInflation(t *testing.T) {
 		// perfect balance shouldn't change inflation
 		{sdk.NewDecWithPrec(67, 2), sdk.NewDecWithPrec(15, 2), sdk.ZeroDec()},
 	}
+
+	cascadiacoinPrice := otypes.Price{
+		Asset:     otypes.CASCADIA,
+		Price:     sdk.NewDec(0),
+		Source:    otypes.BAND,
+		Provider:  "",
+		Timestamp: 0,
+	}
+
 	for i, tc := range tests {
 		minter.Inflation = tc.setInflation
 
-		inflation := minter.NextInflationRate(params, tc.bondedRatio)
+		inflation := minter.NextInflationRate(params, tc.bondedRatio, cascadiacoinPrice)
 		diffInflation := inflation.Sub(tc.setInflation)
 
 		require.True(t, diffInflation.Equal(tc.expChange),
@@ -115,9 +125,17 @@ func BenchmarkNextInflation(b *testing.B) {
 	params := DefaultParams()
 	bondedRatio := sdk.NewDecWithPrec(1, 1)
 
+	cascadiacoinPrice := otypes.Price{
+		Asset:     otypes.CASCADIA,
+		Price:     sdk.NewDec(0),
+		Source:    otypes.BAND,
+		Provider:  "",
+		Timestamp: 0,
+	}
+
 	// run the NextInflationRate function b.N times
 	for n := 0; n < b.N; n++ {
-		minter.NextInflationRate(params, bondedRatio)
+		minter.NextInflationRate(params, bondedRatio, cascadiacoinPrice)
 	}
 }
 

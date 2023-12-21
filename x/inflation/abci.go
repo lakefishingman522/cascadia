@@ -5,6 +5,7 @@ import (
 
 	"github.com/cascadiafoundation/cascadia/x/inflation/keeper"
 	"github.com/cascadiafoundation/cascadia/x/inflation/types"
+	otypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -17,10 +18,21 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculatio
 	minter := k.GetMinter(ctx)
 	params := k.GetParams(ctx)
 
+	cascadiacoinPrice, found := k.GetLatestPriceFromAssetAndSource(ctx, otypes.CASCADIA, otypes.BAND)
+	if found {
+		cascadiacoinPrice = otypes.Price{
+			Asset:     otypes.CASCADIA,
+			Price:     sdk.NewDec(0),
+			Source:    otypes.BAND,
+			Provider:  "",
+			Timestamp: 0,
+		}
+	}
+
 	// recalculate inflation rate
 	totalStakingSupply := k.StakingTokenSupply(ctx)
 	bondedRatio := k.BondedRatio(ctx)
-	minter.Inflation = ic(ctx, minter, params, bondedRatio)
+	minter.Inflation = ic(ctx, minter, params, bondedRatio, cascadiacoinPrice)
 	minter.AnnualProvisions = minter.NextAnnualProvisions(params, totalStakingSupply)
 	k.SetMinter(ctx, minter)
 
