@@ -8,13 +8,21 @@ import (
 // InflationCalculationFn defines the function required to calculate inflation rate during
 // BeginBlock. It receives the minter and params stored in the keeper, along with the current
 // bondedRatio and returns the newly calculated inflation rate.
-// It can be used to specify a custom inflation calculation logic, instead of relying on the
+// It can be used to specify a _Default inflation calculation logic, instead of relying on the
 // default logic provided by the sdk.
 type InflationCalculationFn func(ctx sdk.Context, minter Minter, params Params, bondedRatio sdk.Dec, cascadiacoinPrice otypes.Price) sdk.Dec
+
+// InflationCalculationFn_ implemented customized Inflaion Calculation Logic
+type InflationCalculationFn_ func(ctx sdk.Context, minter Minter, params Params, bondedRatio sdk.Dec, priceStatistics otypes.PriceStatistics, inflationControlParams InflationControlParams) sdk.Dec
 
 // DefaultInflationCalculationFn is the default function used to calculate inflation.
 func DefaultInflationCalculationFn(_ sdk.Context, minter Minter, params Params, bondedRatio sdk.Dec, cascadiacoinPrice otypes.Price) sdk.Dec {
 	return minter.NextInflationRate(params, bondedRatio, cascadiacoinPrice)
+}
+
+// DefaultInflationCalculationFn_ is the customized function used to calculation inflation
+func DefaultInflationCalculationFn_(ctx sdk.Context, minter Minter, params Params, bondedRatio sdk.Dec, priceStatistics otypes.PriceStatistics, inflationControlParams InflationControlParams) sdk.Dec {
+	return minter._NextInflationRate(params, bondedRatio, priceStatistics, inflationControlParams)
 }
 
 // NewGenesisState creates a new GenesisState object

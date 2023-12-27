@@ -65,13 +65,35 @@ func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec, cascadiaco
 		inflation = params.InflationMin
 	}
 
-	// If BTC price is smaller than min BTC price
-	if cascadiacoinPrice.Price.GT(otypes.MAX_CASCADIA_PRICE) {
+	return inflation
+}
+
+// _NextInflationRate returns the new inflation rate for the next hour.
+func (m Minter) _NextInflationRate(
+	params Params,
+	bondedRatio sdk.Dec,
+	priceStatistics otypes.PriceStatistics,
+	inflationControlParams InflationControlParams,
+) sdk.Dec {
+	// The target annual inflation rate is recalculated for each previsions cycle. The
+	// inflation is also subject to a rate change (positive or negative) depending on
+	// the inflation distance from the desired value (maybe these depends on toke prices statistics and some weights).
+	// The maximum rate change possible is
+	// defined to be 13% per year, however the annual inflation is capped as between
+	// 7% and 20%.
+
+	// (1 - bondedRatio/GoalBonded) * InflationRateChange
+	inflationRateChangePerYear := sdk.OneDec().
+		Sub(bondedRatio.Quo(params.GoalBonded)).
+		Mul(params.InflationRateChange)
+	inflationRateChange := inflationRateChangePerYear.Quo(sdk.NewDec(int64(params.BlocksPerYear)))
+
+	// adjust the new annual inflation for this next cycle
+	inflation := m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
+	if inflation.GT(params.InflationMax) {
 		inflation = params.InflationMax
 	}
-
-	// If BTC price is smaller than min BTC price
-	if cascadiacoinPrice.Price.LT(otypes.MIN_CASCADIA_PRICE) && cascadiacoinPrice.Price.GT(sdk.NewDec(0)) {
+	if inflation.LT(params.InflationMin) {
 		inflation = params.InflationMin
 	}
 

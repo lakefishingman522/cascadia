@@ -89,7 +89,7 @@ type AppModule struct {
 
 	// inflationCalculator is used to calculate the inflation rate during BeginBlock.
 	// If inflationCalculator is nil, the default inflation calculation logic is used.
-	inflationCalculator types.InflationCalculationFn
+	inflationCalculator types.InflationCalculationFn_
 }
 
 // NewAppModule creates a new AppModule object. If the InflationCalculationFn
@@ -100,10 +100,10 @@ func NewAppModule(
 	ak types.AccountKeeper,
 	sk stakingkeeper.Keeper,
 	ok oraclekeeper.Keeper,
-	ic types.InflationCalculationFn,
+	ic types.InflationCalculationFn_,
 ) AppModule {
 	if ic == nil {
-		ic = types.DefaultInflationCalculationFn
+		ic = types.DefaultInflationCalculationFn_
 	}
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{cdc: cdc},
@@ -129,7 +129,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-// InitGenesis performs genesis initialization for the mint module. It returns
+// InitGenesis performs genesis initialization for the inflation module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState

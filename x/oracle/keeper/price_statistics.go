@@ -8,16 +8,16 @@ import (
 
 // SetPriceStatistics set priceStatistics in the store
 func (k Keeper) SetPriceStatistics(ctx sdk.Context, priceStatistics types.PriceStatistics) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PriceStatisticsKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PriceStatisticsKeyPrefix))
 	b := k.cdc.MustMarshal(&priceStatistics)
-	store.Set([]byte{0}, b)
+	store.Set(types.PriceStatisticsKey(), b)
 }
 
 // GetPriceStatistics returns priceStatistics
 func (k Keeper) GetPriceStatistics(ctx sdk.Context) (val types.PriceStatistics, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PriceStatisticsKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PriceStatisticsKeyPrefix))
 
-	b := store.Get([]byte{0})
+	b := store.Get(types.PriceStatisticsKey())
 	if b == nil {
 		return val, false
 	}
@@ -28,6 +28,6 @@ func (k Keeper) GetPriceStatistics(ctx sdk.Context) (val types.PriceStatistics, 
 
 // RemovePriceStatistics removes priceStatistics from the store
 func (k Keeper) RemovePriceStatistics(ctx sdk.Context) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PriceStatisticsKey))
-	store.Delete([]byte{0})
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PriceStatisticsKeyPrefix))
+	store.Delete(types.PriceStatisticsKey())
 }

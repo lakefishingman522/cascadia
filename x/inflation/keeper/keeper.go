@@ -92,11 +92,16 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return params
 }
 
+// SetParams sets the total set of minting parameters.
+func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
+	k.paramSpace.SetParamSet(ctx, &params)
+}
+
 // GetInflationControlParams returns the total set of inflation control parameters.
 func (k Keeper) GetInflationControlParams(ctx sdk.Context) (inflationcontrolparams types.InflationControlParams, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
 
-	b := store.Get([]byte{0})
+	b := store.Get(types.KeyPrefix(types.InflationControlParamsKey))
 	if b == nil {
 		return inflationcontrolparams, false
 	}
@@ -107,14 +112,9 @@ func (k Keeper) GetInflationControlParams(ctx sdk.Context) (inflationcontrolpara
 
 // SetInflationControlParams set inflation Control Params in the store
 func (k Keeper) SetInflationControlParams(ctx sdk.Context, inflationControlParams types.InflationControlParams) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
 	b := k.cdc.MustMarshal(&inflationControlParams)
-	store.Set([]byte{0}, b)
-}
-
-// SetParams sets the total set of minting parameters.
-func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	k.paramSpace.SetParamSet(ctx, &params)
+	store.Set(types.KeyPrefix(types.InflationControlParamsKey), b)
 }
 
 // StakingTokenSupply implements an alias call to the underlying staking keeper's
@@ -194,6 +194,17 @@ func (k Keeper) GetProportions(
 	)
 }
 
+// Get Latest updated Price about Asset from Oracle KVstore, not using this now
 func (k Keeper) GetLatestPriceFromAssetAndSource(ctx sdk.Context, asset string, source string) (otypes.Price, bool) {
 	return k.oracleKeeper.GetLatestPriceFromAssetAndSource(ctx, asset, source)
+}
+
+// Get Cascadia token PriceStatistics from Oracle KVstore
+func (k Keeper) GetPriceStatistics(ctx sdk.Context) (otypes.PriceStatistics, bool) {
+	return k.oracleKeeper.GetPriceStatistics(ctx)
+}
+
+// Set Cascadia token PriceStatistics in Oracke KVstore
+func (k Keeper) SetPriceStatistics(ctx sdk.Context, priceStatistics otypes.PriceStatistics) {
+	k.oracleKeeper.SetPriceStatistics(ctx, priceStatistics)
 }

@@ -42,7 +42,7 @@ var (
 	// PriceFeederKeyPrefix is the prefix to retrieve all PriceFeeder
 	PriceFeederKeyPrefix = "PriceFeeder/value/"
 	// PriceStatisticsKey is key to retrieve 360/180/90/30/14/7/1 day avg token prices
-	PriceStatisticsKey = "PriceStatistics/value/"
+	PriceStatisticsKeyPrefix = "PriceStatistics/"
 )
 
 func KeyPrefix(p string) []byte {
@@ -87,6 +87,13 @@ func PriceFeederKey(feeder string) []byte {
 	indexBytes := []byte(feeder)
 	key = append(key, indexBytes...)
 	key = append(key, []byte("/")...)
+
+	return key
+}
+
+// PriceStatisticsKey returns the store key to retrieve a PriceStatistics from the feeder fields
+func PriceStatisticsKey() []byte {
+	key := KeyPrefix(PriceStatisticsKeyPrefix)
 
 	return key
 }
