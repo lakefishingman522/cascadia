@@ -84,12 +84,12 @@ func (gs GenesisState) Validate() error {
 
 func DefaultPriceStatistics() PriceStatistics {
 	return PriceStatistics{
-		P360: sdk.NewDecWithPrec(0, 1),
-		P180: sdk.NewDecWithPrec(0, 1),
-		P90:  sdk.NewDecWithPrec(0, 1),
-		P30:  sdk.NewDecWithPrec(0, 1),
-		P14:  sdk.NewDecWithPrec(0, 1),
-		P7:   sdk.NewDecWithPrec(0, 1),
-		P1:   sdk.NewDecWithPrec(0, 1),
+		P360: sdk.NewDecWithPrec(1, 0),
+		P180: sdk.NewDecWithPrec(1, 0),
+		P90:  sdk.NewDecWithPrec(1, 0),
+		P30:  sdk.NewDecWithPrec(1, 0),
+		P14:  sdk.NewDecWithPrec(1, 0),
+		P7:   sdk.NewDecWithPrec(1, 0),
+		P1:   sdk.NewDecWithPrec(1, 0),
 	}
 }

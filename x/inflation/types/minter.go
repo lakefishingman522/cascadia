@@ -82,11 +82,31 @@ func (m Minter) _NextInflationRate(
 	// defined to be 13% per year, however the annual inflation is capped as between
 	// 7% and 20%.
 
-	// (1 - bondedRatio/GoalBonded) * InflationRateChange
-	inflationRateChangePerYear := sdk.OneDec().
-		Sub(bondedRatio.Quo(params.GoalBonded)).
+	// ( Σ w_i * p_i - 1 ) * InflationRateChange * Lambda
+	w := inflationControlParams
+	p := priceStatistics
+
+	// Calculate Inflation Rate Change/Year accroding to weights and tokenPriceStatistics
+	inflationRateChangePerYear := w.W360.Mul(p.P360).
+		Add(w.W180.Mul(p.P180)).
+		Add(w.W90.Mul(p.P90)).
+		Add(w.W30.Mul(p.P30)).
+		Add(w.W14.Mul(p.P14)).
+		Add(w.W7.Mul(p.P7)).
+		Add(w.W1.Mul(p.P1)).
+		Quo(w.W1.Add(w.W7.Add(w.W14.Add(w.W30.Add(w.W90.Add(w.W180.Add(w.W360))))))).
+		Sub(sdk.OneDec()).
+		Mul(w.Lambda).
 		Mul(params.InflationRateChange)
+
 	inflationRateChange := inflationRateChangePerYear.Quo(sdk.NewDec(int64(params.BlocksPerYear)))
+
+	fmt.Println("===============================w:", w)
+	fmt.Println("===============================p:", p)
+
+	fmt.Println("===============================inflationRateChange:", inflationRateChange)
+
+	fmt.Println("===============================inflation:", m.Inflation)
 
 	// adjust the new annual inflation for this next cycle
 	inflation := m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
