@@ -87,7 +87,7 @@ func (m Minter) _NextInflationRate(
 	p := priceStatistics
 
 	// Calculate Inflation Rate Change/Year accroding to weights and tokenPriceStatistics
-	inflationRateChangePerYear := w.W360.Mul(p.P360).
+	inflationRateChange := w.W360.Mul(p.P360).
 		Add(w.W180.Mul(p.P180)).
 		Add(w.W90.Mul(p.P90)).
 		Add(w.W30.Mul(p.P30)).
@@ -99,7 +99,7 @@ func (m Minter) _NextInflationRate(
 		Mul(w.Lambda).
 		Mul(params.InflationRateChange)
 
-	inflationRateChange := inflationRateChangePerYear.Quo(sdk.NewDec(int64(params.BlocksPerYear)))
+	// inflationRateChange := inflationRateChangePerYear.Quo(sdk.NewDec(int64(params.BlocksPerYear)))
 
 	fmt.Println("===============================w:", w)
 	fmt.Println("===============================p:", p)
