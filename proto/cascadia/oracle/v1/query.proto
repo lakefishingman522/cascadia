@@ -9,6 +9,7 @@ import "cascadia/oracle/v1/band_price.proto";
 import "cascadia/oracle/v1/asset_info.proto";
 import "cascadia/oracle/v1/price.proto";
 import "cascadia/oracle/v1/price_feeder.proto";
+import "cascadia/oracle/v1/price_statistics.proto";
 // this line is used by starport scaffolding # 1
 
 option go_package = "github.com/cascadiafoundation/cascadia/x/oracle/types";
@@ -51,6 +52,11 @@ service Query {
 	// Queries a list of PriceFeeder items.
 	rpc PriceFeederAll(QueryAllPriceFeederRequest) returns (QueryAllPriceFeederResponse) {
 		option (google.api.http).get = "/cascadia/oracle/price_feeder";
+	}
+
+	// Queries a PriceStatistics by index.
+	rpc PriceStatistics (QueryGetPriceStatisticsRequest) returns (QueryGetPriceStatisticsResponse) {
+		option (google.api.http).get = "/cascadia/oracle/price_statistics";  
 	}
 
 // this line is used by starport scaffolding # 2
@@ -129,3 +135,10 @@ message QueryAllPriceFeederResponse {
 }
 
 // this line is used by starport scaffolding # 3
+
+message QueryGetPriceStatisticsRequest {}
+
+message QueryGetPriceStatisticsResponse {
+  PriceStatistics PriceStatistics = 1 [(gogoproto.nullable) = false];
+}
+

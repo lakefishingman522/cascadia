@@ -538,12 +538,7 @@ func NewCascadia(
 		stakingKeeper, app.MsgServiceRouter(), govConfig, app.rewardKeeper, authAddr,
 	)
 
-	// Cascadia Keeper
-	app.InflationKeeper = inflationkeeper.NewKeeper(
-		appCodec, keys[inflationtypes.StoreKey], app.GetSubspace(inflationtypes.ModuleName),
-		stakingKeeper, app.AccountKeeper, app.BankKeeper, app.rewardKeeper,
-		authtypes.FeeCollectorName,
-	)
+	// ---------------------------- Cascadia Keepers -------------------------------------
 
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
@@ -666,6 +661,13 @@ func NewCascadia(
 
 	oracleIBCModule := oraclemodule.NewIBCModule(app.OracleKeeper)
 
+	app.InflationKeeper = inflationkeeper.NewKeeper(
+		appCodec, keys[inflationtypes.StoreKey], app.GetSubspace(inflationtypes.ModuleName),
+		stakingKeeper, app.AccountKeeper, app.OracleKeeper,
+		app.BankKeeper, app.rewardKeeper,
+		authtypes.FeeCollectorName,
+	)
+
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
 	app.CapabilityKeeper.Seal()
@@ -729,9 +731,9 @@ func NewCascadia(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Cascadia app modules
-		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, nil),
 		reward.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
 		oracleModule,
+		inflation.NewAppModule(appCodec, app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, app.OracleKeeper, nil),
 		sustainabilityModule,
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmTypes.ModuleName)),
 		// this line is used by starport scaffolding # stargate/app/appModule

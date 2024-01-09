@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 )
 
@@ -36,6 +37,7 @@ func DefaultGenesis() *GenesisState {
 			},
 		},
 		// this line is used by starport scaffolding # genesis/types/default
+		PriceStatistics: nil,
 	}
 }
 
@@ -78,4 +80,16 @@ func (gs GenesisState) Validate() error {
 	// this line is used by starport scaffolding # genesis/types/validate
 
 	return gs.Params.Validate()
+}
+
+func DefaultPriceStatistics() PriceStatistics {
+	return PriceStatistics{
+		P360: sdk.NewDecWithPrec(1, 0),
+		P180: sdk.NewDecWithPrec(1, 0),
+		P90:  sdk.NewDecWithPrec(1, 0),
+		P30:  sdk.NewDecWithPrec(1, 0),
+		P14:  sdk.NewDecWithPrec(1, 0),
+		P7:   sdk.NewDecWithPrec(1, 0),
+		P1:   sdk.NewDecWithPrec(1, 0),
+	}
 }

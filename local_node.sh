@@ -51,7 +51,7 @@ fi
 # Setup local node if overwrite is set to Yes, otherwise skip setup
 if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Remove the previous folder
-	rm -rf "$HOMEDIR"
+	sudo rm -rf "$HOMEDIR"
 
 	# Set client config
 	cascadiad config keyring-backend $KEYRING --home "$HOMEDIR"

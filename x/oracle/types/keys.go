@@ -28,6 +28,11 @@ const (
 )
 
 var (
+	MAX_CASCADIA_PRICE = sdk.NewDec(100000)
+	MIN_CASCADIA_PRICE = sdk.NewDec(10000)
+)
+
+var (
 	// PortKey defines the key to store the port ID in store
 	PortKey = KeyPrefix("oracle-port-")
 	// AssetInfoKeyPrefix is the prefix to retrieve all AssetInfo
@@ -36,6 +41,8 @@ var (
 	PriceKeyPrefix = "Price/value/"
 	// PriceFeederKeyPrefix is the prefix to retrieve all PriceFeeder
 	PriceFeederKeyPrefix = "PriceFeeder/value/"
+	// PriceStatisticsKey is key to retrieve 360/180/90/30/14/7/1 day avg token prices
+	PriceStatisticsKeyPrefix = "PriceStatistics/"
 )
 
 func KeyPrefix(p string) []byte {
@@ -59,6 +66,7 @@ func PriceKeyPrefixAsset(asset string) []byte {
 
 func PriceKeyPrefixAssetAndSource(asset, source string) []byte {
 	key := PriceKeyPrefixAsset(asset)
+	key = append(key, []byte("/")...)
 	key = append(key, source...)
 	return key
 }
@@ -79,6 +87,13 @@ func PriceFeederKey(feeder string) []byte {
 	indexBytes := []byte(feeder)
 	key = append(key, indexBytes...)
 	key = append(key, []byte("/")...)
+
+	return key
+}
+
+// PriceStatisticsKey returns the store key to retrieve a PriceStatistics from the feeder fields
+func PriceStatisticsKey() []byte {
+	key := KeyPrefix(PriceStatisticsKeyPrefix)
 
 	return key
 }

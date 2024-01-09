@@ -4,166 +4,6 @@ info:
   name: ''
   description: ''
 paths:
-  /cascadia/inflation/v1/annual_provisions:
-    get:
-      summary: AnnualProvisions current minting annual provisions value.
-      operationId: CascadiaInflationV1AnnualProvisions
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              annual_provisions:
-                type: string
-                format: byte
-                description: >-
-                  annual_provisions is the current minting annual provisions
-                  value.
-            description: |-
-              QueryAnnualProvisionsResponse is the response type for the
-              Query/AnnualProvisions RPC method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
-  /cascadia/inflation/v1/inflation_rate:
-    get:
-      summary: InflationRate retrieves the inflation rate of the current period.
-      operationId: CascadiaInflationV1InflationRate
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              inflation_rate:
-                type: string
-                title: >-
-                  inflation_rate by which the total supply increases within one
-                  period
-            description: >-
-              QueryInflationRateResponse is the response type for the
-              Query/InflationRate
-
-              RPC method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
-  /cascadia/inflation/v1/params:
-    get:
-      summary: Params retrieves the total set of minting parameters.
-      operationId: CascadiaInflationV1Params
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              params:
-                description: params defines the parameters of the module.
-                type: object
-                properties:
-                  mint_denom:
-                    type: string
-                    title: mint_denom specifies the type of coin to mint
-                  inflation_rate_change:
-                    type: string
-                    title: maximum annual change in inflation rate
-                  inflation_max:
-                    type: string
-                    title: maximum inflation rate
-                  inflation_min:
-                    type: string
-                    title: minimum inflation rate
-                  goal_bonded:
-                    type: string
-                    title: goal of percent bonded atoms
-                  blocks_per_year:
-                    type: string
-                    format: uint64
-                    title: expected blocks per year
-                  inflation_distribution:
-                    title: distribution of minted tokens
-                    type: object
-                    properties:
-                      staking_rewards:
-                        type: string
-                        title: >-
-                          staking_rewards defines the proportion of the minted
-                          minted_denom that is
-
-                          to be allocated as staking rewards
-                      vecontract_rewards:
-                        type: string
-                        title: >-
-                          vecontract_rewards defines the proportion of the
-                          minted minted_denom that is
-
-                          to be allocated to the ve-contract
-                      nprotocol_rewards:
-                        type: string
-                        title: >-
-                          nprotocol_rewards defines the proportion of the minted
-                          minted_denom that is
-
-                          to be allocated to the nprotocol
-            description: >-
-              QueryParamsResponse is the response type for the Query/Params RPC
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
   /cascadia/oracle/asset_info:
     get:
       summary: Queries a list of AssetInfo items.
@@ -791,6 +631,60 @@ paths:
           in: path
           required: true
           type: string
+      tags:
+        - Query
+  /cascadia/oracle/price_statistics:
+    get:
+      summary: Queries a PriceStatistics by index.
+      operationId: CascadiaOracleV1PriceStatistics
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              PriceStatistics:
+                type: object
+                properties:
+                  p360:
+                    type: string
+                    title: p360 defines avg Token Price of 360 days
+                  p180:
+                    type: string
+                    title: p180 defines avg Token Price of 180 days
+                  p90:
+                    type: string
+                    title: p180 defines avg Token Price of 90 days
+                  p30:
+                    type: string
+                    title: p30 defines avg Token Price of 30 days
+                  p14:
+                    type: string
+                    title: p14 defines avg Token Price of 14 days
+                  p7:
+                    type: string
+                    title: p7 defines avg Token Price of a week
+                  p1:
+                    type: string
+                    title: p1 defines avg Token Price of a day
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
       tags:
         - Query
   /cascadia/reward/params:
@@ -42064,156 +41958,488 @@ paths:
       tags:
         - Query
 definitions:
-  cascadia.inflation.v1.InflationDistribution:
+  cascadia.oracle.v1.AssetInfo:
     type: object
     properties:
-      staking_rewards:
+      denom:
         type: string
-        title: >-
-          staking_rewards defines the proportion of the minted minted_denom that
-          is
-
-          to be allocated as staking rewards
-      vecontract_rewards:
+      display:
         type: string
-        title: >-
-          vecontract_rewards defines the proportion of the minted minted_denom
-          that is
-
-          to be allocated to the ve-contract
-      nprotocol_rewards:
+      bandTicker:
         type: string
-        title: >-
-          nprotocol_rewards defines the proportion of the minted minted_denom
-          that is
-
-          to be allocated to the nprotocol
-  cascadia.inflation.v1.MsgUpdateParamsResponse:
-    type: object
-    description: |-
-      MsgUpdateParamsResponse defines the response structure for executing a
-      MsgUpdateParams message.
-  cascadia.inflation.v1.Params:
+      cascadiaTicker:
+        type: string
+  cascadia.oracle.v1.BandPriceCallData:
     type: object
     properties:
-      mint_denom:
-        type: string
-        title: mint_denom specifies the type of coin to mint
-      inflation_rate_change:
-        type: string
-        title: maximum annual change in inflation rate
-      inflation_max:
-        type: string
-        title: maximum inflation rate
-      inflation_min:
-        type: string
-        title: minimum inflation rate
-      goal_bonded:
-        type: string
-        title: goal of percent bonded atoms
-      blocks_per_year:
+      symbols:
+        type: array
+        items:
+          type: string
+      multiplier:
         type: string
         format: uint64
-        title: expected blocks per year
-      inflation_distribution:
-        title: distribution of minted tokens
+  cascadia.oracle.v1.BandPriceResult:
+    type: object
+    properties:
+      rates:
+        type: array
+        items:
+          type: string
+          format: uint64
+  cascadia.oracle.v1.MsgDeletePriceFeederResponse:
+    type: object
+  cascadia.oracle.v1.MsgFeedMultiplePricesResponse:
+    type: object
+  cascadia.oracle.v1.MsgFeedPriceResponse:
+    type: object
+  cascadia.oracle.v1.MsgRequestBandPriceResponse:
+    type: object
+  cascadia.oracle.v1.MsgSetPriceFeederResponse:
+    type: object
+  cascadia.oracle.v1.MsgUpdateChannelResponse:
+    type: object
+  cascadia.oracle.v1.Params:
+    type: object
+    properties:
+      band_channel_source:
+        type: string
+      oracle_script_id:
+        type: string
+        format: uint64
+      multiplier:
+        type: string
+        format: uint64
+      ask_count:
+        type: string
+        format: uint64
+      min_count:
+        type: string
+        format: uint64
+      fee_limit:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a token with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+      prepare_gas:
+        type: string
+        format: uint64
+      execute_gas:
+        type: string
+        format: uint64
+      client_id:
+        type: string
+      band_epoch:
+        type: string
+      price_expiry_time:
+        type: string
+        format: uint64
+    description: Params defines the parameters for the module.
+  cascadia.oracle.v1.Price:
+    type: object
+    properties:
+      asset:
+        type: string
+      price:
+        type: string
+      source:
+        type: string
+      provider:
+        type: string
+      timestamp:
+        type: string
+        format: uint64
+  cascadia.oracle.v1.PriceFeeder:
+    type: object
+    properties:
+      feeder:
+        type: string
+      is_active:
+        type: boolean
+  cascadia.oracle.v1.PriceStatistics:
+    type: object
+    properties:
+      p360:
+        type: string
+        title: p360 defines avg Token Price of 360 days
+      p180:
+        type: string
+        title: p180 defines avg Token Price of 180 days
+      p90:
+        type: string
+        title: p180 defines avg Token Price of 90 days
+      p30:
+        type: string
+        title: p30 defines avg Token Price of 30 days
+      p14:
+        type: string
+        title: p14 defines avg Token Price of 14 days
+      p7:
+        type: string
+        title: p7 defines avg Token Price of a week
+      p1:
+        type: string
+        title: p1 defines avg Token Price of a day
+  cascadia.oracle.v1.QueryAllAssetInfoResponse:
+    type: object
+    properties:
+      assetInfo:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            display:
+              type: string
+            bandTicker:
+              type: string
+            cascadiaTicker:
+              type: string
+      pagination:
         type: object
         properties:
-          staking_rewards:
+          next_key:
             type: string
-            title: >-
-              staking_rewards defines the proportion of the minted minted_denom
-              that is
-
-              to be allocated as staking rewards
-          vecontract_rewards:
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
             type: string
+            format: uint64
             title: >-
-              vecontract_rewards defines the proportion of the minted
-              minted_denom that is
+              total is total number of results available if
+              PageRequest.count_total
 
-              to be allocated to the ve-contract
-          nprotocol_rewards:
-            type: string
-            title: >-
-              nprotocol_rewards defines the proportion of the minted
-              minted_denom that is
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
 
-              to be allocated to the nprotocol
-    description: Params holds parameters for the inflation module.
-  cascadia.inflation.v1.QueryAnnualProvisionsResponse:
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  cascadia.oracle.v1.QueryAllPriceFeederResponse:
     type: object
     properties:
-      annual_provisions:
-        type: string
-        format: byte
-        description: annual_provisions is the current minting annual provisions value.
-    description: |-
-      QueryAnnualProvisionsResponse is the response type for the
-      Query/AnnualProvisions RPC method.
-  cascadia.inflation.v1.QueryInflationRateResponse:
+      priceFeeder:
+        type: array
+        items:
+          type: object
+          properties:
+            feeder:
+              type: string
+            is_active:
+              type: boolean
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  cascadia.oracle.v1.QueryAllPriceResponse:
     type: object
     properties:
-      inflation_rate:
-        type: string
-        title: inflation_rate by which the total supply increases within one period
-    description: >-
-      QueryInflationRateResponse is the response type for the
-      Query/InflationRate
+      price:
+        type: array
+        items:
+          type: object
+          properties:
+            asset:
+              type: string
+            price:
+              type: string
+            source:
+              type: string
+            provider:
+              type: string
+            timestamp:
+              type: string
+              format: uint64
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
 
-      RPC method.
-  cascadia.inflation.v1.QueryParamsResponse:
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  cascadia.oracle.v1.QueryBandPriceResponse:
+    type: object
+    properties:
+      result:
+        type: object
+        properties:
+          rates:
+            type: array
+            items:
+              type: string
+              format: uint64
+  cascadia.oracle.v1.QueryGetAssetInfoResponse:
+    type: object
+    properties:
+      assetInfo:
+        type: object
+        properties:
+          denom:
+            type: string
+          display:
+            type: string
+          bandTicker:
+            type: string
+          cascadiaTicker:
+            type: string
+  cascadia.oracle.v1.QueryGetPriceFeederResponse:
+    type: object
+    properties:
+      priceFeeder:
+        type: object
+        properties:
+          feeder:
+            type: string
+          is_active:
+            type: boolean
+  cascadia.oracle.v1.QueryGetPriceResponse:
+    type: object
+    properties:
+      price:
+        type: object
+        properties:
+          asset:
+            type: string
+          price:
+            type: string
+          source:
+            type: string
+          provider:
+            type: string
+          timestamp:
+            type: string
+            format: uint64
+  cascadia.oracle.v1.QueryGetPriceStatisticsResponse:
+    type: object
+    properties:
+      PriceStatistics:
+        type: object
+        properties:
+          p360:
+            type: string
+            title: p360 defines avg Token Price of 360 days
+          p180:
+            type: string
+            title: p180 defines avg Token Price of 180 days
+          p90:
+            type: string
+            title: p180 defines avg Token Price of 90 days
+          p30:
+            type: string
+            title: p30 defines avg Token Price of 30 days
+          p14:
+            type: string
+            title: p14 defines avg Token Price of 14 days
+          p7:
+            type: string
+            title: p7 defines avg Token Price of a week
+          p1:
+            type: string
+            title: p1 defines avg Token Price of a day
+  cascadia.oracle.v1.QueryLastBandRequestIdResponse:
+    type: object
+    properties:
+      request_id:
+        type: string
+        format: int64
+  cascadia.oracle.v1.QueryParamsResponse:
     type: object
     properties:
       params:
-        description: params defines the parameters of the module.
+        description: params holds all the parameters of this module.
         type: object
         properties:
-          mint_denom:
+          band_channel_source:
             type: string
-            title: mint_denom specifies the type of coin to mint
-          inflation_rate_change:
-            type: string
-            title: maximum annual change in inflation rate
-          inflation_max:
-            type: string
-            title: maximum inflation rate
-          inflation_min:
-            type: string
-            title: minimum inflation rate
-          goal_bonded:
-            type: string
-            title: goal of percent bonded atoms
-          blocks_per_year:
+          oracle_script_id:
             type: string
             format: uint64
-            title: expected blocks per year
-          inflation_distribution:
-            title: distribution of minted tokens
-            type: object
-            properties:
-              staking_rewards:
-                type: string
-                title: >-
-                  staking_rewards defines the proportion of the minted
-                  minted_denom that is
+          multiplier:
+            type: string
+            format: uint64
+          ask_count:
+            type: string
+            format: uint64
+          min_count:
+            type: string
+            format: uint64
+          fee_limit:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a token with a denomination and an amount.
 
-                  to be allocated as staking rewards
-              vecontract_rewards:
-                type: string
-                title: >-
-                  vecontract_rewards defines the proportion of the minted
-                  minted_denom that is
 
-                  to be allocated to the ve-contract
-              nprotocol_rewards:
-                type: string
-                title: >-
-                  nprotocol_rewards defines the proportion of the minted
-                  minted_denom that is
+                NOTE: The amount field is an Int which implements the custom
+                method
 
-                  to be allocated to the nprotocol
-    description: QueryParamsResponse is the response type for the Query/Params RPC method.
+                signatures required by gogoproto.
+          prepare_gas:
+            type: string
+            format: uint64
+          execute_gas:
+            type: string
+            format: uint64
+          client_id:
+            type: string
+          band_epoch:
+            type: string
+          price_expiry_time:
+            type: string
+            format: uint64
+    description: QueryParamsResponse is response type for the Query/Params RPC method.
+  cosmos.base.query.v1beta1.PageRequest:
+    type: object
+    properties:
+      key:
+        type: string
+        format: byte
+        description: |-
+          key is a value returned in PageResponse.next_key to begin
+          querying the next page most efficiently. Only one of offset or key
+          should be set.
+      offset:
+        type: string
+        format: uint64
+        description: |-
+          offset is a numeric offset that can be used when key is unavailable.
+          It is less efficient than using key. Only one of offset or key should
+          be set.
+      limit:
+        type: string
+        format: uint64
+        description: >-
+          limit is the total number of results to be returned in the result
+          page.
+
+          If left empty it will default to a value to be set by each app.
+      count_total:
+        type: boolean
+        description: >-
+          count_total is set to true  to indicate that the result set should
+          include
+
+          a count of the total number of items available for pagination in UIs.
+
+          count_total is only respected when offset is used. It is ignored when
+          key
+
+          is set.
+      reverse:
+        type: boolean
+        description: >-
+          reverse is set to true if results are to be returned in the descending
+          order.
+
+
+          Since: cosmos-sdk 0.43
+    description: |-
+      message SomeRequest {
+               Foo some_parameter = 1;
+               PageRequest pagination = 2;
+       }
+    title: |-
+      PageRequest is to be embedded in gRPC request messages for efficient
+      pagination. Ex:
+  cosmos.base.query.v1beta1.PageResponse:
+    type: object
+    properties:
+      next_key:
+        type: string
+        format: byte
+        description: |-
+          next_key is the key to be passed to PageRequest.key to
+          query the next page most efficiently. It will be empty if
+          there are no more results.
+      total:
+        type: string
+        format: uint64
+        title: |-
+          total is total number of results available if PageRequest.count_total
+          was set, its value is undefined otherwise
+    description: |-
+      PageResponse is to be embedded in gRPC response messages where the
+      corresponding request message has used PageRequest.
+
+       message SomeResponse {
+               repeated Bar results = 1;
+               PageResponse page = 2;
+       }
+  cosmos.base.v1beta1.Coin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      Coin defines a token with a denomination and an amount.
+
+      NOTE: The amount field is an Int which implements the custom method
+      signatures required by gogoproto.
   google.protobuf.Any:
     type: object
     properties:
@@ -42537,437 +42763,6 @@ definitions:
                   "@type": "type.googleapis.com/google.protobuf.Duration",
                   "value": "1.212s"
                 }
-  cascadia.oracle.v1.AssetInfo:
-    type: object
-    properties:
-      denom:
-        type: string
-      display:
-        type: string
-      bandTicker:
-        type: string
-      cascadiaTicker:
-        type: string
-  cascadia.oracle.v1.BandPriceCallData:
-    type: object
-    properties:
-      symbols:
-        type: array
-        items:
-          type: string
-      multiplier:
-        type: string
-        format: uint64
-  cascadia.oracle.v1.BandPriceResult:
-    type: object
-    properties:
-      rates:
-        type: array
-        items:
-          type: string
-          format: uint64
-  cascadia.oracle.v1.MsgDeletePriceFeederResponse:
-    type: object
-  cascadia.oracle.v1.MsgFeedMultiplePricesResponse:
-    type: object
-  cascadia.oracle.v1.MsgFeedPriceResponse:
-    type: object
-  cascadia.oracle.v1.MsgRequestBandPriceResponse:
-    type: object
-  cascadia.oracle.v1.MsgSetPriceFeederResponse:
-    type: object
-  cascadia.oracle.v1.MsgUpdateChannelResponse:
-    type: object
-  cascadia.oracle.v1.Params:
-    type: object
-    properties:
-      band_channel_source:
-        type: string
-      oracle_script_id:
-        type: string
-        format: uint64
-      multiplier:
-        type: string
-        format: uint64
-      ask_count:
-        type: string
-        format: uint64
-      min_count:
-        type: string
-        format: uint64
-      fee_limit:
-        type: array
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-            amount:
-              type: string
-          description: |-
-            Coin defines a token with a denomination and an amount.
-
-            NOTE: The amount field is an Int which implements the custom method
-            signatures required by gogoproto.
-      prepare_gas:
-        type: string
-        format: uint64
-      execute_gas:
-        type: string
-        format: uint64
-      client_id:
-        type: string
-      band_epoch:
-        type: string
-      price_expiry_time:
-        type: string
-        format: uint64
-    description: Params defines the parameters for the module.
-  cascadia.oracle.v1.Price:
-    type: object
-    properties:
-      asset:
-        type: string
-      price:
-        type: string
-      source:
-        type: string
-      provider:
-        type: string
-      timestamp:
-        type: string
-        format: uint64
-  cascadia.oracle.v1.PriceFeeder:
-    type: object
-    properties:
-      feeder:
-        type: string
-      is_active:
-        type: boolean
-  cascadia.oracle.v1.QueryAllAssetInfoResponse:
-    type: object
-    properties:
-      assetInfo:
-        type: array
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-            display:
-              type: string
-            bandTicker:
-              type: string
-            cascadiaTicker:
-              type: string
-      pagination:
-        type: object
-        properties:
-          next_key:
-            type: string
-            format: byte
-            description: |-
-              next_key is the key to be passed to PageRequest.key to
-              query the next page most efficiently. It will be empty if
-              there are no more results.
-          total:
-            type: string
-            format: uint64
-            title: >-
-              total is total number of results available if
-              PageRequest.count_total
-
-              was set, its value is undefined otherwise
-        description: |-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding request message has used PageRequest.
-
-           message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
-  cascadia.oracle.v1.QueryAllPriceFeederResponse:
-    type: object
-    properties:
-      priceFeeder:
-        type: array
-        items:
-          type: object
-          properties:
-            feeder:
-              type: string
-            is_active:
-              type: boolean
-      pagination:
-        type: object
-        properties:
-          next_key:
-            type: string
-            format: byte
-            description: |-
-              next_key is the key to be passed to PageRequest.key to
-              query the next page most efficiently. It will be empty if
-              there are no more results.
-          total:
-            type: string
-            format: uint64
-            title: >-
-              total is total number of results available if
-              PageRequest.count_total
-
-              was set, its value is undefined otherwise
-        description: |-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding request message has used PageRequest.
-
-           message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
-  cascadia.oracle.v1.QueryAllPriceResponse:
-    type: object
-    properties:
-      price:
-        type: array
-        items:
-          type: object
-          properties:
-            asset:
-              type: string
-            price:
-              type: string
-            source:
-              type: string
-            provider:
-              type: string
-            timestamp:
-              type: string
-              format: uint64
-      pagination:
-        type: object
-        properties:
-          next_key:
-            type: string
-            format: byte
-            description: |-
-              next_key is the key to be passed to PageRequest.key to
-              query the next page most efficiently. It will be empty if
-              there are no more results.
-          total:
-            type: string
-            format: uint64
-            title: >-
-              total is total number of results available if
-              PageRequest.count_total
-
-              was set, its value is undefined otherwise
-        description: |-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding request message has used PageRequest.
-
-           message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
-  cascadia.oracle.v1.QueryBandPriceResponse:
-    type: object
-    properties:
-      result:
-        type: object
-        properties:
-          rates:
-            type: array
-            items:
-              type: string
-              format: uint64
-  cascadia.oracle.v1.QueryGetAssetInfoResponse:
-    type: object
-    properties:
-      assetInfo:
-        type: object
-        properties:
-          denom:
-            type: string
-          display:
-            type: string
-          bandTicker:
-            type: string
-          cascadiaTicker:
-            type: string
-  cascadia.oracle.v1.QueryGetPriceFeederResponse:
-    type: object
-    properties:
-      priceFeeder:
-        type: object
-        properties:
-          feeder:
-            type: string
-          is_active:
-            type: boolean
-  cascadia.oracle.v1.QueryGetPriceResponse:
-    type: object
-    properties:
-      price:
-        type: object
-        properties:
-          asset:
-            type: string
-          price:
-            type: string
-          source:
-            type: string
-          provider:
-            type: string
-          timestamp:
-            type: string
-            format: uint64
-  cascadia.oracle.v1.QueryLastBandRequestIdResponse:
-    type: object
-    properties:
-      request_id:
-        type: string
-        format: int64
-  cascadia.oracle.v1.QueryParamsResponse:
-    type: object
-    properties:
-      params:
-        description: params holds all the parameters of this module.
-        type: object
-        properties:
-          band_channel_source:
-            type: string
-          oracle_script_id:
-            type: string
-            format: uint64
-          multiplier:
-            type: string
-            format: uint64
-          ask_count:
-            type: string
-            format: uint64
-          min_count:
-            type: string
-            format: uint64
-          fee_limit:
-            type: array
-            items:
-              type: object
-              properties:
-                denom:
-                  type: string
-                amount:
-                  type: string
-              description: >-
-                Coin defines a token with a denomination and an amount.
-
-
-                NOTE: The amount field is an Int which implements the custom
-                method
-
-                signatures required by gogoproto.
-          prepare_gas:
-            type: string
-            format: uint64
-          execute_gas:
-            type: string
-            format: uint64
-          client_id:
-            type: string
-          band_epoch:
-            type: string
-          price_expiry_time:
-            type: string
-            format: uint64
-    description: QueryParamsResponse is response type for the Query/Params RPC method.
-  cosmos.base.query.v1beta1.PageRequest:
-    type: object
-    properties:
-      key:
-        type: string
-        format: byte
-        description: |-
-          key is a value returned in PageResponse.next_key to begin
-          querying the next page most efficiently. Only one of offset or key
-          should be set.
-      offset:
-        type: string
-        format: uint64
-        description: |-
-          offset is a numeric offset that can be used when key is unavailable.
-          It is less efficient than using key. Only one of offset or key should
-          be set.
-      limit:
-        type: string
-        format: uint64
-        description: >-
-          limit is the total number of results to be returned in the result
-          page.
-
-          If left empty it will default to a value to be set by each app.
-      count_total:
-        type: boolean
-        description: >-
-          count_total is set to true  to indicate that the result set should
-          include
-
-          a count of the total number of items available for pagination in UIs.
-
-          count_total is only respected when offset is used. It is ignored when
-          key
-
-          is set.
-      reverse:
-        type: boolean
-        description: >-
-          reverse is set to true if results are to be returned in the descending
-          order.
-
-
-          Since: cosmos-sdk 0.43
-    description: |-
-      message SomeRequest {
-               Foo some_parameter = 1;
-               PageRequest pagination = 2;
-       }
-    title: |-
-      PageRequest is to be embedded in gRPC request messages for efficient
-      pagination. Ex:
-  cosmos.base.query.v1beta1.PageResponse:
-    type: object
-    properties:
-      next_key:
-        type: string
-        format: byte
-        description: |-
-          next_key is the key to be passed to PageRequest.key to
-          query the next page most efficiently. It will be empty if
-          there are no more results.
-      total:
-        type: string
-        format: uint64
-        title: |-
-          total is total number of results available if PageRequest.count_total
-          was set, its value is undefined otherwise
-    description: |-
-      PageResponse is to be embedded in gRPC response messages where the
-      corresponding request message has used PageRequest.
-
-       message SomeResponse {
-               repeated Bar results = 1;
-               PageResponse page = 2;
-       }
-  cosmos.base.v1beta1.Coin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      Coin defines a token with a denomination and an amount.
-
-      NOTE: The amount field is an Int which implements the custom method
-      signatures required by gogoproto.
   cascadia.reward.v1.GasFeeDistribution:
     type: object
     properties:
@@ -60336,6 +60131,26 @@ definitions:
       for executing a MsgStoreAndInstantiateContract message.
 
       Since: 0.40
+  cosmwasm.wasm.v1.MsgStoreAndMigrateContractResponse:
+    type: object
+    properties:
+      code_id:
+        type: string
+        format: uint64
+        title: CodeID is the reference to the stored WASM code
+      checksum:
+        type: string
+        format: byte
+        title: Checksum is the sha256 hash of the stored code
+      data:
+        type: string
+        format: byte
+        title: Data contains bytes to returned from the contract
+    description: |-
+      MsgStoreAndMigrateContractResponse defines the response structure
+      for executing a MsgStoreAndMigrateContract message.
+
+      Since: 0.42
   cosmwasm.wasm.v1.MsgStoreCodeResponse:
     type: object
     properties:
@@ -60370,6 +60185,9 @@ definitions:
   cosmwasm.wasm.v1.MsgUpdateAdminResponse:
     type: object
     title: MsgUpdateAdminResponse returns empty data
+  cosmwasm.wasm.v1.MsgUpdateContractLabelResponse:
+    type: object
+    title: MsgUpdateContractLabelResponse returns empty data
   cosmwasm.wasm.v1.MsgUpdateInstantiateConfigResponse:
     type: object
     title: MsgUpdateInstantiateConfigResponse returns empty data

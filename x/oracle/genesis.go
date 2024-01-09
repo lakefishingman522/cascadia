@@ -1,13 +1,19 @@
 package oracle
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cascadiafoundation/cascadia/x/oracle/keeper"
 	"github.com/cascadiafoundation/cascadia/x/oracle/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // InitGenesis initializes the module's state from a provided genesis state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
+
+	// Set if defined
+	if genState.PriceStatistics != nil {
+		k.SetPriceStatistics(ctx, *genState.PriceStatistics)
+	}
+
 	// Set all the assetInfo
 	for _, elem := range genState.AssetInfos {
 		k.SetAssetInfo(ctx, elem)
@@ -45,6 +51,12 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis.Prices = k.GetAllPrice(ctx)
 	genesis.PriceFeeders = k.GetAllPriceFeeder(ctx)
 	// this line is used by starport scaffolding # genesis/module/export
+
+	// Get all priceStatistics
+	priceStatistics, found := k.GetPriceStatistics(ctx)
+	if found {
+		genesis.PriceStatistics = &priceStatistics
+	}
 
 	return genesis
 }
