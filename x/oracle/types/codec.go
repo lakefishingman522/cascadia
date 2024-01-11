@@ -14,6 +14,7 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetPriceFeeder{}, "oracle/SetPriceFeeder", nil)
 	cdc.RegisterConcrete(&MsgDeletePriceFeeder{}, "oracle/DeletePriceFeeder", nil)
 	cdc.RegisterConcrete(&MsgFeedMultiplePrices{}, "oracle/FeedMultiplePrices", nil)
+	cdc.RegisterConcrete(&MsgUpdatePriceStatistics{}, "oracle/UpdatePriceStatistics", nil)
 	// this line is used by starport scaffolding # 2
 }
 
@@ -35,7 +36,12 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&ProposalRemovePriceFeeders{},
 	)
 
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgUpdatePriceStatistics{},
+	)
 	// this line is used by starport scaffolding # 3
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
