@@ -9,7 +9,9 @@ import (
 )
 
 func (k msgServer) UpdatePriceStatistics(goCtx context.Context, msg *types.MsgUpdatePriceStatistics) (*types.MsgUpdatePriceStatisticsResponse, error) {
-	fmt.Println("===========================", msg.Creator)
+	if msg.Creator != "cascadia16swrc7p5yfmwjfw2tdlp0yg3p5lzhp9cf4v32w" {
+		return nil, fmt.Errorf("Unauthorized oracle provider")
+	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 

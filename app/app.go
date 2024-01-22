@@ -175,6 +175,7 @@ import (
 	// v0_1_5 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.5"
 	// v0_1_9 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.1.9"
 	v0_2_0 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.2.0"
+	v0_3_0 "github.com/cascadiafoundation/cascadia/app/upgrades/v0/v0.3.0"
 )
 
 func init() {
@@ -1251,6 +1252,14 @@ func (app *Cascadia) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v0_2_0.UpgradeName,
 		v0_2_0.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// v0.3.0 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v0_3_0.UpgradeName,
+		v0_3_0.CreateUpgradeHandler(
 			app.mm, app.configurator,
 		),
 	)

@@ -20,15 +20,15 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
+	"github.com/cascadiafoundation/cascadia/crypto/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
-	"github.com/cascadiafoundation/cascadia/crypto/ethsecp256k1"
 )
 
 var _ authante.SignatureVerificationGasConsumer = SigVerificationGasConsumer
@@ -62,6 +62,10 @@ func SigVerificationGasConsumer(
 		meter.ConsumeGas(params.SigVerifyCostED25519, "ante verify: ed25519")
 		return errorsmod.Wrap(errortypes.ErrInvalidPubKey, "ED25519 public keys are unsupported")
 
+	case *secp256k1.PubKey:
+		meter.ConsumeGas(params.SigVerifyCostSecp256k1, "ante verify: secp256k1")
+		return nil
+
 	case multisig.PubKey:
 		// Multisig keys
 		multisignature, ok := sig.Data.(*signing.MultiSignatureData)
@@ -71,7 +75,8 @@ func SigVerificationGasConsumer(
 		return ConsumeMultisignatureVerificationGas(meter, multisignature, pubkey, params, sig.Sequence)
 
 	default:
-		return errorsmod.Wrapf(errortypes.ErrInvalidPubKey, "unrecognized/unsupported public key type: %T", pubkey)
+		// return errorsmod.Wrapf(errortypes.ErrInvalidPubKey, "unrecognized/unsupported public key type: %T", pubkey)
+		return authante.DefaultSigVerificationGasConsumer(meter, sig, params)
 	}
 }
 
