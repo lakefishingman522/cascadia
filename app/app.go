@@ -148,6 +148,7 @@ import (
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 
 	"github.com/cascadiafoundation/cascadia/x/inflation"
+	inflationclient "github.com/cascadiafoundation/cascadia/x/inflation/client"
 	inflationkeeper "github.com/cascadiafoundation/cascadia/x/inflation/keeper"
 	inflationtypes "github.com/cascadiafoundation/cascadia/x/inflation/types"
 
@@ -229,6 +230,9 @@ var (
 
 				ibcclientclient.UpdateClientProposalHandler,
 				ibcclientclient.UpgradeProposalHandler,
+
+				inflationclient.CreateInflationControlParamsProposalHandler,
+				inflationclient.UpdateInflationControlParamsProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -667,6 +671,7 @@ func NewCascadia(
 		app.BankKeeper, app.rewardKeeper,
 		authtypes.FeeCollectorName,
 	)
+	govRouter.AddRoute(inflationtypes.RouterKey, inflation.NewInflationControlParamsProposalHandler(app.InflationKeeper))
 
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`

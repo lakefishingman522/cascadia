@@ -1,0 +1,20 @@
+syntax = "proto3";
+package cascadia.inflation.v1;
+
+import "gogoproto/gogo.proto";
+
+import "cascadia/inflation/v1/inflation_params.proto";
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/inflation/types";
+
+message InflationCreateControlParamsProposal {
+    string title = 1;
+    string description = 2;
+    InflationControlParams controlParams = 3;
+}
+
+message InflationUpdateControlParamsProposal {
+    string title = 1;
+    string description = 2;
+    InflationControlParams controlParams = 3;
+}

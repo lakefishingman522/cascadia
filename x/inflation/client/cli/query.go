@@ -24,6 +24,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryParams(),
 		GetCmdQueryInflation(),
 		GetCmdQueryAnnualProvisions(),
+		GetCmdQueryInflationControlParams(),
 	)
 
 	return inflationQueryCmd
@@ -108,6 +109,33 @@ func GetCmdQueryAnnualProvisions() *cobra.Command {
 			}
 
 			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.AnnualProvisions))
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetCmdQueryInflationControlParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "inflation-control-params",
+		Short: "Query the current inflation control params",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryGetInflationControlParamsRequest{}
+			res, err := queryClient.InflationControlParams(cmd.Context(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintString(fmt.Sprintf("%s\n", res.InflationControlParams))
 		},
 	}
 

@@ -17,6 +17,8 @@ const (
 	QueryParameters       = "parameters"
 	QueryInflation        = "inflation"
 	QueryAnnualProvisions = "annual_provisions"
+
+	RouterKey = ModuleName
 )
 
 func KeyPrefix(p string) []byte {

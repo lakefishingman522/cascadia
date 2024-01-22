@@ -99,9 +99,9 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 
 // GetInflationControlParams returns the total set of inflation control parameters.
 func (k Keeper) GetInflationControlParams(ctx sdk.Context) (inflationcontrolparams types.InflationControlParams, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
 
-	b := store.Get(types.KeyPrefix(types.InflationControlParamsKey))
+	b := store.Get([]byte{0x00})
 	if b == nil {
 		return inflationcontrolparams, false
 	}
@@ -112,9 +112,9 @@ func (k Keeper) GetInflationControlParams(ctx sdk.Context) (inflationcontrolpara
 
 // SetInflationControlParams set inflation Control Params in the store
 func (k Keeper) SetInflationControlParams(ctx sdk.Context, inflationControlParams types.InflationControlParams) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InflationControlParamsKey))
 	b := k.cdc.MustMarshal(&inflationControlParams)
-	store.Set(types.KeyPrefix(types.InflationControlParamsKey), b)
+	store.Set([]byte{0x00}, b)
 }
 
 // StakingTokenSupply implements an alias call to the underlying staking keeper's
