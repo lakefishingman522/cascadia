@@ -70,6 +70,7 @@ func (m Minter) NextInflationRate(params Params, bondedRatio sdk.Dec, cascadiaco
 
 // _NextInflationRate returns the new inflation rate for the next hour.
 func (m Minter) _NextInflationRate(
+	ctx sdk.Context,
 	params Params,
 	bondedRatio sdk.Dec,
 	priceStatistics otypes.PriceStatistics,
@@ -108,8 +109,12 @@ func (m Minter) _NextInflationRate(
 
 	fmt.Println("===============================inflation:", m.Inflation)
 
+	inflation := m.Inflation
+	if ctx.BlockHeight()%21600 == 0 {
+		inflation = m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
+	}
+
 	// adjust the new annual inflation for this next cycle
-	inflation := m.Inflation.Add(inflationRateChange) // note inflationRateChange may be negative
 	if inflation.GT(params.InflationMax) {
 		inflation = params.InflationMax
 	}

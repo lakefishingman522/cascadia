@@ -34,14 +34,13 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&ProposalRemoveAssetInfo{},
 		&ProposalAddPriceFeeders{},
 		&ProposalRemovePriceFeeders{},
+		&UpdatePriceFeederInfoProposal{},
 	)
 
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgUpdatePriceStatistics{},
 	)
 	// this line is used by starport scaffolding # 3
-
-	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

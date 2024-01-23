@@ -8,10 +8,12 @@ import (
 
 // x/oracle module sentinel errors
 var (
-	ErrNotAvailable         = sdkerrors.Register(ModuleName, 1500, "sample error")
-	ErrInvalidPacketTimeout = sdkerrors.Register(ModuleName, 1501, "invalid packet timeout")
-	ErrInvalidVersion       = sdkerrors.Register(ModuleName, 1502, "invalid version")
-	ErrNotAPriceFeeder      = sdkerrors.Register(ModuleName, 1503, "not a price feeder")
-	ErrPriceFeederNotActive = sdkerrors.Register(ModuleName, 1504, "price feeder is not active")
-	ErrNotModuleAdmin       = sdkerrors.Register(ModuleName, 1505, "not a module admin")
+	ErrNotAvailable              = sdkerrors.Register(ModuleName, 1500, "sample error")
+	ErrInvalidPacketTimeout      = sdkerrors.Register(ModuleName, 1501, "invalid packet timeout")
+	ErrInvalidVersion            = sdkerrors.Register(ModuleName, 1502, "invalid version")
+	ErrNotAPriceFeeder           = sdkerrors.Register(ModuleName, 1503, "not a price feeder")
+	ErrPriceFeederNotActive      = sdkerrors.Register(ModuleName, 1504, "price feeder is not active")
+	ErrNotModuleAdmin            = sdkerrors.Register(ModuleName, 1505, "not a module admin")
+	ErrInvalidPricefeederName    = sdkerrors.Register(ModuleName, 1506, "pricefeeder name is nil")
+	ErrInvalidPricefeederAddress = sdkerrors.Register(ModuleName, 1507, "invalid pricefeeder address")
 )

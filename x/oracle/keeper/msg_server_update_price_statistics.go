@@ -9,11 +9,16 @@ import (
 )
 
 func (k msgServer) UpdatePriceStatistics(goCtx context.Context, msg *types.MsgUpdatePriceStatistics) (*types.MsgUpdatePriceStatisticsResponse, error) {
-	if msg.Creator != "cascadia16swrc7p5yfmwjfw2tdlp0yg3p5lzhp9cf4v32w" {
-		return nil, fmt.Errorf("Unauthorized oracle provider")
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	feeder, found := k.GetPriceFeederInfo(ctx, "inflation")
+	if !found {
+		return nil, fmt.Errorf("feeder not found")
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
+	if msg.Creator != feeder.Address {
+		return nil, fmt.Errorf("Unauthorized oracle provider")
+	}
 
 	// TODO: Handling the message
 	priceStatistics, found := k.GetPriceStatistics(ctx)

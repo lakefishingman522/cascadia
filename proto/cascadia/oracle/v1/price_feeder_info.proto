@@ -1,0 +1,11 @@
+syntax = "proto3";
+package cascadia.oracle.v1;
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/oracle/types";
+
+message PriceFeederInfo {
+  string name = 1; 
+  string address = 2; 
+  bool active = 3; 
+}
+

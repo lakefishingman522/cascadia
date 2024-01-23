@@ -27,7 +27,7 @@ func NewSubmitCreateInflationControlParamsProposalTxCmd() *cobra.Command {
 
 			from := clientCtx.GetFromAddress()
 
-			content, err := parseInflationControlParamsArgsToContent(cast.ToString(from), args)
+			content, err := parseCreateInflationControlParamsArgsToContent(cast.ToString(from), args)
 			if err != nil {
 				return err
 			}
@@ -68,7 +68,7 @@ func NewSubmitUpdateInflationControlParamsProposalTxCmd() *cobra.Command {
 
 			from := clientCtx.GetFromAddress()
 
-			content, err := parseInflationControlParamsArgsToContent(cast.ToString(from), args)
+			content, err := parseUpdateInflationControlParamsArgsToContent(cast.ToString(from), args)
 			if err != nil {
 				return err
 			}
@@ -96,7 +96,7 @@ func NewSubmitUpdateInflationControlParamsProposalTxCmd() *cobra.Command {
 	return cmd
 }
 
-func parseInflationControlParamsArgsToContent(from string, args []string) (govtypes.Content, error) {
+func parseCreateInflationControlParamsArgsToContent(from string, args []string) (govtypes.Content, error) {
 	title := args[0]
 
 	description := args[1]
@@ -135,10 +135,70 @@ func parseInflationControlParamsArgsToContent(from string, args []string) (govty
 		return nil, err
 	}
 
-	if w360.Add(w180.Add(w90.Add(w30.Add(w14.Add(w7.Add(w1)))))) != math.LegacyOneDec() {
+	if !(w360.Add(w180.Add(w90.Add(w30.Add(w14.Add(w7.Add(w1)))))).Equal(math.LegacyNewDec(1))) {
 		return nil, fmt.Errorf("sum of all weights must be one")
 	}
 	content := &types.InflationCreateControlParamsProposal{
+		Title:       title,
+		Description: description,
+		ControlParams: &types.InflationControlParams{
+			Lambda: lambda,
+			W360:   w360,
+			W180:   w180,
+			W90:    w90,
+			W30:    w30,
+			W14:    w14,
+			W7:     w7,
+			W1:     w1,
+		},
+	}
+
+	return content, nil
+}
+
+func parseUpdateInflationControlParamsArgsToContent(from string, args []string) (govtypes.Content, error) {
+	title := args[0]
+
+	description := args[1]
+
+	lambda, err := math.LegacyNewDecFromStr(args[2])
+	if err != nil {
+		return nil, err
+	}
+	// Get value arguments
+	w360, err := math.LegacyNewDecFromStr(args[3])
+	if err != nil {
+		return nil, err
+	}
+	w180, err := math.LegacyNewDecFromStr(args[4])
+	if err != nil {
+		return nil, err
+	}
+	w90, err := math.LegacyNewDecFromStr(args[5])
+	if err != nil {
+		return nil, err
+	}
+	w30, err := math.LegacyNewDecFromStr(args[6])
+	if err != nil {
+		return nil, err
+	}
+	w14, err := math.LegacyNewDecFromStr(args[7])
+	if err != nil {
+		return nil, err
+	}
+	w7, err := math.LegacyNewDecFromStr(args[8])
+	if err != nil {
+		return nil, err
+	}
+	w1, err := math.LegacyNewDecFromStr(args[9])
+	if err != nil {
+		return nil, err
+	}
+
+	if !(w360.Add(w180.Add(w90.Add(w30.Add(w14.Add(w7.Add(w1)))))).Equal(math.LegacyNewDec(1))) {
+		return nil, fmt.Errorf("sum of all weights must be one")
+	}
+	content := &types.InflationUpdateControlParamsProposal{
 		Title:       title,
 		Description: description,
 		ControlParams: &types.InflationControlParams{

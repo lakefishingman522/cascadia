@@ -1,11 +1,11 @@
 package oracle
 
 import (
+	"github.com/cascadiafoundation/cascadia/x/oracle/keeper"
+	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cascadiafoundation/cascadia/x/oracle/keeper"
-	"github.com/cascadiafoundation/cascadia/x/oracle/types"
 )
 
 func NewAssetInfoProposalHandler(k *keeper.Keeper) govtypes.Handler {
@@ -23,6 +23,9 @@ func NewAssetInfoProposalHandler(k *keeper.Keeper) govtypes.Handler {
 		case *types.ProposalRemovePriceFeeders:
 			return handleRemovePriceFeedersProposal(ctx, k, c)
 
+		case *types.UpdatePriceFeederInfoProposal:
+			return handlePriceFeederInfoProposal(ctx, k, c)
+
 		default:
 			return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized software upgrade proposal content type: %T", c)
 		}
@@ -31,9 +34,9 @@ func NewAssetInfoProposalHandler(k *keeper.Keeper) govtypes.Handler {
 
 func handleAddAssetInfoProposal(ctx sdk.Context, k *keeper.Keeper, p *types.ProposalAddAssetInfo) error {
 	k.SetAssetInfo(ctx, types.AssetInfo{
-		Denom:      p.Denom,
-		Display:    p.Display,
-		BandTicker: p.BandTicker,
+		Denom:          p.Denom,
+		Display:        p.Display,
+		BandTicker:     p.BandTicker,
 		CascadiaTicker: p.CascadiaTicker,
 	})
 	return nil
@@ -58,5 +61,12 @@ func handleRemovePriceFeedersProposal(ctx sdk.Context, k *keeper.Keeper, p *type
 	for _, feeder := range p.Feeders {
 		k.RemovePriceFeeder(ctx, feeder)
 	}
+	return nil
+}
+
+// handleUpdateSymbolRequestProposal is a function that handles the update symbol request proposal.
+func handlePriceFeederInfoProposal(ctx sdk.Context, k *keeper.Keeper, p *types.UpdatePriceFeederInfoProposal) error {
+	// Set the symbol requests in the keeper with the new symbol requests specified in the proposal.
+	k.SetPriceFeederInfo(ctx, p.PriceFeederInfo)
 	return nil
 }

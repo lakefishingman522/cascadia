@@ -22,7 +22,7 @@ func DefaultInflationCalculationFn(_ sdk.Context, minter Minter, params Params, 
 
 // DefaultInflationCalculationFn_ is the customized function used to calculation inflation
 func DefaultInflationCalculationFn_(ctx sdk.Context, minter Minter, params Params, bondedRatio sdk.Dec, priceStatistics otypes.PriceStatistics, inflationControlParams InflationControlParams) sdk.Dec {
-	return minter._NextInflationRate(params, bondedRatio, priceStatistics, inflationControlParams)
+	return minter._NextInflationRate(ctx, params, bondedRatio, priceStatistics, inflationControlParams)
 }
 
 // NewGenesisState creates a new GenesisState object

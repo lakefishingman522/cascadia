@@ -1,0 +1,20 @@
+syntax = "proto3";
+package cascadia.oracle.v1;
+
+option go_package = "github.com/cascadiafoundation/cascadia/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "cascadia/oracle/v1/price_feeder_info.proto";
+
+// UpdatePriceFeederInfoProposal is a message that represents a proposal to update
+// a pricefeeder info. It contains a title, description, and pricefeeder info
+// requests to be updated. Once approved, the data will update the PriceFeederInfo
+// in the state.
+message UpdatePriceFeederInfoProposal {
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+
+  PriceFeederInfo price_feeder_info = 3 [ (gogoproto.nullable) = false ];
+}

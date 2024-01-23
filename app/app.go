@@ -157,6 +157,7 @@ import (
 	rewardtypes "github.com/cascadiafoundation/cascadia/x/reward/types"
 
 	oraclemodule "github.com/cascadiafoundation/cascadia/x/oracle"
+	oracleclient "github.com/cascadiafoundation/cascadia/x/oracle/client"
 	oraclekeeper "github.com/cascadiafoundation/cascadia/x/oracle/keeper"
 	oracletypes "github.com/cascadiafoundation/cascadia/x/oracle/types"
 
@@ -234,6 +235,8 @@ var (
 
 				inflationclient.CreateInflationControlParamsProposalHandler,
 				inflationclient.UpdateInflationControlParamsProposalHandler,
+
+				oracleclient.PricefeedInfoProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -513,14 +516,6 @@ func NewCascadia(
 		appCodec, keys[ibcexported.StoreKey], app.GetSubspace(ibcexported.ModuleName), stakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
 	)
 
-	// register the proposal types
-	govRouter := govv1beta1.NewRouter()
-	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
-		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(&app.UpgradeKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
-		AddRoute(oracletypes.RouterKey, oraclemodule.NewAssetInfoProposalHandler(&app.OracleKeeper))
-
 	app.rewardKeeper = *rewardkeeper.NewKeeper(
 		appCodec,
 		keys[rewardtypes.StoreKey],
@@ -531,16 +526,6 @@ func NewCascadia(
 		app.EvmKeeper,
 		app.AccountKeeper,
 		authtypes.FeeCollectorName,
-	)
-
-	govConfig := govtypes.DefaultConfig()
-	/*
-		Example of setting gov params:
-		govConfig.MaxMetadataLen = 10000
-	*/
-	govKeeper := govkeeper.NewKeeper(
-		appCodec, keys[govtypes.StoreKey], app.AccountKeeper, app.BankKeeper,
-		stakingKeeper, app.MsgServiceRouter(), govConfig, app.rewardKeeper, authAddr,
 	)
 
 	// ---------------------------- Cascadia Keepers -------------------------------------
@@ -567,9 +552,6 @@ func NewCascadia(
 	)
 	sustainabilityModule := sustainabilitymodule.NewAppModule(appCodec, app.SustainabilityKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper)
 
-	app.GovKeeper = *govKeeper.SetHooks(
-		govtypes.NewMultiGovHooks(),
-	)
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
 			app.rewardKeeper.Hooks(),
@@ -672,7 +654,30 @@ func NewCascadia(
 		app.BankKeeper, app.rewardKeeper,
 		authtypes.FeeCollectorName,
 	)
-	govRouter.AddRoute(inflationtypes.RouterKey, inflation.NewInflationControlParamsProposalHandler(app.InflationKeeper))
+
+	// register the proposal types
+	govRouter := govv1beta1.NewRouter()
+	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
+		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
+		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(&app.UpgradeKeeper)).
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(oracletypes.RouterKey, oraclemodule.NewAssetInfoProposalHandler(&app.OracleKeeper)).
+		AddRoute(inflationtypes.RouterKey, inflation.NewInflationControlParamsProposalHandler(app.InflationKeeper))
+
+	govConfig := govtypes.DefaultConfig()
+	/*
+		Example of setting gov params:
+		govConfig.MaxMetadataLen = 10000
+	*/
+	govKeeper := govkeeper.NewKeeper(
+		appCodec, keys[govtypes.StoreKey], app.AccountKeeper, app.BankKeeper,
+		stakingKeeper, app.MsgServiceRouter(), govConfig, app.rewardKeeper, authAddr,
+	)
+	app.GovKeeper = *govKeeper.SetHooks(
+		govtypes.NewMultiGovHooks(),
+	)
+	// app.GovKeeper = *govKeeper
+	app.GovKeeper.SetLegacyRouter(govRouter)
 
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`

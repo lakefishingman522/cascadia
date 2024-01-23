@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -16,6 +17,7 @@ import (
 
 	// "github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cascadiafoundation/cascadia/x/oracle/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 var (
@@ -48,7 +50,7 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdFeedMultiplePrices())
 	cmd.AddCommand(CmdUpdateChannel())
 	cmd.AddCommand(CmdUpdatePriceStatistics())
-// this line is used by starport scaffolding # 1
+	// this line is used by starport scaffolding # 1
 
 	return cmd
 }
@@ -276,4 +278,73 @@ func CmdSubmitRemovePriceFeedersProposal() *cobra.Command {
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
+}
+
+func NewSubmitUpdatePriceFeederInfoProposalTxCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-pricefeeder-info-proposal [title] [description] [name] [address] [active]",
+		Short: "Submit a Update pricefeeder info proposal",
+		Args:  cobra.ExactArgs(5),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			content, err := parsePriceFeederInfoArgsToContent(cast.ToString(from), args)
+			if err != nil {
+				return err
+			}
+
+			depositCoinsDetail, err := cmd.Flags().GetString(cli.FlagDeposit)
+			if err != nil {
+				return err
+			}
+			deposit, err := sdk.ParseCoinsNormalized(depositCoinsDetail)
+			if err != nil {
+				return err
+			}
+
+			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().String(cli.FlagDeposit, "", "deposit of proposal")
+
+	return cmd
+}
+
+func parsePriceFeederInfoArgsToContent(from string, args []string) (govtypes.Content, error) {
+	title := args[0]
+
+	description := args[1]
+
+	name := args[2]
+
+	address := args[3]
+
+	isActive, err := cast.ToBoolE(args[4])
+	if err != nil {
+		return nil, err
+	}
+
+	priceFeedInfo := types.PriceFeederInfo{
+		Name:    name,
+		Address: address,
+		Active:  isActive,
+	}
+	content := &types.UpdatePriceFeederInfoProposal{
+		Title:           title,
+		Description:     description,
+		PriceFeederInfo: priceFeedInfo,
+	}
+
+	return content, nil
 }
