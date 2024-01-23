@@ -1265,7 +1265,7 @@ func (app *Cascadia) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v0_3_0.UpgradeName,
 		v0_3_0.CreateUpgradeHandler(
-			app.mm, app.configurator,
+			app.mm, app.configurator, app.OracleKeeper,
 		),
 	)
 

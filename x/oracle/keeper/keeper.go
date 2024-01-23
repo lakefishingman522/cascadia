@@ -113,3 +113,13 @@ func (k Keeper) SendOracleRequest(ctx sdk.Context) {
 
 	k.ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, params.BandChannelSource, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), packetData.GetBytes())
 }
+
+func (k Keeper) MigrateAddOracleProviderAddress(
+	ctx sdk.Context,
+) {
+	k.SetPriceFeederInfo(ctx, types.PriceFeederInfo{
+		Name:    "inflation",
+		Address: "cascadia16swrc7p5yfmwjfw2tdlp0yg3p5lzhp9cf4v32w",
+		Active:  true,
+	})
+}
